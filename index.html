@@ -63,6 +63,11 @@
     button.danger {
       background: #7f1d1d; border-color: #ef4444; color: #fecaca;
     }
+    .cloud-status {
+      font-size: 0.75rem;
+      color: var(--gold-light);
+      margin-left: 0.5rem;
+    }
     .app {
       display: grid; grid-template-columns: 240px 1fr;
       min-height: calc(100vh - 70px);
@@ -101,10 +106,6 @@
       background: var(--bg); border: 1px solid var(--border);
       color: var(--text); padding: 0.4rem 0.7rem;
       border-radius: 6px; font-size: 0.9rem; min-width: 180px;
-    }
-    .action-row {
-      display: flex; flex-wrap: wrap; gap: 0.6rem;
-      margin-bottom: 1.25rem;
     }
     .toggle-row {
       display: flex; align-items: center; gap: 0.6rem;
@@ -213,14 +214,11 @@
     .dash-card .time { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; }
     .dash-card .status { font-size: 0.8rem; color: var(--text-muted); }
     .dash-card .status.filled { color: var(--success); }
-
-    /* History */
     .history-list { display: flex; flex-direction: column; gap: 0.75rem; }
     .history-item {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 1rem;
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 1rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
     }
     .history-item:hover { border-color: var(--gold); }
     .history-item h3 { color: var(--gold-light); margin-bottom: 0.25rem; }
@@ -229,7 +227,6 @@
     .empty-history {
       text-align: center; padding: 3rem 1rem; color: var(--text-muted);
     }
-
     .toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
       background: var(--success); color: white;
@@ -253,7 +250,7 @@
     <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo" width="56" height="56" />
     <div class="header-text">
       <h1>Mr. Enciso’s Scholastic Batch</h1>
-      <p>La Viña Middle School · 8th Grade After-School Lesson Planner</p>
+      <p>La Viña Middle School · 8th Grade After-School Lesson Planner <span class="cloud-status" id="cloudStatus">• Connecting...</span></p>
     </div>
     <div class="header-actions">
       <button id="btnSave" class="primary">💾 Save</button>
@@ -297,13 +294,13 @@
       <div class="week-bar">
         <label for="weekOf">Week of:</label>
         <input type="text" id="weekOf" placeholder="e.g. Aug 4 – Aug 8, 2026" />
-        <button id="btnLoadWeek" class="primary">Load / Create</button>
+        <button id="btnLoadWeek" class="primary">Set Week Name</button>
         <span id="currentWeekLabel" style="margin-left:auto; font-size:0.85rem; color:var(--text-muted);"></span>
       </div>
 
       <div class="toggle-row">
         <input type="checkbox" id="toggleAttachments" />
-        <label for="toggleAttachments">Show File Attachment Zones (drag & drop worksheets)</label>
+        <label for="toggleAttachments">Show File Attachment Zones</label>
       </div>
 
       <div class="can-box">
@@ -312,13 +309,11 @@
         <p class="notice">Note: All times are subject to change.</p>
       </div>
 
-      <!-- DASHBOARD -->
       <section id="page-dashboard" class="page active">
         <h2 style="margin-bottom:1rem; color:var(--gold-light);">Week Overview</h2>
         <div class="dashboard-grid" id="dashboardGrid"></div>
       </section>
 
-      <!-- TIME BLOCKS -->
       <section id="page-sel" class="page">
         <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SEL / CHECK-IN <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">2:52 – 3:00</span></h2>
         <div class="days-grid" data-block="sel"></div>
@@ -339,11 +334,10 @@
         <div class="days-grid" data-block="spark"></div>
       </section>
 
-      <!-- HISTORY / ARCHIVE -->
       <section id="page-history" class="page">
         <h2 style="margin-bottom:1rem; color:var(--gold-light);">History / Archive</h2>
         <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-          Archived weeks are saved permanently in this browser. Click <strong>Load</strong> to reopen a past week.
+          Archived weeks are saved to the cloud and available on all your devices.
         </p>
         <div class="history-list" id="historyList"></div>
       </section>
@@ -353,6 +347,11 @@
   <div class="toast" id="toast">Saved</div>
 
   <script>
+    // ========== CLOUD CONFIG ==========
+    const BIN_ID = "6a6cfe28f5f4af5e29db8208";
+    const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
+    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
       sel: { name: "SEL / CHECK-IN", time: "2:52 – 3:00" },
@@ -363,7 +362,7 @@
 
     let currentWeek = "default";
     let data = { canFocus: "", blocks: {}, showAttachments: false };
-    let archive = {}; // { "Week of Aug 4": { canFocus, blocks, savedAt } }
+    let archive = {};
 
     function emptyBlock() {
       const d = {};
@@ -374,40 +373,99 @@
       Object.keys(BLOCKS).forEach(k => { if (!data.blocks[k]) data.blocks[k] = emptyBlock(); });
     }
 
-    // ---------- STORAGE ----------
-    function saveCurrent() {
+    // ========== CLOUD SYNC ==========
+    async function cloudLoad() {
+      try {
+        setCloudStatus("Loading from cloud...");
+        const res = await fetch(`${API_URL}/latest`, {
+          headers: { "X-Master-Key": MASTER_KEY }
+        });
+        if (!res.ok) throw new Error("Cloud load failed");
+        const json = await res.json();
+        const record = json.record || json;
+
+        currentWeek = record.currentWeek || "default";
+        data = record.data || { canFocus:"", blocks:{}, showAttachments:false };
+        archive = record.archive || {};
+        ensureData();
+
+        document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
+        document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Current week";
+        document.getElementById("canFocus").value = data.canFocus || "";
+        document.getElementById("toggleAttachments").checked = !!data.showAttachments;
+
+        renderAllDayGrids();
+        updateDashboard();
+        renderHistory();
+        setCloudStatus("• Cloud synced");
+        showToast("Loaded from cloud ✓");
+      } catch (err) {
+        console.error(err);
+        setCloudStatus("• Offline mode");
+        // fallback to local if needed
+        loadLocalFallback();
+      }
+    }
+
+    async function cloudSave() {
       collectFromDOM();
       data.showAttachments = document.getElementById("toggleAttachments").checked;
-      localStorage.setItem("scholastic-current", JSON.stringify({ week: currentWeek, data }));
-      localStorage.setItem("scholastic-archive", JSON.stringify(archive));
-      showToast("Progress saved ✓");
-      updateDashboard();
-      renderHistory();
-    }
-    function loadAll() {
+
+      const payload = {
+        currentWeek,
+        data,
+        archive
+      };
+
       try {
-        const cur = JSON.parse(localStorage.getItem("scholastic-current") || "null");
-        if (cur) {
-          currentWeek = cur.week || "default";
-          data = cur.data || { canFocus:"", blocks:{}, showAttachments:false };
-        }
-        archive = JSON.parse(localStorage.getItem("scholastic-archive") || "{}");
-      } catch(e) {
-        currentWeek = "default";
-        data = { canFocus:"", blocks:{}, showAttachments:false };
-        archive = {};
+        setCloudStatus("Saving to cloud...");
+        const res = await fetch(API_URL, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": MASTER_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Cloud save failed");
+        setCloudStatus("• Cloud synced");
+        showToast("Saved to cloud ✓");
+        // also keep local copy
+        localStorage.setItem("scholastic-backup", JSON.stringify(payload));
+      } catch (err) {
+        console.error(err);
+        setCloudStatus("• Save failed (offline?)");
+        localStorage.setItem("scholastic-backup", JSON.stringify(payload));
+        showToast("Saved locally (cloud offline)");
       }
-      ensureData();
-      document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
-      document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Current week (unsaved name)";
-      document.getElementById("canFocus").value = data.canFocus || "";
-      document.getElementById("toggleAttachments").checked = !!data.showAttachments;
-      renderAllDayGrids();
       updateDashboard();
       renderHistory();
     }
 
-    // ---------- ARCHIVE ----------
+    function loadLocalFallback() {
+      try {
+        const raw = localStorage.getItem("scholastic-backup");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          currentWeek = parsed.currentWeek || "default";
+          data = parsed.data || data;
+          archive = parsed.archive || {};
+          ensureData();
+          document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
+          document.getElementById("canFocus").value = data.canFocus || "";
+          document.getElementById("toggleAttachments").checked = !!data.showAttachments;
+          renderAllDayGrids();
+          updateDashboard();
+          renderHistory();
+        }
+      } catch(e) {}
+    }
+
+    function setCloudStatus(msg) {
+      document.getElementById("cloudStatus").textContent = msg;
+    }
+
+    // ========== ARCHIVE ==========
     function archiveCurrentWeek() {
       collectFromDOM();
       const name = document.getElementById("weekOf").value.trim() || currentWeek;
@@ -424,15 +482,13 @@
         savedAt: new Date().toLocaleString()
       };
       currentWeek = name;
-      localStorage.setItem("scholastic-archive", JSON.stringify(archive));
-      localStorage.setItem("scholastic-current", JSON.stringify({ week: currentWeek, data }));
       document.getElementById("currentWeekLabel").textContent = `Editing: ${name}`;
+      cloudSave();
       showToast(`Archived "${name}" ✓`);
-      renderHistory();
     }
 
     function startNewWeek() {
-      if (!confirm("Start a brand new week? Current progress will stay in History if you archived it.")) return;
+      if (!confirm("Start a brand new week? Make sure you archived the current one if you want to keep it.")) return;
       currentWeek = "default";
       data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
       ensureData();
@@ -441,13 +497,13 @@
       document.getElementById("canFocus").value = "";
       renderAllDayGrids();
       updateDashboard();
-      saveCurrent();
+      cloudSave();
       showToast("New week started");
     }
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
-      if (!confirm(`Load archived week "${name}"? Unsaved changes to the current week will be lost unless you archived them.`)) return;
+      if (!confirm(`Load archived week "${name}"?`)) return;
       currentWeek = name;
       data = {
         canFocus: archive[name].canFocus || "",
@@ -461,7 +517,7 @@
       document.getElementById("toggleAttachments").checked = data.showAttachments;
       renderAllDayGrids();
       updateDashboard();
-      saveCurrent();
+      cloudSave();
       switchPage("dashboard");
       showToast(`Loaded "${name}"`);
     }
@@ -469,8 +525,7 @@
     function deleteFromArchive(name) {
       if (!confirm(`Permanently delete archived week "${name}"?`)) return;
       delete archive[name];
-      localStorage.setItem("scholastic-archive", JSON.stringify(archive));
-      renderHistory();
+      cloudSave();
       showToast("Deleted from archive");
     }
 
@@ -478,7 +533,7 @@
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive).sort().reverse();
       if (keys.length === 0) {
-        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br>Use the <strong>📦 Archive Week</strong> button when you finish a week.</div>`;
+        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br>Use <strong>📦 Archive Week</strong> when you finish a week.</div>`;
         return;
       }
       list.innerHTML = keys.map(name => `
@@ -495,7 +550,7 @@
       `).join("");
     }
 
-    // ---------- EXISTING HELPERS ----------
+    // ========== HELPERS ==========
     function collectFromDOM() {
       data.canFocus = document.getElementById("canFocus").value;
       document.querySelectorAll(".days-grid").forEach(grid => {
@@ -524,12 +579,12 @@
       if (!data.blocks[blockKey]) data.blocks[blockKey] = emptyBlock();
       data.blocks[blockKey][day].noSchool = !data.blocks[blockKey][day].noSchool;
       renderAllDayGrids();
-      saveCurrent();
+      cloudSave();
     }
     function handleFile(blockKey, day, file) {
       if (!file) return;
-      if (file.size > 2 * 1024 * 1024) {
-        alert("File is too large (max 2 MB recommended).");
+      if (file.size > 1.5 * 1024 * 1024) {
+        alert("File is too large (max ~1.5 MB recommended for cloud storage).");
         return;
       }
       const reader = new FileReader();
@@ -538,7 +593,7 @@
         data.blocks[blockKey][day].fileName = file.name;
         data.blocks[blockKey][day].fileData = e.target.result;
         renderAllDayGrids();
-        saveCurrent();
+        cloudSave();
         showToast("File attached ✓");
       };
       reader.readAsDataURL(file);
@@ -548,7 +603,7 @@
       data.blocks[blockKey][day].fileName = "";
       data.blocks[blockKey][day].fileData = "";
       renderAllDayGrids();
-      saveCurrent();
+      cloudSave();
     }
     function renderDayCard(blockKey, day) {
       const e = (data.blocks[blockKey] && data.blocks[blockKey][day]) || {title:"",objective:"",activities:"",notes:"",noSchool:false,fileName:"",fileData:""};
@@ -641,13 +696,13 @@
       const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `Scholastic-Batch-Full-Backup.json`;
+      a.download = `Scholastic-Batch-Backup.json`;
       a.click();
     }
 
-    // Event listeners
+    // Events
     document.querySelectorAll(".nav-item").forEach(item => item.addEventListener("click", () => switchPage(item.dataset.page)));
-    document.getElementById("btnSave").addEventListener("click", saveCurrent);
+    document.getElementById("btnSave").addEventListener("click", cloudSave);
     document.getElementById("btnArchive").addEventListener("click", archiveCurrentWeek);
     document.getElementById("btnNewWeek").addEventListener("click", startNewWeek);
     document.getElementById("btnExport").addEventListener("click", exportJSON);
@@ -656,23 +711,22 @@
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? `Editing: ${w}` : "Current week";
-      saveCurrent();
-      showToast("Week name set");
+      cloudSave();
     });
     document.getElementById("toggleAttachments").addEventListener("change", () => {
       data.showAttachments = document.getElementById("toggleAttachments").checked;
       renderAllDayGrids();
-      saveCurrent();
+      cloudSave();
     });
     document.addEventListener("keydown", e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); saveCurrent(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); cloudSave(); }
     });
 
-    // Auto-save every 60 seconds
-    setInterval(saveCurrent, 60000);
+    // Auto-save every 90 seconds
+    setInterval(cloudSave, 90000);
 
-    // Initial load
-    loadAll();
+    // Start
+    cloudLoad();
   </script>
 </body>
 </html>
