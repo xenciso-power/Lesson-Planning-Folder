@@ -20,9 +20,7 @@
       --radius: 10px;
       --shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       background: var(--bg);
@@ -30,7 +28,6 @@
       line-height: 1.5;
       min-height: 100vh;
     }
-
     .header {
       background: linear-gradient(135deg, var(--navy-dark), var(--navy));
       border-bottom: 3px solid var(--gold);
@@ -43,7 +40,6 @@
       z-index: 100;
       box-shadow: var(--shadow);
     }
-
     .logo-img {
       width: 56px;
       height: 56px;
@@ -53,26 +49,21 @@
       border: 2px solid var(--gold);
       background: #000;
     }
-
     .header-text h1 {
       font-size: 1.25rem;
       font-weight: 700;
       color: white;
-      letter-spacing: 0.02em;
     }
     .header-text p {
       font-size: 0.8rem;
       color: var(--gold-light);
     }
-
     .header-actions {
       margin-left: auto;
       display: flex;
       gap: 0.5rem;
-      align-items: center;
     }
-
-    button, .btn {
+    button {
       background: var(--surface-2);
       color: var(--text);
       border: 1px solid var(--border);
@@ -80,13 +71,11 @@
       padding: 0.45rem 0.9rem;
       font-size: 0.85rem;
       cursor: pointer;
-      transition: all 0.15s ease;
       font-weight: 500;
     }
-    button:hover, .btn:hover {
+    button:hover {
       background: var(--navy);
       border-color: var(--gold);
-      color: white;
     }
     button.primary {
       background: var(--gold);
@@ -94,23 +83,17 @@
       border-color: var(--gold);
       font-weight: 600;
     }
-    button.primary:hover {
-      background: var(--gold-light);
-    }
-
     .app {
       display: grid;
       grid-template-columns: 240px 1fr;
       min-height: calc(100vh - 70px);
     }
-
     .sidebar {
       background: var(--surface);
       border-right: 1px solid var(--border);
       padding: 1rem 0.75rem;
       overflow-y: auto;
     }
-
     .sidebar h2 {
       font-size: 0.7rem;
       text-transform: uppercase;
@@ -118,7 +101,6 @@
       color: var(--text-muted);
       margin: 0 0.5rem 0.75rem;
     }
-
     .nav-item {
       display: flex;
       flex-direction: column;
@@ -128,44 +110,18 @@
       cursor: pointer;
       margin-bottom: 0.35rem;
       border: 1px solid transparent;
-      transition: all 0.15s;
     }
-    .nav-item:hover {
-      background: var(--surface-2);
-    }
+    .nav-item:hover { background: var(--surface-2); }
     .nav-item.active {
       background: var(--navy);
       border-color: var(--gold);
     }
-    .nav-item .block-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .nav-item .block-time {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .nav-item.active .block-time {
-      color: var(--gold-light);
-    }
-
-    .content {
-      padding: 1.25rem 1.5rem;
-      overflow-y: auto;
-    }
-
-    .page {
-      display: none;
-    }
-    .page.active {
-      display: block;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    .nav-item .block-name { font-weight: 600; font-size: 0.9rem; }
+    .nav-item .block-time { font-size: 0.75rem; color: var(--text-muted); }
+    .nav-item.active .block-time { color: var(--gold-light); }
+    .content { padding: 1.25rem 1.5rem; overflow-y: auto; }
+    .page { display: none; }
+    .page.active { display: block; }
     .week-bar {
       display: flex;
       flex-wrap: wrap;
@@ -177,12 +133,8 @@
       border-radius: var(--radius);
       border: 1px solid var(--border);
     }
-    .week-bar label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--gold-light);
-    }
-    .week-bar input[type="text"] {
+    .week-bar label { font-size: 0.85rem; font-weight: 600; color: var(--gold-light); }
+    .week-bar input {
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
@@ -191,11 +143,6 @@
       font-size: 0.9rem;
       min-width: 160px;
     }
-    .week-bar input:focus {
-      outline: 2px solid var(--gold);
-      border-color: var(--gold);
-    }
-
     .can-box {
       background: linear-gradient(135deg, rgba(31,78,121,0.35), rgba(30,41,59,0.8));
       border: 1px solid var(--gold);
@@ -218,33 +165,24 @@
       border-radius: 6px;
       padding: 0.6rem 0.8rem;
       font-size: 0.9rem;
-      resize: vertical;
       min-height: 60px;
       font-family: inherit;
     }
-    .can-box textarea:focus {
-      outline: 2px solid var(--gold);
-    }
-
     .days-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 1rem;
     }
-
     .day-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
     }
     .day-card-header {
       background: var(--navy-dark);
       padding: 0.55rem 0.85rem;
       font-weight: 600;
-      font-size: 0.9rem;
       border-bottom: 2px solid var(--gold);
     }
     .day-card-body {
@@ -252,19 +190,15 @@
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
-      flex: 1;
     }
-
     .field label {
       display: block;
       font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
       color: var(--text-muted);
       margin-bottom: 0.2rem;
     }
-    .field input,
-    .field textarea {
+    .field input, .field textarea {
       width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -273,17 +207,8 @@
       padding: 0.45rem 0.6rem;
       font-size: 0.85rem;
       font-family: inherit;
-      resize: vertical;
     }
-    .field textarea {
-      min-height: 70px;
-    }
-    .field input:focus,
-    .field textarea:focus {
-      outline: 2px solid var(--gold);
-      border-color: var(--gold);
-    }
-
+    .field textarea { min-height: 70px; }
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -295,31 +220,12 @@
       border-radius: var(--radius);
       padding: 1rem;
       cursor: pointer;
-      transition: all 0.15s;
     }
-    .dash-card:hover {
-      border-color: var(--gold);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-    .dash-card h3 {
-      color: var(--gold-light);
-      font-size: 1rem;
-      margin-bottom: 0.25rem;
-    }
-    .dash-card .time {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 0.6rem;
-    }
-    .dash-card .status {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .dash-card .status.filled {
-      color: var(--success);
-    }
-
+    .dash-card:hover { border-color: var(--gold); }
+    .dash-card h3 { color: var(--gold-light); margin-bottom: 0.25rem; }
+    .dash-card .time { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+    .dash-card .status { font-size: 0.8rem; color: var(--text-muted); }
+    .dash-card .status.filled { color: var(--success); }
     .toast {
       position: fixed;
       bottom: 1.5rem;
@@ -329,22 +235,13 @@
       padding: 0.7rem 1.2rem;
       border-radius: 8px;
       font-weight: 600;
-      box-shadow: var(--shadow);
       opacity: 0;
-      transform: translateY(20px);
       transition: all 0.25s ease;
       z-index: 200;
-      pointer-events: none;
     }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
+    .toast.show { opacity: 1; }
     @media (max-width: 800px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
+      .app { grid-template-columns: 1fr; }
       .sidebar {
         display: flex;
         overflow-x: auto;
@@ -354,22 +251,13 @@
         border-bottom: 1px solid var(--border);
       }
       .sidebar h2 { display: none; }
-      .nav-item {
-        flex-shrink: 0;
-        min-width: 120px;
-        margin-bottom: 0;
-      }
-    }
-
-    @media print {
-      .sidebar, .header-actions, .week-bar button { display: none !important; }
-      .app { grid-template-columns: 1fr; }
+      .nav-item { flex-shrink: 0; min-width: 120px; margin-bottom: 0; }
     }
   </style>
 </head>
 <body>
   <header class="header">
-    <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo – Mr. Enciso" width="56" height="56" />
+    <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo" width="56" height="56" />
     <div class="header-text">
       <h1>Mr. Enciso’s POWER Program</h1>
       <p>La Viña Middle School · 8th Grade After-School Lesson Planner</p>
@@ -424,7 +312,7 @@
 
       <div class="can-box">
         <h3>C.A.N. Standards Focus</h3>
-        <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus or alignment notes here…"></textarea>
+        <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
       </div>
 
       <section id="page-dashboard" class="page active">
@@ -444,7 +332,6 @@
 
       <section id="page-intervention" class="page">
         <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">INTERVENTION <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">3:00 – 3:45</span></h2>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">Best block for full POWER SEL lessons</p>
         <div class="days-grid" data-block="intervention"></div>
       </section>
 
@@ -468,7 +355,7 @@
   <div class="toast" id="toast">Saved</div>
 
   <script>
-    const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
       supper: { name: "SUPPER", time: "2:32 – 2:50" },
       sel: { name: "SEL / CHECK-IN", time: "2:52 – 3:00" },
@@ -477,27 +364,17 @@
       spark: { name: "SPARK", time: "4:19 – 5:00" },
       snack: { name: "SNACK / DISMISSAL", time: "5:00 – 5:15" }
     };
-
-    let currentWeek = "";
-    let data = { canFocus: "", blocks: {} };
+    let currentWeek = "", data = { canFocus: "", blocks: {} };
 
     function emptyBlock() {
       const d = {};
-      DAYS.forEach(day => {
-        d[day] = { title: "", objective: "", activities: "", notes: "" };
-      });
+      DAYS.forEach(day => d[day] = { title:"", objective:"", activities:"", notes:"" });
       return d;
     }
-
     function ensureData() {
-      Object.keys(BLOCKS).forEach(key => {
-        if (!data.blocks[key]) data.blocks[key] = emptyBlock();
-      });
+      Object.keys(BLOCKS).forEach(k => { if (!data.blocks[k]) data.blocks[k] = emptyBlock(); });
     }
-
-    function storageKey(week) {
-      return `power-plan::${week || "default"}`;
-    }
+    function storageKey(w) { return `power-plan::${w || "default"}`; }
 
     function saveData() {
       collectFromDOM();
@@ -505,29 +382,21 @@
       showToast("Saved ✓");
       updateDashboard();
     }
-
     function loadData(week) {
       currentWeek = week || "default";
-      localStorage.setItem("power-plan::lastWeek", currentWeek);
       const raw = localStorage.getItem(storageKey(currentWeek));
-      if (raw) {
-        try { data = JSON.parse(raw); } catch (e) { data = { canFocus: "", blocks: {} }; }
-      } else {
-        data = { canFocus: "", blocks: {} };
-      }
+      data = raw ? JSON.parse(raw) : { canFocus:"", blocks:{} };
       ensureData();
       document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
-      document.getElementById("currentWeekLabel").textContent = currentWeek && currentWeek !== "default" ? `Editing: ${currentWeek}` : "Using default week data";
+      document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Using default week data";
       document.getElementById("canFocus").value = data.canFocus || "";
       renderAllDayGrids();
       updateDashboard();
     }
-
     function collectFromDOM() {
       data.canFocus = document.getElementById("canFocus").value;
       document.querySelectorAll(".days-grid").forEach(grid => {
         const block = grid.dataset.block;
-        if (!block) return;
         if (!data.blocks[block]) data.blocks[block] = emptyBlock();
         grid.querySelectorAll(".day-card").forEach(card => {
           const day = card.dataset.day;
@@ -540,118 +409,69 @@
         });
       });
     }
-
     function escapeHtml(str) {
-      if (!str) return "";
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return (str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
-
     function renderDayCard(blockKey, day) {
-      const entry = (data.blocks[blockKey] && data.blocks[blockKey][day]) || { title: "", objective: "", activities: "", notes: "" };
-      return `
-        <div class="day-card" data-day="${day}">
-          <div class="day-card-header"><span>${day}</span></div>
-          <div class="day-card-body">
-            <div class="field">
-              <label>Lesson / Activity Title</label>
-              <input type="text" data-field="title" value="${escapeHtml(entry.title)}" placeholder="Title…" />
-            </div>
-            <div class="field">
-              <label>Objective / Focus</label>
-              <input type="text" data-field="objective" value="${escapeHtml(entry.objective)}" placeholder="What students will…" />
-            </div>
-            <div class="field">
-              <label>Activities / Content</label>
-              <textarea data-field="activities" placeholder="What you will do…">${escapeHtml(entry.activities)}</textarea>
-            </div>
-            <div class="field">
-              <label>Notes / Materials</label>
-              <textarea data-field="notes" rows="2" placeholder="Materials, differentiation, reminders…">${escapeHtml(entry.notes)}</textarea>
-            </div>
-          </div>
-        </div>
-      `;
+      const e = (data.blocks[blockKey] && data.blocks[blockKey][day]) || {title:"",objective:"",activities:"",notes:""};
+      return `<div class="day-card" data-day="${day}">
+        <div class="day-card-header">${day}</div>
+        <div class="day-card-body">
+          <div class="field"><label>Lesson / Activity Title</label><input type="text" data-field="title" value="${escapeHtml(e.title)}" placeholder="Title…"></div>
+          <div class="field"><label>Objective / Focus</label><input type="text" data-field="objective" value="${escapeHtml(e.objective)}" placeholder="What students will…"></div>
+          <div class="field"><label>Activities / Content</label><textarea data-field="activities" placeholder="What you will do…">${escapeHtml(e.activities)}</textarea></div>
+          <div class="field"><label>Notes / Materials</label><textarea data-field="notes" rows="2" placeholder="Materials, notes…">${escapeHtml(e.notes)}</textarea></div>
+        </div></div>`;
     }
-
     function renderAllDayGrids() {
       document.querySelectorAll(".days-grid").forEach(grid => {
-        const block = grid.dataset.block;
-        if (!block) return;
-        grid.innerHTML = DAYS.map(day => renderDayCard(block, day)).join("");
+        grid.innerHTML = DAYS.map(d => renderDayCard(grid.dataset.block, d)).join("");
       });
     }
-
     function updateDashboard() {
       const grid = document.getElementById("dashboardGrid");
       grid.innerHTML = Object.entries(BLOCKS).map(([key, info]) => {
-        const blockData = data.blocks[key] || emptyBlock();
+        const bd = data.blocks[key] || emptyBlock();
         let filled = 0;
-        DAYS.forEach(d => {
-          const e = blockData[d];
-          if (e && (e.title || e.objective || e.activities || e.notes)) filled++;
-        });
-        const statusClass = filled > 0 ? "filled" : "";
-        const statusText = filled === 0 ? "No lessons yet" : `${filled} of 5 days planned`;
-        return `
-          <div class="dash-card" data-goto="${key}">
-            <h3>${info.name}</h3>
-            <div class="time">${info.time}</div>
-            <div class="status ${statusClass}">${statusText}</div>
-          </div>
-        `;
+        DAYS.forEach(d => { const e = bd[d]; if (e && (e.title||e.objective||e.activities||e.notes)) filled++; });
+        return `<div class="dash-card" data-goto="${key}">
+          <h3>${info.name}</h3>
+          <div class="time">${info.time}</div>
+          <div class="status ${filled>0?"filled":""}">${filled===0?"No lessons yet":filled+" of 5 days planned"}</div>
+        </div>`;
       }).join("");
-
-      grid.querySelectorAll(".dash-card").forEach(card => {
-        card.addEventListener("click", () => switchPage(card.dataset.goto));
-      });
+      grid.querySelectorAll(".dash-card").forEach(c => c.addEventListener("click", () => switchPage(c.dataset.goto)));
     }
-
-    function switchPage(pageId) {
+    function switchPage(id) {
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
       document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-      const page = document.getElementById(`page-${pageId}`);
-      if (page) page.classList.add("active");
-      const nav = document.querySelector(`.nav-item[data-page="${pageId}"]`);
-      if (nav) nav.classList.add("active");
+      document.getElementById(`page-${id}`)?.classList.add("active");
+      document.querySelector(`.nav-item[data-page="${id}"]`)?.classList.add("active");
     }
-
     function showToast(msg) {
       const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.classList.add("show");
+      t.textContent = msg; t.classList.add("show");
       setTimeout(() => t.classList.remove("show"), 1800);
     }
-
     function exportJSON() {
       collectFromDOM();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+      const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `POWER-Plan-${currentWeek || "default"}.json`;
+      a.href = URL.createObjectURL(blob);
+      a.download = `POWER-Plan-${currentWeek||"default"}.json`;
       a.click();
-      URL.revokeObjectURL(url);
-      showToast("Exported");
     }
 
-    document.querySelectorAll(".nav-item").forEach(item => {
-      item.addEventListener("click", () => switchPage(item.dataset.page));
-    });
-
+    document.querySelectorAll(".nav-item").forEach(item => item.addEventListener("click", () => switchPage(item.dataset.page)));
     document.getElementById("btnSave").addEventListener("click", saveData);
     document.getElementById("btnExport").addEventListener("click", exportJSON);
     document.getElementById("btnPrint").addEventListener("click", () => window.print());
     document.getElementById("btnLoadWeek").addEventListener("click", () => {
-      const week = document.getElementById("weekOf").value.trim() || "default";
-      loadData(week);
-      showToast(week === "default" ? "Loaded default" : `Loaded ${week}`);
+      const w = document.getElementById("weekOf").value.trim() || "default";
+      loadData(w);
     });
-
-    document.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        saveData();
-      }
+    document.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); saveData(); }
     });
 
     loadData("default");
