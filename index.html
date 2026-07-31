@@ -48,7 +48,7 @@
     }
     .header-text h1 { font-size: 1.25rem; font-weight: 700; color: white; }
     .header-text p { font-size: 0.8rem; color: var(--gold-light); }
-    .header-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .header-actions { margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; }
     button {
       background: var(--surface-2); color: var(--text);
       border: 1px solid var(--border); border-radius: 6px;
@@ -59,6 +59,9 @@
     button.primary {
       background: var(--gold); color: #1a1a1a;
       border-color: var(--gold); font-weight: 600;
+    }
+    button.danger {
+      background: #7f1d1d; border-color: #ef4444; color: #fecaca;
     }
     .app {
       display: grid; grid-template-columns: 240px 1fr;
@@ -89,7 +92,7 @@
     .page.active { display: block; }
     .week-bar {
       display: flex; flex-wrap: wrap; gap: 0.75rem;
-      align-items: center; margin-bottom: 1.25rem;
+      align-items: center; margin-bottom: 1rem;
       padding: 0.85rem 1rem; background: var(--surface);
       border-radius: var(--radius); border: 1px solid var(--border);
     }
@@ -97,7 +100,11 @@
     .week-bar input {
       background: var(--bg); border: 1px solid var(--border);
       color: var(--text); padding: 0.4rem 0.7rem;
-      border-radius: 6px; font-size: 0.9rem; min-width: 160px;
+      border-radius: 6px; font-size: 0.9rem; min-width: 180px;
+    }
+    .action-row {
+      display: flex; flex-wrap: wrap; gap: 0.6rem;
+      margin-bottom: 1.25rem;
     }
     .toggle-row {
       display: flex; align-items: center; gap: 0.6rem;
@@ -170,22 +177,14 @@
       font-size: 0.85rem; font-family: inherit;
     }
     .field textarea { min-height: 70px; }
-
-    /* File drop zone */
     .drop-zone {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 0.9rem;
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
+      border: 2px dashed var(--border); border-radius: 8px;
+      padding: 0.9rem; text-align: center; font-size: 0.8rem;
+      color: var(--text-muted); cursor: pointer; transition: all 0.2s;
       background: rgba(0,0,0,0.15);
     }
     .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--gold);
-      background: rgba(212,175,55,0.08);
+      border-color: var(--gold); background: rgba(212,175,55,0.08);
       color: var(--gold-light);
     }
     .drop-zone input[type="file"] { display: none; }
@@ -200,7 +199,6 @@
       background: transparent; border: none; color: #f87171;
       font-size: 1rem; cursor: pointer; padding: 0 4px;
     }
-
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -215,6 +213,23 @@
     .dash-card .time { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; }
     .dash-card .status { font-size: 0.8rem; color: var(--text-muted); }
     .dash-card .status.filled { color: var(--success); }
+
+    /* History */
+    .history-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .history-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 1rem;
+    }
+    .history-item:hover { border-color: var(--gold); }
+    .history-item h3 { color: var(--gold-light); margin-bottom: 0.25rem; }
+    .history-item .meta { font-size: 0.8rem; color: var(--text-muted); }
+    .history-actions { display: flex; gap: 0.5rem; }
+    .empty-history {
+      text-align: center; padding: 3rem 1rem; color: var(--text-muted);
+    }
+
     .toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
       background: var(--success); color: white;
@@ -242,6 +257,8 @@
     </div>
     <div class="header-actions">
       <button id="btnSave" class="primary">💾 Save</button>
+      <button id="btnArchive">📦 Archive Week</button>
+      <button id="btnNewWeek">🆕 New Week</button>
       <button id="btnExport">⬇ Export</button>
       <button id="btnPrint">🖨 Print</button>
     </div>
@@ -270,6 +287,10 @@
         <span class="block-name">SPARK</span>
         <span class="block-time">4:19 – 5:00</span>
       </div>
+      <div class="nav-item" data-page="history" style="margin-top:1.5rem;">
+        <span class="block-name">📁 History / Archive</span>
+        <span class="block-time">Past weeks</span>
+      </div>
     </nav>
 
     <main class="content">
@@ -291,11 +312,13 @@
         <p class="notice">Note: All times are subject to change.</p>
       </div>
 
+      <!-- DASHBOARD -->
       <section id="page-dashboard" class="page active">
         <h2 style="margin-bottom:1rem; color:var(--gold-light);">Week Overview</h2>
         <div class="dashboard-grid" id="dashboardGrid"></div>
       </section>
 
+      <!-- TIME BLOCKS -->
       <section id="page-sel" class="page">
         <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SEL / CHECK-IN <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">2:52 – 3:00</span></h2>
         <div class="days-grid" data-block="sel"></div>
@@ -315,6 +338,15 @@
         <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SPARK <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">4:19 – 5:00</span></h2>
         <div class="days-grid" data-block="spark"></div>
       </section>
+
+      <!-- HISTORY / ARCHIVE -->
+      <section id="page-history" class="page">
+        <h2 style="margin-bottom:1rem; color:var(--gold-light);">History / Archive</h2>
+        <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
+          Archived weeks are saved permanently in this browser. Click <strong>Load</strong> to reopen a past week.
+        </p>
+        <div class="history-list" id="historyList"></div>
+      </section>
     </main>
   </div>
 
@@ -328,37 +360,142 @@
       enrichment: { name: "ENRICHMENT", time: "3:49 – 4:15" },
       spark: { name: "SPARK", time: "4:19 – 5:00" }
     };
-    let currentWeek = "", data = { canFocus: "", blocks: {}, showAttachments: false };
+
+    let currentWeek = "default";
+    let data = { canFocus: "", blocks: {}, showAttachments: false };
+    let archive = {}; // { "Week of Aug 4": { canFocus, blocks, savedAt } }
 
     function emptyBlock() {
       const d = {};
-      DAYS.forEach(day => d[day] = { title:"", objective:"", activities:"", notes:"", noSchool: false, fileName: "", fileData: "" });
+      DAYS.forEach(day => d[day] = { title:"", objective:"", activities:"", notes:"", noSchool:false, fileName:"", fileData:"" });
       return d;
     }
     function ensureData() {
       Object.keys(BLOCKS).forEach(k => { if (!data.blocks[k]) data.blocks[k] = emptyBlock(); });
     }
-    function storageKey(w) { return `scholastic-batch::${w || "default"}`; }
 
-    function saveData() {
+    // ---------- STORAGE ----------
+    function saveCurrent() {
       collectFromDOM();
       data.showAttachments = document.getElementById("toggleAttachments").checked;
-      localStorage.setItem(storageKey(currentWeek), JSON.stringify(data));
-      showToast("Saved ✓");
+      localStorage.setItem("scholastic-current", JSON.stringify({ week: currentWeek, data }));
+      localStorage.setItem("scholastic-archive", JSON.stringify(archive));
+      showToast("Progress saved ✓");
       updateDashboard();
+      renderHistory();
     }
-    function loadData(week) {
-      currentWeek = week || "default";
-      const raw = localStorage.getItem(storageKey(currentWeek));
-      data = raw ? JSON.parse(raw) : { canFocus:"", blocks:{}, showAttachments: false };
+    function loadAll() {
+      try {
+        const cur = JSON.parse(localStorage.getItem("scholastic-current") || "null");
+        if (cur) {
+          currentWeek = cur.week || "default";
+          data = cur.data || { canFocus:"", blocks:{}, showAttachments:false };
+        }
+        archive = JSON.parse(localStorage.getItem("scholastic-archive") || "{}");
+      } catch(e) {
+        currentWeek = "default";
+        data = { canFocus:"", blocks:{}, showAttachments:false };
+        archive = {};
+      }
       ensureData();
       document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
-      document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Using default week data";
+      document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Current week (unsaved name)";
       document.getElementById("canFocus").value = data.canFocus || "";
       document.getElementById("toggleAttachments").checked = !!data.showAttachments;
       renderAllDayGrids();
       updateDashboard();
+      renderHistory();
     }
+
+    // ---------- ARCHIVE ----------
+    function archiveCurrentWeek() {
+      collectFromDOM();
+      const name = document.getElementById("weekOf").value.trim() || currentWeek;
+      if (!name || name === "default") {
+        alert("Please enter a week name first (e.g. Aug 4 – Aug 8, 2026)");
+        return;
+      }
+      if (archive[name] && !confirm(`"${name}" already exists in archive. Overwrite it?`)) return;
+
+      archive[name] = {
+        canFocus: data.canFocus,
+        blocks: JSON.parse(JSON.stringify(data.blocks)),
+        showAttachments: data.showAttachments,
+        savedAt: new Date().toLocaleString()
+      };
+      currentWeek = name;
+      localStorage.setItem("scholastic-archive", JSON.stringify(archive));
+      localStorage.setItem("scholastic-current", JSON.stringify({ week: currentWeek, data }));
+      document.getElementById("currentWeekLabel").textContent = `Editing: ${name}`;
+      showToast(`Archived "${name}" ✓`);
+      renderHistory();
+    }
+
+    function startNewWeek() {
+      if (!confirm("Start a brand new week? Current progress will stay in History if you archived it.")) return;
+      currentWeek = "default";
+      data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
+      ensureData();
+      document.getElementById("weekOf").value = "";
+      document.getElementById("currentWeekLabel").textContent = "New blank week";
+      document.getElementById("canFocus").value = "";
+      renderAllDayGrids();
+      updateDashboard();
+      saveCurrent();
+      showToast("New week started");
+    }
+
+    function loadFromArchive(name) {
+      if (!archive[name]) return;
+      if (!confirm(`Load archived week "${name}"? Unsaved changes to the current week will be lost unless you archived them.`)) return;
+      currentWeek = name;
+      data = {
+        canFocus: archive[name].canFocus || "",
+        blocks: JSON.parse(JSON.stringify(archive[name].blocks)),
+        showAttachments: !!archive[name].showAttachments
+      };
+      ensureData();
+      document.getElementById("weekOf").value = name;
+      document.getElementById("currentWeekLabel").textContent = `Editing: ${name}`;
+      document.getElementById("canFocus").value = data.canFocus;
+      document.getElementById("toggleAttachments").checked = data.showAttachments;
+      renderAllDayGrids();
+      updateDashboard();
+      saveCurrent();
+      switchPage("dashboard");
+      showToast(`Loaded "${name}"`);
+    }
+
+    function deleteFromArchive(name) {
+      if (!confirm(`Permanently delete archived week "${name}"?`)) return;
+      delete archive[name];
+      localStorage.setItem("scholastic-archive", JSON.stringify(archive));
+      renderHistory();
+      showToast("Deleted from archive");
+    }
+
+    function renderHistory() {
+      const list = document.getElementById("historyList");
+      const keys = Object.keys(archive).sort().reverse();
+      if (keys.length === 0) {
+        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br>Use the <strong>📦 Archive Week</strong> button when you finish a week.</div>`;
+        return;
+      }
+      list.innerHTML = keys.map(name => `
+        <div class="history-item">
+          <div>
+            <h3>${escapeHtml(name)}</h3>
+            <div class="meta">Saved: ${archive[name].savedAt || "Unknown"}</div>
+          </div>
+          <div class="history-actions">
+            <button class="primary" onclick="loadFromArchive('${escapeHtml(name)}')">Load</button>
+            <button class="danger" onclick="deleteFromArchive('${escapeHtml(name)}')">Delete</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // ---------- EXISTING HELPERS ----------
     function collectFromDOM() {
       data.canFocus = document.getElementById("canFocus").value;
       document.querySelectorAll(".days-grid").forEach(grid => {
@@ -387,12 +524,12 @@
       if (!data.blocks[blockKey]) data.blocks[blockKey] = emptyBlock();
       data.blocks[blockKey][day].noSchool = !data.blocks[blockKey][day].noSchool;
       renderAllDayGrids();
-      saveData();
+      saveCurrent();
     }
     function handleFile(blockKey, day, file) {
       if (!file) return;
       if (file.size > 2 * 1024 * 1024) {
-        alert("File is too large (max 2 MB recommended for browser storage).");
+        alert("File is too large (max 2 MB recommended).");
         return;
       }
       const reader = new FileReader();
@@ -401,7 +538,7 @@
         data.blocks[blockKey][day].fileName = file.name;
         data.blocks[blockKey][day].fileData = e.target.result;
         renderAllDayGrids();
-        saveData();
+        saveCurrent();
         showToast("File attached ✓");
       };
       reader.readAsDataURL(file);
@@ -411,7 +548,7 @@
       data.blocks[blockKey][day].fileName = "";
       data.blocks[blockKey][day].fileData = "";
       renderAllDayGrids();
-      saveData();
+      saveCurrent();
     }
     function renderDayCard(blockKey, day) {
       const e = (data.blocks[blockKey] && data.blocks[blockKey][day]) || {title:"",objective:"",activities:"",notes:"",noSchool:false,fileName:"",fileData:""};
@@ -500,31 +637,42 @@
     }
     function exportJSON() {
       collectFromDOM();
-      const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+      const payload = { currentWeek, data, archive };
+      const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `Scholastic-Batch-${currentWeek||"default"}.json`;
+      a.download = `Scholastic-Batch-Full-Backup.json`;
       a.click();
     }
 
+    // Event listeners
     document.querySelectorAll(".nav-item").forEach(item => item.addEventListener("click", () => switchPage(item.dataset.page)));
-    document.getElementById("btnSave").addEventListener("click", saveData);
+    document.getElementById("btnSave").addEventListener("click", saveCurrent);
+    document.getElementById("btnArchive").addEventListener("click", archiveCurrentWeek);
+    document.getElementById("btnNewWeek").addEventListener("click", startNewWeek);
     document.getElementById("btnExport").addEventListener("click", exportJSON);
     document.getElementById("btnPrint").addEventListener("click", () => window.print());
     document.getElementById("btnLoadWeek").addEventListener("click", () => {
       const w = document.getElementById("weekOf").value.trim() || "default";
-      loadData(w);
+      currentWeek = w;
+      document.getElementById("currentWeekLabel").textContent = w !== "default" ? `Editing: ${w}` : "Current week";
+      saveCurrent();
+      showToast("Week name set");
     });
     document.getElementById("toggleAttachments").addEventListener("change", () => {
       data.showAttachments = document.getElementById("toggleAttachments").checked;
       renderAllDayGrids();
-      saveData();
+      saveCurrent();
     });
     document.addEventListener("keydown", e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); saveData(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); saveCurrent(); }
     });
 
-    loadData("default");
+    // Auto-save every 60 seconds
+    setInterval(saveCurrent, 60000);
+
+    // Initial load
+    loadAll();
   </script>
 </body>
 </html>
