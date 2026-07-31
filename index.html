@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mr. Enciso’s POWER Program – Lesson Planner</title>
+  <title>Mr. Enciso’s Scholastic Batch – Lesson Planner</title>
   <style>
     :root {
       --navy: #1F4E79;
@@ -259,7 +259,7 @@
   <header class="header">
     <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo" width="56" height="56" />
     <div class="header-text">
-      <h1>Mr. Enciso’s POWER Program</h1>
+      <h1>Mr. Enciso’s Scholastic Batch</h1>
       <p>La Viña Middle School · 8th Grade After-School Lesson Planner</p>
     </div>
     <div class="header-actions">
@@ -276,10 +276,6 @@
         <span class="block-name">📊 Dashboard</span>
         <span class="block-time">Week overview</span>
       </div>
-      <div class="nav-item" data-page="supper">
-        <span class="block-name">SUPPER</span>
-        <span class="block-time">2:32 – 2:50</span>
-      </div>
       <div class="nav-item" data-page="sel">
         <span class="block-name">SEL / CHECK-IN</span>
         <span class="block-time">2:52 – 3:00</span>
@@ -295,10 +291,6 @@
       <div class="nav-item" data-page="spark">
         <span class="block-name">SPARK</span>
         <span class="block-time">4:19 – 5:00</span>
-      </div>
-      <div class="nav-item" data-page="snack">
-        <span class="block-name">SNACK / DISMISSAL</span>
-        <span class="block-time">5:00 – 5:15</span>
       </div>
     </nav>
 
@@ -320,11 +312,6 @@
         <div class="dashboard-grid" id="dashboardGrid"></div>
       </section>
 
-      <section id="page-supper" class="page">
-        <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SUPPER <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">2:32 – 2:50</span></h2>
-        <div class="days-grid" data-block="supper"></div>
-      </section>
-
       <section id="page-sel" class="page">
         <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SEL / CHECK-IN <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">2:52 – 3:00</span></h2>
         <div class="days-grid" data-block="sel"></div>
@@ -344,11 +331,6 @@
         <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SPARK <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">4:19 – 5:00</span></h2>
         <div class="days-grid" data-block="spark"></div>
       </section>
-
-      <section id="page-snack" class="page">
-        <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SNACK / DISMISSAL <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">5:00 – 5:15</span></h2>
-        <div class="days-grid" data-block="snack"></div>
-      </section>
     </main>
   </div>
 
@@ -357,12 +339,10 @@
   <script>
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
-      supper: { name: "SUPPER", time: "2:32 – 2:50" },
       sel: { name: "SEL / CHECK-IN", time: "2:52 – 3:00" },
       intervention: { name: "INTERVENTION", time: "3:00 – 3:45" },
       enrichment: { name: "ENRICHMENT", time: "3:49 – 4:15" },
-      spark: { name: "SPARK", time: "4:19 – 5:00" },
-      snack: { name: "SNACK / DISMISSAL", time: "5:00 – 5:15" }
+      spark: { name: "SPARK", time: "4:19 – 5:00" }
     };
     let currentWeek = "", data = { canFocus: "", blocks: {} };
 
@@ -458,7 +438,7 @@
       const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `POWER-Plan-${currentWeek||"default"}.json`;
+      a.download = `Scholastic-Batch-${currentWeek||"default"}.json`;
       a.click();
     }
 
