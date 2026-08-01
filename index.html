@@ -234,6 +234,105 @@
       font-weight: 600; opacity: 0; transition: all 0.25s ease; z-index: 200;
     }
     .toast.show { opacity: 1; }
+
+    /* ========== PRINTABLE REPORT ========== */
+    .print-report {
+      display: none;
+      background: white;
+      color: #111;
+      padding: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .print-report h1 {
+      font-size: 1.5rem;
+      color: #1F4E79;
+      border-bottom: 3px solid #D4AF37;
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .print-report .meta {
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+      color: #333;
+    }
+    .print-report .can-focus {
+      background: #f8fafc;
+      border-left: 4px solid #D4AF37;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+    .print-day {
+      page-break-inside: avoid;
+      margin-bottom: 1.75rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .print-day-header {
+      background: #1F4E79;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .print-day-header.no-school {
+      background: #6b7280;
+    }
+    .print-block {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .print-block:last-child { border-bottom: none; }
+    .print-block-title {
+      font-weight: 700;
+      color: #1F4E79;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+    .print-block-time {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 0.4rem;
+    }
+    .print-field {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+    .print-field strong {
+      color: #334155;
+    }
+    .print-no-school-note {
+      background: #fef2f2;
+      color: #991b1b;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    .print-footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 0.75rem;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      .print-report, .print-report * { visibility: visible; }
+      .print-report {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+        color: black;
+      }
+      .no-print { display: none !important; }
+    }
+
     @media (max-width: 800px) {
       .app { grid-template-columns: 1fr; }
       .sidebar {
@@ -246,22 +345,22 @@
   </style>
 </head>
 <body>
-  <header class="header">
+  <header class="header no-print">
     <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo" width="56" height="56" />
     <div class="header-text">
       <h1>Mr. Enciso’s Scholastic Batch</h1>
       <p>La Viña Middle School · 8th Grade After-School Lesson Planner <span class="cloud-status" id="cloudStatus">• Connecting...</span></p>
     </div>
     <div class="header-actions">
-      <button id="btnSave" class="primary">💾 Save</button>
+      <button id="btnSave" class="primary">💾 Save Progress</button>
       <button id="btnArchive">📦 Archive Week</button>
       <button id="btnNewWeek">🆕 New Week</button>
+      <button id="btnPrintReport">📄 Printable Report</button>
       <button id="btnExport">⬇ Export</button>
-      <button id="btnPrint">🖨 Print</button>
     </div>
   </header>
 
-  <div class="app">
+  <div class="app no-print">
     <nav class="sidebar">
       <h2>Time Blocks</h2>
       <div class="nav-item active" data-page="dashboard">
@@ -337,12 +436,15 @@
       <section id="page-history" class="page">
         <h2 style="margin-bottom:1rem; color:var(--gold-light);">History / Archive</h2>
         <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-          Archived weeks are saved to the cloud and available on all your devices.
+          Archived weeks are saved to the cloud and available on all your devices. Load any past week to view or continue editing.
         </p>
         <div class="history-list" id="historyList"></div>
       </section>
     </main>
   </div>
+
+  <!-- PRINTABLE REPORT (hidden until needed) -->
+  <div class="print-report" id="printReport"></div>
 
   <div class="toast" id="toast">Saved</div>
 
@@ -402,7 +504,6 @@
       } catch (err) {
         console.error(err);
         setCloudStatus("• Offline mode");
-        // fallback to local if needed
         loadLocalFallback();
       }
     }
@@ -411,11 +512,7 @@
       collectFromDOM();
       data.showAttachments = document.getElementById("toggleAttachments").checked;
 
-      const payload = {
-        currentWeek,
-        data,
-        archive
-      };
+      const payload = { currentWeek, data, archive };
 
       try {
         setCloudStatus("Saving to cloud...");
@@ -429,8 +526,7 @@
         });
         if (!res.ok) throw new Error("Cloud save failed");
         setCloudStatus("• Cloud synced");
-        showToast("Saved to cloud ✓");
-        // also keep local copy
+        showToast("Progress saved ✓");
         localStorage.setItem("scholastic-backup", JSON.stringify(payload));
       } catch (err) {
         console.error(err);
@@ -470,7 +566,7 @@
       collectFromDOM();
       const name = document.getElementById("weekOf").value.trim() || currentWeek;
       if (!name || name === "default") {
-        alert("Please enter a week name first (e.g. Aug 4 – Aug 8, 2026)");
+        alert("Please enter a week name first (example: Aug 4 – Aug 8, 2026)");
         return;
       }
       if (archive[name] && !confirm(`"${name}" already exists in archive. Overwrite it?`)) return;
@@ -484,11 +580,11 @@
       currentWeek = name;
       document.getElementById("currentWeekLabel").textContent = `Editing: ${name}`;
       cloudSave();
-      showToast(`Archived "${name}" ✓`);
+      showToast(`Week archived: ${name}`);
     }
 
     function startNewWeek() {
-      if (!confirm("Start a brand new week? Make sure you archived the current one if you want to keep it.")) return;
+      if (!confirm("Start a brand new week?\n\nMake sure you clicked “Archive Week” first if you want to keep the current plans.")) return;
       currentWeek = "default";
       data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
       ensureData();
@@ -503,7 +599,7 @@
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
-      if (!confirm(`Load archived week "${name}"?`)) return;
+      if (!confirm(`Load archived week "${name}"?\n\nAny unsaved changes to the current week will be replaced.`)) return;
       currentWeek = name;
       data = {
         canFocus: archive[name].canFocus || "",
@@ -519,7 +615,7 @@
       updateDashboard();
       cloudSave();
       switchPage("dashboard");
-      showToast(`Loaded "${name}"`);
+      showToast(`Loaded: ${name}`);
     }
 
     function deleteFromArchive(name) {
@@ -533,7 +629,7 @@
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive).sort().reverse();
       if (keys.length === 0) {
-        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br>Use <strong>📦 Archive Week</strong> when you finish a week.</div>`;
+        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br><br>When you finish planning a week, click <strong>📦 Archive Week</strong>.</div>`;
         return;
       }
       list.innerHTML = keys.map(name => `
@@ -548,6 +644,97 @@
           </div>
         </div>
       `).join("");
+    }
+
+    // ========== PRINTABLE REPORT ==========
+    function generatePrintReport() {
+      collectFromDOM();
+      const weekName = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
+      const canFocus = data.canFocus || "—";
+
+      let html = `
+        <h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>
+        <div class="meta">
+          <strong>Week of:</strong> ${escapeHtml(weekName)}<br>
+          <strong>School:</strong> La Viña Middle School · 8th Grade After-School Program<br>
+          <strong>Generated:</strong> ${new Date().toLocaleString()}
+        </div>
+        <div class="can-focus">
+          <strong>C.A.N. Standards Focus:</strong><br>
+          ${escapeHtml(canFocus).replace(/\n/g, "<br>")}
+        </div>
+      `;
+
+      DAYS.forEach(day => {
+        // Check if the whole day is marked no-school in any block (we treat the day as no-school if most blocks say so, but show per-block)
+        let dayHasContent = false;
+        let dayIsNoSchool = true;
+
+        Object.keys(BLOCKS).forEach(key => {
+          const e = (data.blocks[key] && data.blocks[key][day]) || {};
+          if (!e.noSchool) dayIsNoSchool = false;
+          if (e.title || e.objective || e.activities || e.notes || e.fileName) dayHasContent = true;
+        });
+
+        html += `<div class="print-day">`;
+        html += `<div class="print-day-header ${dayIsNoSchool ? "no-school" : ""}">${day}${dayIsNoSchool ? " — NO SCHOOL" : ""}</div>`;
+
+        if (dayIsNoSchool) {
+          html += `
+            <div class="print-no-school-note">
+              This day is marked as No School / Holiday. 
+              Lessons planned for this day may be duplicated or moved to another day depending on weekly events and program needs.
+            </div>
+          `;
+        } else {
+          Object.entries(BLOCKS).forEach(([key, info]) => {
+            const e = (data.blocks[key] && data.blocks[key][day]) || { title:"", objective:"", activities:"", notes:"", noSchool:false, fileName:"" };
+            
+            if (e.noSchool) {
+              html += `
+                <div class="print-block">
+                  <div class="print-block-title">${info.name}</div>
+                  <div class="print-block-time">${info.time}</div>
+                  <div class="print-no-school-note" style="margin:0; padding:0.5rem;">
+                    No session this block. Content may be duplicated to another day if needed.
+                  </div>
+                </div>
+              `;
+            } else {
+              html += `
+                <div class="print-block">
+                  <div class="print-block-title">${info.name}</div>
+                  <div class="print-block-time">${info.time}</div>
+                  <div class="print-field"><strong>Title:</strong> ${escapeHtml(e.title) || "—"}</div>
+                  <div class="print-field"><strong>Objective:</strong> ${escapeHtml(e.objective) || "—"}</div>
+                  <div class="print-field"><strong>Activities:</strong> ${escapeHtml(e.activities).replace(/\n/g,"<br>") || "—"}</div>
+                  <div class="print-field"><strong>Notes / Materials:</strong> ${escapeHtml(e.notes).replace(/\n/g,"<br>") || "—"}</div>
+                  ${e.fileName ? `<div class="print-field"><strong>Attached Worksheet:</strong> ${escapeHtml(e.fileName)}</div>` : ""}
+                </div>
+              `;
+            }
+          });
+        }
+        html += `</div>`;
+      });
+
+      html += `
+        <div class="print-footer">
+          Mr. Enciso’s Scholastic Batch · La Viña Middle School · All times subject to change<br>
+          This document is for program record-keeping purposes.
+        </div>
+      `;
+
+      const report = document.getElementById("printReport");
+      report.innerHTML = html;
+      report.style.display = "block";
+
+      // Give the browser a moment to render, then print
+      setTimeout(() => {
+        window.print();
+        // Hide again after print dialog closes (approximate)
+        setTimeout(() => { report.style.display = "none"; }, 1000);
+      }, 300);
     }
 
     // ========== HELPERS ==========
@@ -617,7 +804,8 @@
           </div>
           <div class="no-school-message">
             <strong>No School</strong>
-            Holiday or no session this day
+            Holiday or no session this day.<br>
+            <small>Lesson may be duplicated to another day if needed.</small>
           </div>
         </div>`;
       }
@@ -688,7 +876,7 @@
     function showToast(msg) {
       const t = document.getElementById("toast");
       t.textContent = msg; t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 1800);
+      setTimeout(() => t.classList.remove("show"), 2000);
     }
     function exportJSON() {
       collectFromDOM();
@@ -705,13 +893,14 @@
     document.getElementById("btnSave").addEventListener("click", cloudSave);
     document.getElementById("btnArchive").addEventListener("click", archiveCurrentWeek);
     document.getElementById("btnNewWeek").addEventListener("click", startNewWeek);
+    document.getElementById("btnPrintReport").addEventListener("click", generatePrintReport);
     document.getElementById("btnExport").addEventListener("click", exportJSON);
-    document.getElementById("btnPrint").addEventListener("click", () => window.print());
     document.getElementById("btnLoadWeek").addEventListener("click", () => {
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? `Editing: ${w}` : "Current week";
       cloudSave();
+      showToast("Week name saved");
     });
     document.getElementById("toggleAttachments").addEventListener("change", () => {
       data.showAttachments = document.getElementById("toggleAttachments").checked;
