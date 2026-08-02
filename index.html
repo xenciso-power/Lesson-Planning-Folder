@@ -443,7 +443,7 @@
     </main>
   </div>
 
-  <!-- PRINTABLE REPORT (hidden until needed) -->
+  <!-- PRINTABLE REPORT -->
   <div class="print-report" id="printReport"></div>
 
   <div class="toast" id="toast">Saved</div>
@@ -666,14 +666,10 @@
       `;
 
       DAYS.forEach(day => {
-        // Check if the whole day is marked no-school in any block (we treat the day as no-school if most blocks say so, but show per-block)
-        let dayHasContent = false;
         let dayIsNoSchool = true;
-
         Object.keys(BLOCKS).forEach(key => {
           const e = (data.blocks[key] && data.blocks[key][day]) || {};
           if (!e.noSchool) dayIsNoSchool = false;
-          if (e.title || e.objective || e.activities || e.notes || e.fileName) dayHasContent = true;
         });
 
         html += `<div class="print-day">`;
@@ -682,8 +678,7 @@
         if (dayIsNoSchool) {
           html += `
             <div class="print-no-school-note">
-              This day is marked as No School / Holiday. 
-              Lessons planned for this day may be duplicated or moved to another day depending on weekly events and program needs.
+              There was no session this day due to a holiday or event.
             </div>
           `;
         } else {
@@ -696,7 +691,7 @@
                   <div class="print-block-title">${info.name}</div>
                   <div class="print-block-time">${info.time}</div>
                   <div class="print-no-school-note" style="margin:0; padding:0.5rem;">
-                    No session this block. Content may be duplicated to another day if needed.
+                    There was no session this day due to a holiday or event.
                   </div>
                 </div>
               `;
@@ -729,10 +724,8 @@
       report.innerHTML = html;
       report.style.display = "block";
 
-      // Give the browser a moment to render, then print
       setTimeout(() => {
         window.print();
-        // Hide again after print dialog closes (approximate)
         setTimeout(() => { report.style.display = "none"; }, 1000);
       }, 300);
     }
@@ -804,8 +797,7 @@
           </div>
           <div class="no-school-message">
             <strong>No School</strong>
-            Holiday or no session this day.<br>
-            <small>Lesson may be duplicated to another day if needed.</small>
+            There was no session this day due to a holiday or event.
           </div>
         </div>`;
       }
