@@ -333,22 +333,33 @@
       color: #334155;
     }
     .print-attachment {
-      margin-top: 0.5rem;
-      padding: 0.5rem 0.75rem;
+      margin-top: 0.75rem;
+      padding: 0.6rem 0.8rem;
       background: #f0fdf4;
       border: 1px solid #86efac;
       border-radius: 6px;
-      font-size: 0.9rem;
     }
     .print-attachment strong {
       color: #166534;
-    }
-    .print-attachment .file-link {
       display: block;
-      margin-top: 0.25rem;
-      font-size: 0.8rem;
-      color: #15803d;
-      word-break: break-all;
+      margin-bottom: 0.4rem;
+    }
+    .print-doc-preview {
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+    .print-doc-preview img {
+      max-width: 100%;
+      max-height: 500px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      margin: 0.4rem 0;
+      page-break-inside: avoid;
+    }
+    .print-doc-preview .page-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 0.2rem;
     }
     .print-no-school-note {
       background: #fef2f2;
@@ -378,6 +389,9 @@
         color: black;
       }
       .no-print { display: none !important; }
+      .print-doc-preview img {
+        max-height: 450px;
+      }
     }
 
     @media (max-width: 800px) {
@@ -452,7 +466,7 @@
       <div class="can-box">
         <h3>C.A.N. Standards Focus</h3>
         <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-        <p class="notice">Note: All times are subject to change. Uploaded files appear in the Printable Report with their links.</p>
+        <p class="notice">Note: All times are subject to change. Images and PDF pages appear directly in the Printable Report.</p>
       </div>
 
       <section id="page-dashboard" class="page active">
@@ -521,7 +535,7 @@
         title:"", objective:"", activities:"", notes:"", 
         noSchool:false, 
         showAttach: false,
-        fileName:"", fileUrl:"" 
+        fileName:"", fileUrl:"", publicId:"" 
       });
       return d;
     }
@@ -531,6 +545,9 @@
         DAYS.forEach(day => {
           if (typeof data.blocks[k][day].showAttach === "undefined") {
             data.blocks[k][day].showAttach = false;
+          }
+          if (typeof data.blocks[k][day].publicId === "undefined") {
+            data.blocks[k][day].publicId = "";
           }
         });
       });
@@ -707,7 +724,24 @@
       `).join("");
     }
 
-    // ========== PRINTABLE REPORT (with visible files) ==========
+    // ========== HELPER: Detect file type & build preview URLs ==========
+    function isImage(fileName, url) {
+      const name = (fileName || url || "").toLowerCase();
+      return /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(name);
+    }
+    function isPdf(fileName, url) {
+      const name = (fileName || url || "").toLowerCase();
+      return name.endsWith(".pdf") || name.includes("/raw/upload/") && name.includes(".pdf");
+    }
+
+    // Build Cloudinary page preview URL for PDFs
+    function getPdfPageUrl(publicId, pageNum) {
+      if (!publicId) return null;
+      // publicId is usually "scholastic-batch/filename"
+      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,pg_${pageNum}/${publicId}`;
+    }
+
+    // ========== PRINTABLE REPORT ==========
     function generatePrintReport() {
       collectFromDOM();
       const weekName = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
@@ -746,7 +780,7 @@
           Object.entries(BLOCKS).forEach(([key, info]) => {
             const e = (data.blocks[key] && data.blocks[key][day]) || { 
               title:"", objective:"", activities:"", notes:"", 
-              noSchool:false, fileName:"", fileUrl:"" 
+              noSchool:false, fileName:"", fileUrl:"", publicId:"" 
             };
             
             if (e.noSchool) {
@@ -770,14 +804,38 @@
                   <div class="print-field"><strong>Notes / Materials:</strong> ${escapeHtml(e.notes).replace(/\n/g,"<br>") || "—"}</div>
               `;
 
-              // Make uploaded files clearly visible
-              if (e.fileName) {
-                html += `
-                  <div class="print-attachment">
-                    <strong>📎 Attached Worksheet:</strong> ${escapeHtml(e.fileName)}
-                    ${e.fileUrl ? `<span class="file-link">${escapeHtml(e.fileUrl)}</span>` : ""}
-                  </div>
-                `;
+              // Show the actual document when possible
+              if (e.fileName || e.fileUrl) {
+                html += `<div class="print-attachment">`;
+                html += `<strong>📎 Attached Worksheet: ${escapeHtml(e.fileName || "Document")}</strong>`;
+
+                if (isImage(e.fileName, e.fileUrl) && e.fileUrl) {
+                  // Show the actual image
+                  html += `
+                    <div class="print-doc-preview">
+                      <img src="${escapeHtml(e.fileUrl)}" alt="${escapeHtml(e.fileName)}" />
+                    </div>
+                  `;
+                } else if (isPdf(e.fileName, e.fileUrl) && e.publicId) {
+                  // Show first 2 pages of the PDF as images via Cloudinary
+                  html += `<div class="print-doc-preview">`;
+                  for (let pg = 1; pg <= 2; pg++) {
+                    const pageUrl = getPdfPageUrl(e.publicId, pg);
+                    if (pageUrl) {
+                      html += `
+                        <div class="page-label">Page ${pg}</div>
+                        <img src="${pageUrl}" alt="PDF page ${pg}" 
+                             onerror="this.style.display='none'; this.previousElementSibling.style.display='none';" />
+                      `;
+                    }
+                  }
+                  html += `</div>`;
+                } else if (e.fileUrl) {
+                  // Fallback for other types
+                  html += `<div style="font-size:0.85rem; margin-top:0.3rem;">Document link: ${escapeHtml(e.fileUrl)}</div>`;
+                }
+
+                html += `</div>`;
               }
 
               html += `</div>`;
@@ -790,7 +848,7 @@
       html += `
         <div class="print-footer">
           Mr. Enciso’s Scholastic Batch · La Viña Middle School · All times subject to change<br>
-          This document is for program record-keeping purposes. Attached file links remain accessible online.
+          Images and PDF pages are shown directly. Other file types show a link.
         </div>
       `;
 
@@ -798,10 +856,11 @@
       report.innerHTML = html;
       report.style.display = "block";
 
+      // Give images a moment to start loading before printing
       setTimeout(() => {
         window.print();
-        setTimeout(() => { report.style.display = "none"; }, 1000);
-      }, 300);
+        setTimeout(() => { report.style.display = "none"; }, 1500);
+      }, 800);
     }
 
     // ========== HELPERS ==========
@@ -822,7 +881,8 @@
             noSchool: isNoSchool,
             showAttach: existing.showAttach || false,
             fileName: existing.fileName || "",
-            fileUrl: existing.fileUrl || ""
+            fileUrl: existing.fileUrl || "",
+            publicId: existing.publicId || ""
           };
         });
       });
@@ -871,6 +931,7 @@
 
         data.blocks[blockKey][day].fileName = result.original_filename || file.name;
         data.blocks[blockKey][day].fileUrl = result.secure_url;
+        data.blocks[blockKey][day].publicId = result.public_id || "";
         data.blocks[blockKey][day].showAttach = true;
 
         renderAllDayGrids();
@@ -881,6 +942,7 @@
         showToast("Upload failed: " + (err.message || "Unknown error"), true);
         data.blocks[blockKey][day].fileName = file.name;
         data.blocks[blockKey][day].fileUrl = "";
+        data.blocks[blockKey][day].publicId = "";
         renderAllDayGrids();
         cloudSave();
       }
@@ -890,6 +952,7 @@
       if (!data.blocks[blockKey]) return;
       data.blocks[blockKey][day].fileName = "";
       data.blocks[blockKey][day].fileUrl = "";
+      data.blocks[blockKey][day].publicId = "";
       renderAllDayGrids();
       cloudSave();
       showToast("Attachment removed");
@@ -898,7 +961,7 @@
     function renderDayCard(blockKey, day) {
       const e = (data.blocks[blockKey] && data.blocks[blockKey][day]) || {
         title:"", objective:"", activities:"", notes:"", noSchool:false, 
-        showAttach:false, fileName:"", fileUrl:""
+        showAttach:false, fileName:"", fileUrl:"", publicId:""
       };
       const globalOn = document.getElementById("toggleAttachments").checked;
 
@@ -935,7 +998,7 @@
                 ${link}
                 <button onclick="removeFile('${blockKey}','${day}')" title="Remove file">✕</button>
               </div>
-              <div class="file-note">This file will appear in the Printable Report.</div>`;
+              <div class="file-note">Images & PDF pages will appear directly in the Printable Report.</div>`;
           } else {
             attachHTML += `
               <div class="drop-zone"
@@ -947,7 +1010,7 @@
                        onchange="handleFile('${blockKey}','${day}', this.files[0])" />
                 📄 Drop worksheet here or click to upload
               </div>
-              <div class="file-note">Uploaded files appear in the Printable Report with their links.</div>`;
+              <div class="file-note">Best results with Images or PDFs (they appear in the report).</div>`;
           }
         }
       }
