@@ -29,6 +29,85 @@
       line-height: 1.5;
       min-height: 100vh;
     }
+
+    /* ========== TITLE SCREEN ========== */
+    #title-screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: radial-gradient(ellipse at center, #1e293b 0%, #0f172a 70%);
+    }
+    .title-logo {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 4px solid var(--gold);
+      object-fit: cover;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 40px rgba(212,175,55,0.35);
+    }
+    .title-welcome {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.4rem;
+      text-align: center;
+    }
+    .title-sub {
+      font-size: 1.05rem;
+      color: var(--gold-light);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+    .save-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 420px;
+    }
+    .save-slot {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .save-slot:hover {
+      border-color: var(--gold);
+      background: #273549;
+      transform: translateY(-2px);
+    }
+    .save-slot .slot-info h3 {
+      font-size: 1.15rem;
+      color: var(--gold-light);
+      margin-bottom: 0.2rem;
+    }
+    .save-slot .slot-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .save-slot .slot-action {
+      font-size: 0.9rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .title-footer {
+      margin-top: 2.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ========== MAIN APP ========== */
+    #main-app { display: none; }
     .header {
       background: linear-gradient(135deg, var(--navy-dark), var(--navy));
       border-bottom: 3px solid var(--gold);
@@ -42,12 +121,12 @@
       box-shadow: var(--shadow);
     }
     .logo-img {
-      width: 56px; height: 56px; flex-shrink: 0;
+      width: 52px; height: 52px; flex-shrink: 0;
       border-radius: 50%; object-fit: cover;
       border: 2px solid var(--gold); background: #000;
     }
-    .header-text h1 { font-size: 1.25rem; font-weight: 700; color: white; }
-    .header-text p { font-size: 0.8rem; color: var(--gold-light); }
+    .header-text h1 { font-size: 1.2rem; font-weight: 700; color: white; }
+    .header-text p { font-size: 0.78rem; color: var(--gold-light); }
     .header-actions { margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; }
     button {
       background: var(--surface-2); color: var(--text);
@@ -221,11 +300,6 @@
       background: transparent; border: none; color: #f87171;
       font-size: 1rem; cursor: pointer; padding: 0 4px; flex-shrink: 0;
     }
-    .file-note {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -263,135 +337,31 @@
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
 
-    /* ========== PRINT STYLES ========== */
-    .print-report {
-      display: none;
-      background: white;
-      color: #111;
-      padding: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-      font-family: "Segoe UI", system-ui, sans-serif;
-    }
-    .print-report h1 {
-      font-size: 1.5rem;
-      color: #1F4E79;
-      border-bottom: 3px solid #D4AF37;
-      padding-bottom: 0.4rem;
-      margin-bottom: 0.5rem;
-    }
-    .print-report .meta {
-      font-size: 0.95rem;
-      margin-bottom: 1.25rem;
-      color: #333;
-    }
-    .print-report .can-focus {
-      background: #f8fafc;
-      border-left: 4px solid #D4AF37;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.5rem;
-      font-size: 0.95rem;
-    }
-    .print-day {
-      page-break-inside: avoid;
-      margin-bottom: 1.75rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .print-day-header {
-      background: #1F4E79;
-      color: white;
-      padding: 0.5rem 1rem;
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
-    .print-day-header.no-school {
-      background: #6b7280;
-    }
-    .print-block {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #e2e8f0;
-    }
+    .print-report { display: none; background: white; color: #111; padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .print-report h1 { font-size: 1.5rem; color: #1F4E79; border-bottom: 3px solid #D4AF37; padding-bottom: 0.4rem; margin-bottom: 0.5rem; }
+    .print-report .meta { font-size: 0.95rem; margin-bottom: 1.25rem; color: #333; }
+    .print-report .can-focus { background: #f8fafc; border-left: 4px solid #D4AF37; padding: 0.75rem 1rem; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .print-day { page-break-inside: avoid; margin-bottom: 1.75rem; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+    .print-day-header { background: #1F4E79; color: white; padding: 0.5rem 1rem; font-weight: 700; font-size: 1.05rem; }
+    .print-day-header.no-school { background: #6b7280; }
+    .print-block { padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; }
     .print-block:last-child { border-bottom: none; }
-    .print-block-title {
-      font-weight: 700;
-      color: #1F4E79;
-      font-size: 0.95rem;
-      margin-bottom: 0.25rem;
-    }
-    .print-block-time {
-      font-size: 0.8rem;
-      color: #64748b;
-      margin-bottom: 0.4rem;
-    }
-    .print-field {
-      font-size: 0.9rem;
-      margin-bottom: 0.25rem;
-    }
-    .print-field strong {
-      color: #334155;
-    }
-    .print-attachment {
-      margin-top: 0.75rem;
-      padding: 0.6rem 0.8rem;
-      background: #f0fdf4;
-      border: 1px solid #86efac;
-      border-radius: 6px;
-    }
-    .print-attachment strong {
-      color: #166534;
-      display: block;
-      margin-bottom: 0.4rem;
-    }
-    .print-doc-preview {
-      margin-top: 0.5rem;
-      text-align: center;
-    }
-    .print-doc-preview img {
-      max-width: 100%;
-      max-height: 500px;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      margin: 0.4rem 0;
-      page-break-inside: avoid;
-    }
-    .print-doc-preview .page-label {
-      font-size: 0.75rem;
-      color: #64748b;
-      margin-bottom: 0.2rem;
-    }
-    .print-no-school-note {
-      background: #fef2f2;
-      color: #991b1b;
-      padding: 0.75rem 1rem;
-      font-size: 0.9rem;
-      font-style: italic;
-    }
-    .print-footer {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      color: #64748b;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 0.75rem;
-    }
+    .print-block-title { font-weight: 700; color: #1F4E79; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .print-block-time { font-size: 0.8rem; color: #64748b; margin-bottom: 0.4rem; }
+    .print-field { font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .print-field strong { color: #334155; }
+    .print-attachment { margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; }
+    .print-attachment strong { color: #166534; display: block; margin-bottom: 0.4rem; }
+    .print-doc-preview { margin-top: 0.5rem; text-align: center; }
+    .print-doc-preview img { max-width: 100%; max-height: 450px; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0.4rem 0; }
+    .print-no-school-note { background: #fef2f2; color: #991b1b; padding: 0.75rem 1rem; font-size: 0.9rem; font-style: italic; }
+    .print-footer { margin-top: 2rem; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; }
 
     @media print {
       body * { visibility: hidden; }
       .print-report, .print-report * { visibility: visible; }
-      .print-report {
-        display: block !important;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: white;
-        color: black;
-      }
+      .print-report { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; }
       .no-print { display: none !important; }
-      .print-doc-preview img {
-        max-height: 450px;
-      }
     }
 
     @media (max-width: 800px) {
@@ -406,102 +376,125 @@
   </style>
 </head>
 <body>
-  <header class="header no-print">
-    <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo" width="56" height="56" />
-    <div class="header-text">
-      <h1>Mr. Enciso’s Scholastic Batch</h1>
-      <p>La Viña Middle School · 8th Grade After-School Lesson Planner <span class="cloud-status" id="cloudStatus">• Connecting...</span></p>
+
+  <!-- ========== TITLE / SAVE SELECT SCREEN ========== -->
+  <div id="title-screen">
+    <img class="title-logo" src="assets/xe-logo.jpg" alt="XE Logo" />
+    <div class="title-welcome">Welcome, X</div>
+    <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
+
+    <div class="save-slots" id="saveSlots">
+      <!-- filled by JS -->
     </div>
-    <div class="header-actions">
-      <button id="btnSave" class="primary">💾 Save Progress</button>
-      <button id="btnArchive">📦 Archive Week</button>
-      <button id="btnNewWeek">🆕 New Week</button>
-      <button id="btnPrintReport">📄 Printable Report</button>
-      <button id="btnExport">⬇ Export</button>
+
+    <div class="title-footer">
+      Choose a Save File to continue or start planning.<br>
+      Each save file is completely separate and protected.
     </div>
-  </header>
+  </div>
 
-  <div class="app no-print">
-    <nav class="sidebar">
-      <h2>Time Blocks</h2>
-      <div class="nav-item active" data-page="dashboard">
-        <span class="block-name">📊 Dashboard</span>
-        <span class="block-time">Week overview</span>
-      </div>
-      <div class="nav-item" data-page="sel">
-        <span class="block-name">SEL / CHECK-IN</span>
-        <span class="block-time">2:52 – 3:00</span>
-      </div>
-      <div class="nav-item" data-page="intervention">
-        <span class="block-name">INTERVENTION</span>
-        <span class="block-time">3:00 – 3:45</span>
-      </div>
-      <div class="nav-item" data-page="enrichment">
-        <span class="block-name">ENRICHMENT</span>
-        <span class="block-time">3:49 – 4:15</span>
-      </div>
-      <div class="nav-item" data-page="spark">
-        <span class="block-name">SPARK</span>
-        <span class="block-time">4:19 – 5:00</span>
-      </div>
-      <div class="nav-item" data-page="history" style="margin-top:1.5rem;">
-        <span class="block-name">📁 History / Archive</span>
-        <span class="block-time">Past weeks</span>
-      </div>
-    </nav>
-
-    <main class="content">
-      <div class="week-bar">
-        <label for="weekOf">Week of:</label>
-        <input type="text" id="weekOf" placeholder="e.g. Aug 4 – Aug 8, 2026" />
-        <button id="btnLoadWeek" class="primary">Set Week Name</button>
-        <span id="currentWeekLabel" style="margin-left:auto; font-size:0.85rem; color:var(--text-muted);"></span>
-      </div>
-
-      <div class="toggle-row">
-        <input type="checkbox" id="toggleAttachments" />
-        <label for="toggleAttachments">Enable File Attachments (then turn on per day below)</label>
-      </div>
-
-      <div class="can-box">
-        <h3>C.A.N. Standards Focus</h3>
-        <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-        <p class="notice">Note: All times are subject to change. Images and PDF pages appear directly in the Printable Report.</p>
-      </div>
-
-      <section id="page-dashboard" class="page active">
-        <h2 style="margin-bottom:1rem; color:var(--gold-light);">Week Overview</h2>
-        <div class="dashboard-grid" id="dashboardGrid"></div>
-      </section>
-
-      <section id="page-sel" class="page">
-        <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SEL / CHECK-IN <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">2:52 – 3:00</span></h2>
-        <div class="days-grid" data-block="sel"></div>
-      </section>
-
-      <section id="page-intervention" class="page">
-        <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">INTERVENTION <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">3:00 – 3:45</span></h2>
-        <div class="days-grid" data-block="intervention"></div>
-      </section>
-
-      <section id="page-enrichment" class="page">
-        <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">ENRICHMENT <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">3:49 – 4:15</span></h2>
-        <div class="days-grid" data-block="enrichment"></div>
-      </section>
-
-      <section id="page-spark" class="page">
-        <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SPARK <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">4:19 – 5:00</span></h2>
-        <div class="days-grid" data-block="spark"></div>
-      </section>
-
-      <section id="page-history" class="page">
-        <h2 style="margin-bottom:1rem; color:var(--gold-light);">History / Archive</h2>
-        <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-          Archived weeks are saved to the cloud and available on all your devices.
+  <!-- ========== MAIN PLANNER ========== -->
+  <div id="main-app">
+    <header class="header no-print">
+      <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo" />
+      <div class="header-text">
+        <h1>Mr. Enciso’s Scholastic Batch</h1>
+        <p>
+          <span id="activeSlotLabel">Save File 1</span>
+          <span class="cloud-status" id="cloudStatus">• Ready</span>
         </p>
-        <div class="history-list" id="historyList"></div>
-      </section>
-    </main>
+      </div>
+      <div class="header-actions">
+        <button id="btnSave" class="primary">💾 Save</button>
+        <button id="btnArchive">📦 Archive Week</button>
+        <button id="btnNewWeek">🆕 New Week</button>
+        <button id="btnPrintReport">📄 Printable Report</button>
+        <button id="btnTitleScreen">🎮 Change Save File</button>
+      </div>
+    </header>
+
+    <div class="app no-print">
+      <nav class="sidebar">
+        <h2>Time Blocks</h2>
+        <div class="nav-item active" data-page="dashboard">
+          <span class="block-name">📊 Dashboard</span>
+          <span class="block-time">Week overview</span>
+        </div>
+        <div class="nav-item" data-page="sel">
+          <span class="block-name">SEL / CHECK-IN</span>
+          <span class="block-time">2:52 – 3:00</span>
+        </div>
+        <div class="nav-item" data-page="intervention">
+          <span class="block-name">INTERVENTION</span>
+          <span class="block-time">3:00 – 3:45</span>
+        </div>
+        <div class="nav-item" data-page="enrichment">
+          <span class="block-name">ENRICHMENT</span>
+          <span class="block-time">3:49 – 4:15</span>
+        </div>
+        <div class="nav-item" data-page="spark">
+          <span class="block-name">SPARK</span>
+          <span class="block-time">4:19 – 5:00</span>
+        </div>
+        <div class="nav-item" data-page="history" style="margin-top:1.5rem;">
+          <span class="block-name">📁 Archives</span>
+          <span class="block-time">Completed weeks</span>
+        </div>
+      </nav>
+
+      <main class="content">
+        <div class="week-bar">
+          <label for="weekOf">Week of:</label>
+          <input type="text" id="weekOf" placeholder="e.g. Aug 4 – Aug 8, 2026" />
+          <button id="btnLoadWeek" class="primary">Set Week Name</button>
+          <span id="currentWeekLabel" style="margin-left:auto; font-size:0.85rem; color:var(--text-muted);"></span>
+        </div>
+
+        <div class="toggle-row">
+          <input type="checkbox" id="toggleAttachments" />
+          <label for="toggleAttachments">Enable File Attachments (then turn on per day)</label>
+        </div>
+
+        <div class="can-box">
+          <h3>C.A.N. Standards Focus</h3>
+          <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
+          <p class="notice">All times are subject to change. Progress is auto-saved to the current Save File.</p>
+        </div>
+
+        <section id="page-dashboard" class="page active">
+          <h2 style="margin-bottom:1rem; color:var(--gold-light);">Week Overview</h2>
+          <div class="dashboard-grid" id="dashboardGrid"></div>
+        </section>
+
+        <section id="page-sel" class="page">
+          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SEL / CHECK-IN <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">2:52 – 3:00</span></h2>
+          <div class="days-grid" data-block="sel"></div>
+        </section>
+
+        <section id="page-intervention" class="page">
+          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">INTERVENTION <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">3:00 – 3:45</span></h2>
+          <div class="days-grid" data-block="intervention"></div>
+        </section>
+
+        <section id="page-enrichment" class="page">
+          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">ENRICHMENT <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">3:49 – 4:15</span></h2>
+          <div class="days-grid" data-block="enrichment"></div>
+        </section>
+
+        <section id="page-spark" class="page">
+          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">SPARK <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">4:19 – 5:00</span></h2>
+          <div class="days-grid" data-block="spark"></div>
+        </section>
+
+        <section id="page-history" class="page">
+          <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Completed Weeks)</h2>
+          <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
+            These are the weeks you have archived inside the current Save File.
+          </p>
+          <div class="history-list" id="historyList"></div>
+        </section>
+      </main>
+    </div>
   </div>
 
   <div class="print-report" id="printReport"></div>
@@ -512,10 +505,10 @@
     const BIN_ID = "6a6cfe28f5f4af5e29db8208";
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
     const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-
     const CLOUD_NAME = "udjs1xr5";
     const UPLOAD_PRESET = "scholastic-batch";
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
+    const LOCAL_KEY = "scholastic-batch-saves-v1";
 
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
@@ -525,121 +518,216 @@
       spark: { name: "SPARK", time: "4:19 – 5:00" }
     };
 
-    let currentWeek = "default";
-    let data = { canFocus: "", blocks: {}, showAttachments: false };
-    let archive = {};
+    // Game-style save structure
+    let saveSystem = {
+      activeSlot: null,
+      slots: {
+        1: createEmptySlot(),
+        2: createEmptySlot(),
+        3: createEmptySlot()
+      }
+    };
+
+    function createEmptySlot() {
+      return {
+        currentWeek: "default",
+        data: { canFocus: "", blocks: {}, showAttachments: false },
+        archive: {},
+        lastSaved: null
+      };
+    }
 
     function emptyBlock() {
       const d = {};
       DAYS.forEach(day => d[day] = { 
         title:"", objective:"", activities:"", notes:"", 
-        noSchool:false, 
-        showAttach: false,
-        fileName:"", fileUrl:"", publicId:"" 
+        noSchool:false, showAttach:false, fileName:"", fileUrl:"", publicId:"" 
       });
       return d;
     }
-    function ensureData() {
+    function ensureData(slotData) {
       Object.keys(BLOCKS).forEach(k => { 
-        if (!data.blocks[k]) data.blocks[k] = emptyBlock(); 
+        if (!slotData.blocks[k]) slotData.blocks[k] = emptyBlock(); 
         DAYS.forEach(day => {
-          if (typeof data.blocks[k][day].showAttach === "undefined") {
-            data.blocks[k][day].showAttach = false;
-          }
-          if (typeof data.blocks[k][day].publicId === "undefined") {
-            data.blocks[k][day].publicId = "";
-          }
+          if (typeof slotData.blocks[k][day].showAttach === "undefined") slotData.blocks[k][day].showAttach = false;
+          if (typeof slotData.blocks[k][day].publicId === "undefined") slotData.blocks[k][day].publicId = "";
         });
       });
     }
 
-    // ========== CLOUD SYNC ==========
-    async function cloudLoad() {
+    // ========== LOCAL + CLOUD PERSISTENCE ==========
+    function saveLocal() {
       try {
-        setCloudStatus("Loading from cloud...");
-        const res = await fetch(`${API_URL}/latest`, {
-          headers: { "X-Master-Key": MASTER_KEY }
-        });
-        if (!res.ok) throw new Error("Cloud load failed");
-        const json = await res.json();
-        const record = json.record || json;
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(saveSystem));
+        return true;
+      } catch(e) { return false; }
+    }
 
-        currentWeek = record.currentWeek || "default";
-        data = record.data || { canFocus:"", blocks:{}, showAttachments:false };
-        archive = record.archive || {};
-        ensureData();
-
-        document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
-        document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Current week";
-        document.getElementById("canFocus").value = data.canFocus || "";
-        document.getElementById("toggleAttachments").checked = !!data.showAttachments;
-
-        renderAllDayGrids();
-        updateDashboard();
-        renderHistory();
-        setCloudStatus("• Cloud synced");
-        showToast("Loaded from cloud ✓");
-      } catch (err) {
-        console.error(err);
-        setCloudStatus("• Offline mode");
-        loadLocalFallback();
-      }
+    function loadLocal() {
+      try {
+        const raw = localStorage.getItem(LOCAL_KEY);
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.slots) {
+          saveSystem = parsed;
+          // ensure all 3 slots exist
+          [1,2,3].forEach(n => {
+            if (!saveSystem.slots[n]) saveSystem.slots[n] = createEmptySlot();
+          });
+          return true;
+        }
+      } catch(e) {}
+      return false;
     }
 
     async function cloudSave() {
-      collectFromDOM();
-      data.showAttachments = document.getElementById("toggleAttachments").checked;
-
-      const payload = { currentWeek, data, archive };
+      // also keep a local copy
+      if (saveSystem.activeSlot) {
+        const slot = saveSystem.slots[saveSystem.activeSlot];
+        slot.lastSaved = new Date().toISOString();
+      }
+      saveLocal();
 
       try {
-        setCloudStatus("Saving to cloud...");
+        setCloudStatus("Saving...");
         const res = await fetch(API_URL, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             "X-Master-Key": MASTER_KEY
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(saveSystem)
         });
-        if (!res.ok) throw new Error("Cloud save failed");
-        setCloudStatus("• Cloud synced");
+        if (!res.ok) throw new Error("fail");
+        setCloudStatus("• Saved " + new Date().toLocaleTimeString());
         showToast("Progress saved ✓");
-        localStorage.setItem("scholastic-backup", JSON.stringify(payload));
-      } catch (err) {
-        console.error(err);
-        setCloudStatus("• Save failed (offline?)");
-        localStorage.setItem("scholastic-backup", JSON.stringify(payload));
-        showToast("Saved locally only", true);
+      } catch(e) {
+        setCloudStatus("• Saved on this device");
+        showToast("Saved locally", true);
       }
-      updateDashboard();
-      renderHistory();
     }
 
-    function loadLocalFallback() {
+    async function cloudLoadBackground() {
       try {
-        const raw = localStorage.getItem("scholastic-backup");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          currentWeek = parsed.currentWeek || "default";
-          data = parsed.data || data;
-          archive = parsed.archive || {};
-          ensureData();
-          document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
-          document.getElementById("canFocus").value = data.canFocus || "";
-          document.getElementById("toggleAttachments").checked = !!data.showAttachments;
-          renderAllDayGrids();
-          updateDashboard();
-          renderHistory();
+        const res = await fetch(`${API_URL}/latest`, {
+          headers: { "X-Master-Key": MASTER_KEY }
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const record = json.record || json;
+        if (record && record.slots) {
+          // merge carefully – never wipe good local slots with empty cloud
+          [1,2,3].forEach(n => {
+            const cloudSlot = record.slots[n];
+            const localSlot = saveSystem.slots[n];
+            if (cloudSlot && hasSlotContent(cloudSlot)) {
+              if (!hasSlotContent(localSlot) || (cloudSlot.lastSaved && localSlot.lastSaved && cloudSlot.lastSaved > localSlot.lastSaved)) {
+                saveSystem.slots[n] = cloudSlot;
+              }
+            }
+          });
+          saveLocal();
+          renderTitleSlots();
         }
       } catch(e) {}
     }
 
-    function setCloudStatus(msg) {
-      document.getElementById("cloudStatus").textContent = msg;
+    function hasSlotContent(slot) {
+      if (!slot || !slot.data) return false;
+      if (slot.data.canFocus && slot.data.canFocus.trim()) return true;
+      if (Object.keys(slot.archive || {}).length > 0) return true;
+      for (const block of Object.values(slot.data.blocks || {})) {
+        for (const day of Object.values(block)) {
+          if (day.title || day.objective || day.activities || day.notes || day.fileName) return true;
+        }
+      }
+      return false;
     }
 
-    // ========== ARCHIVE ==========
+    // ========== TITLE SCREEN ==========
+    function renderTitleSlots() {
+      const container = document.getElementById("saveSlots");
+      container.innerHTML = [1,2,3].map(n => {
+        const slot = saveSystem.slots[n];
+        const hasData = hasSlotContent(slot);
+        const weekLabel = slot.currentWeek && slot.currentWeek !== "default" ? slot.currentWeek : "Empty";
+        const timeLabel = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
+        return `
+          <div class="save-slot" onclick="selectSlot(${n})">
+            <div class="slot-info">
+              <h3>Save File ${n}</h3>
+              <p>${hasData ? weekLabel : "New Game"}</p>
+              <p style="font-size:0.75rem; margin-top:0.15rem;">Last saved: ${timeLabel}</p>
+            </div>
+            <div class="slot-action">${hasData ? "Continue →" : "Start →"}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function selectSlot(n) {
+      saveSystem.activeSlot = n;
+      const slot = saveSystem.slots[n];
+      ensureData(slot.data);
+      document.getElementById("activeSlotLabel").textContent = `Save File ${n}`;
+      document.getElementById("title-screen").style.display = "none";
+      document.getElementById("main-app").style.display = "block";
+      applySlotToUI();
+      setCloudStatus("• Save File " + n);
+      showToast(`Loaded Save File ${n}`);
+    }
+
+    function returnToTitle() {
+      // save current work first
+      collectFromDOM();
+      if (saveSystem.activeSlot) {
+        const slot = saveSystem.slots[saveSystem.activeSlot];
+        slot.currentWeek = currentWeek;
+        slot.data = data;
+        slot.archive = archive;
+        slot.lastSaved = new Date().toISOString();
+      }
+      saveLocal();
+      cloudSave();
+      saveSystem.activeSlot = null;
+      document.getElementById("main-app").style.display = "none";
+      document.getElementById("title-screen").style.display = "flex";
+      renderTitleSlots();
+    }
+
+    // ========== ACTIVE SLOT STATE ==========
+    let currentWeek = "default";
+    let data = { canFocus: "", blocks: {}, showAttachments: false };
+    let archive = {};
+
+    function applySlotToUI() {
+      const slot = saveSystem.slots[saveSystem.activeSlot];
+      currentWeek = slot.currentWeek || "default";
+      data = slot.data;
+      archive = slot.archive || {};
+      ensureData(data);
+
+      document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
+      document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Current week";
+      document.getElementById("canFocus").value = data.canFocus || "";
+      document.getElementById("toggleAttachments").checked = !!data.showAttachments;
+      renderAllDayGrids();
+      updateDashboard();
+      renderHistory();
+    }
+
+    function syncSlotFromUI() {
+      if (!saveSystem.activeSlot) return;
+      collectFromDOM();
+      const slot = saveSystem.slots[saveSystem.activeSlot];
+      slot.currentWeek = currentWeek;
+      slot.data = data;
+      slot.archive = archive;
+      slot.lastSaved = new Date().toISOString();
+      saveLocal();
+    }
+
+    // ========== ARCHIVE (per save file) ==========
     function archiveCurrentWeek() {
       collectFromDOM();
       const name = document.getElementById("weekOf").value.trim() || currentWeek;
@@ -647,7 +735,7 @@
         alert("Please enter a week name first (example: Aug 4 – Aug 8, 2026)");
         return;
       }
-      if (archive[name] && !confirm(`"${name}" already exists in archive. Overwrite it?`)) return;
+      if (archive[name] && !confirm(`"${name}" already exists in this Save File’s archive. Overwrite it?`)) return;
 
       archive[name] = {
         canFocus: data.canFocus,
@@ -657,48 +745,47 @@
       };
       currentWeek = name;
       document.getElementById("currentWeekLabel").textContent = `Editing: ${name}`;
+      syncSlotFromUI();
       cloudSave();
-      showToast(`Week archived: ${name}`);
+      showToast(`Archived to Save File ${saveSystem.activeSlot}`);
     }
 
     function startNewWeek() {
-      if (!confirm("Start a brand new week?\n\nMake sure you clicked “Archive Week” first if you want to keep the current plans.")) return;
+      if (!confirm("Start a brand new week in this Save File?\n\nArchive the current week first if you want to keep it.")) return;
       currentWeek = "default";
       data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
-      ensureData();
+      ensureData(data);
       document.getElementById("weekOf").value = "";
       document.getElementById("currentWeekLabel").textContent = "New blank week";
       document.getElementById("canFocus").value = "";
       renderAllDayGrids();
       updateDashboard();
+      syncSlotFromUI();
       cloudSave();
       showToast("New week started");
     }
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
-      if (!confirm(`Load archived week "${name}"?\n\nAny unsaved changes to the current week will be replaced.`)) return;
+      if (!confirm(`Load archived week "${name}" into the current Save File?`)) return;
       currentWeek = name;
       data = {
         canFocus: archive[name].canFocus || "",
         blocks: JSON.parse(JSON.stringify(archive[name].blocks)),
         showAttachments: !!archive[name].showAttachments
       };
-      ensureData();
-      document.getElementById("weekOf").value = name;
-      document.getElementById("currentWeekLabel").textContent = `Editing: ${name}`;
-      document.getElementById("canFocus").value = data.canFocus;
-      document.getElementById("toggleAttachments").checked = data.showAttachments;
-      renderAllDayGrids();
-      updateDashboard();
+      ensureData(data);
+      applySlotToUI();
+      syncSlotFromUI();
       cloudSave();
       switchPage("dashboard");
       showToast(`Loaded: ${name}`);
     }
 
     function deleteFromArchive(name) {
-      if (!confirm(`Permanently delete archived week "${name}"?`)) return;
+      if (!confirm(`Permanently delete archived week "${name}" from this Save File?`)) return;
       delete archive[name];
+      syncSlotFromUI();
       cloudSave();
       showToast("Deleted from archive");
     }
@@ -707,7 +794,7 @@
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive).sort().reverse();
       if (keys.length === 0) {
-        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br><br>When you finish planning a week, click <strong>📦 Archive Week</strong>.</div>`;
+        list.innerHTML = `<div class="empty-history">No archived weeks in this Save File yet.<br><br>When you finish a week, click <strong>📦 Archive Week</strong>.</div>`;
         return;
       }
       list.innerHTML = keys.map(name => `
@@ -724,24 +811,20 @@
       `).join("");
     }
 
-    // ========== HELPER: Detect file type & build preview URLs ==========
+    // ========== PRINT + REST OF HELPERS (kept functional) ==========
     function isImage(fileName, url) {
       const name = (fileName || url || "").toLowerCase();
       return /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(name);
     }
     function isPdf(fileName, url) {
       const name = (fileName || url || "").toLowerCase();
-      return name.endsWith(".pdf") || name.includes("/raw/upload/") && name.includes(".pdf");
+      return name.endsWith(".pdf");
     }
-
-    // Build Cloudinary page preview URL for PDFs
     function getPdfPageUrl(publicId, pageNum) {
       if (!publicId) return null;
-      // publicId is usually "scholastic-batch/filename"
       return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,pg_${pageNum}/${publicId}`;
     }
 
-    // ========== PRINTABLE REPORT ==========
     function generatePrintReport() {
       collectFromDOM();
       const weekName = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
@@ -751,6 +834,7 @@
         <h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>
         <div class="meta">
           <strong>Week of:</strong> ${escapeHtml(weekName)}<br>
+          <strong>Save File:</strong> ${saveSystem.activeSlot}<br>
           <strong>School:</strong> La Viña Middle School · 8th Grade After-School Program<br>
           <strong>Generated:</strong> ${new Date().toLocaleString()}
         </div>
@@ -771,28 +855,18 @@
         html += `<div class="print-day-header ${dayIsNoSchool ? "no-school" : ""}">${day}${dayIsNoSchool ? " — NO SCHOOL" : ""}</div>`;
 
         if (dayIsNoSchool) {
-          html += `
-            <div class="print-no-school-note">
-              There was no session this day due to a holiday or event.
-            </div>
-          `;
+          html += `<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>`;
         } else {
           Object.entries(BLOCKS).forEach(([key, info]) => {
-            const e = (data.blocks[key] && data.blocks[key][day]) || { 
-              title:"", objective:"", activities:"", notes:"", 
-              noSchool:false, fileName:"", fileUrl:"", publicId:"" 
-            };
+            const e = (data.blocks[key] && data.blocks[key][day]) || { title:"", objective:"", activities:"", notes:"", noSchool:false, fileName:"", fileUrl:"", publicId:"" };
             
             if (e.noSchool) {
               html += `
                 <div class="print-block">
                   <div class="print-block-title">${info.name}</div>
                   <div class="print-block-time">${info.time}</div>
-                  <div class="print-no-school-note" style="margin:0; padding:0.5rem;">
-                    There was no session this day due to a holiday or event.
-                  </div>
-                </div>
-              `;
+                  <div class="print-no-school-note" style="margin:0; padding:0.5rem;">There was no session this day due to a holiday or event.</div>
+                </div>`;
             } else {
               html += `
                 <div class="print-block">
@@ -803,41 +877,22 @@
                   <div class="print-field"><strong>Activities:</strong> ${escapeHtml(e.activities).replace(/\n/g,"<br>") || "—"}</div>
                   <div class="print-field"><strong>Notes / Materials:</strong> ${escapeHtml(e.notes).replace(/\n/g,"<br>") || "—"}</div>
               `;
-
-              // Show the actual document when possible
               if (e.fileName || e.fileUrl) {
-                html += `<div class="print-attachment">`;
-                html += `<strong>📎 Attached Worksheet: ${escapeHtml(e.fileName || "Document")}</strong>`;
-
+                html += `<div class="print-attachment"><strong>📎 Attached Worksheet: ${escapeHtml(e.fileName || "Document")}</strong>`;
                 if (isImage(e.fileName, e.fileUrl) && e.fileUrl) {
-                  // Show the actual image
-                  html += `
-                    <div class="print-doc-preview">
-                      <img src="${escapeHtml(e.fileUrl)}" alt="${escapeHtml(e.fileName)}" />
-                    </div>
-                  `;
+                  html += `<div class="print-doc-preview"><img src="${escapeHtml(e.fileUrl)}" alt="" /></div>`;
                 } else if (isPdf(e.fileName, e.fileUrl) && e.publicId) {
-                  // Show first 2 pages of the PDF as images via Cloudinary
                   html += `<div class="print-doc-preview">`;
                   for (let pg = 1; pg <= 2; pg++) {
                     const pageUrl = getPdfPageUrl(e.publicId, pg);
-                    if (pageUrl) {
-                      html += `
-                        <div class="page-label">Page ${pg}</div>
-                        <img src="${pageUrl}" alt="PDF page ${pg}" 
-                             onerror="this.style.display='none'; this.previousElementSibling.style.display='none';" />
-                      `;
-                    }
+                    if (pageUrl) html += `<div class="page-label">Page ${pg}</div><img src="${pageUrl}" onerror="this.style.display='none'" />`;
                   }
                   html += `</div>`;
                 } else if (e.fileUrl) {
-                  // Fallback for other types
-                  html += `<div style="font-size:0.85rem; margin-top:0.3rem;">Document link: ${escapeHtml(e.fileUrl)}</div>`;
+                  html += `<div style="font-size:0.85rem;margin-top:0.3rem;">${escapeHtml(e.fileUrl)}</div>`;
                 }
-
                 html += `</div>`;
               }
-
               html += `</div>`;
             }
           });
@@ -845,25 +900,17 @@
         html += `</div>`;
       });
 
-      html += `
-        <div class="print-footer">
-          Mr. Enciso’s Scholastic Batch · La Viña Middle School · All times subject to change<br>
-          Images and PDF pages are shown directly. Other file types show a link.
-        </div>
-      `;
+      html += `<div class="print-footer">Mr. Enciso’s Scholastic Batch · Save File ${saveSystem.activeSlot} · La Viña Middle School</div>`;
 
       const report = document.getElementById("printReport");
       report.innerHTML = html;
       report.style.display = "block";
-
-      // Give images a moment to start loading before printing
       setTimeout(() => {
         window.print();
         setTimeout(() => { report.style.display = "none"; }, 1500);
       }, 800);
     }
 
-    // ========== HELPERS ==========
     function collectFromDOM() {
       data.canFocus = document.getElementById("canFocus").value;
       document.querySelectorAll(".days-grid").forEach(grid => {
@@ -894,22 +941,21 @@
       if (!data.blocks[blockKey]) data.blocks[blockKey] = emptyBlock();
       data.blocks[blockKey][day].noSchool = !data.blocks[blockKey][day].noSchool;
       renderAllDayGrids();
+      syncSlotFromUI();
       cloudSave();
     }
-
     function toggleDayAttach(blockKey, day) {
       if (!data.blocks[blockKey]) data.blocks[blockKey] = emptyBlock();
       data.blocks[blockKey][day].showAttach = !data.blocks[blockKey][day].showAttach;
       renderAllDayGrids();
+      syncSlotFromUI();
       cloudSave();
     }
 
-    // ========== CLOUDINARY UPLOAD ==========
     async function handleFile(blockKey, day, file) {
       if (!file) return;
       if (!data.blocks[blockKey]) data.blocks[blockKey] = emptyBlock();
-
-      showToast("Uploading document…");
+      showToast("Uploading…");
 
       const formData = new FormData();
       formData.append("file", file);
@@ -917,34 +963,19 @@
       formData.append("folder", "scholastic-batch");
 
       try {
-        const res = await fetch(CLOUDINARY_URL, {
-          method: "POST",
-          body: formData
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error?.message || "Upload failed");
-        }
-
+        const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+        if (!res.ok) throw new Error("Upload failed");
         const result = await res.json();
-
         data.blocks[blockKey][day].fileName = result.original_filename || file.name;
         data.blocks[blockKey][day].fileUrl = result.secure_url;
         data.blocks[blockKey][day].publicId = result.public_id || "";
         data.blocks[blockKey][day].showAttach = true;
-
         renderAllDayGrids();
+        syncSlotFromUI();
         cloudSave();
-        showToast("Document uploaded and linked ✓");
-      } catch (err) {
-        console.error(err);
-        showToast("Upload failed: " + (err.message || "Unknown error"), true);
-        data.blocks[blockKey][day].fileName = file.name;
-        data.blocks[blockKey][day].fileUrl = "";
-        data.blocks[blockKey][day].publicId = "";
-        renderAllDayGrids();
-        cloudSave();
+        showToast("Document uploaded ✓");
+      } catch(err) {
+        showToast("Upload failed", true);
       }
     }
 
@@ -954,8 +985,8 @@
       data.blocks[blockKey][day].fileUrl = "";
       data.blocks[blockKey][day].publicId = "";
       renderAllDayGrids();
+      syncSlotFromUI();
       cloudSave();
-      showToast("Attachment removed");
     }
 
     function renderDayCard(blockKey, day) {
@@ -969,7 +1000,7 @@
         return `<div class="day-card no-school" data-day="${day}">
           <div class="day-card-header">
             <span>${day}</span>
-            <button class="day-close" title="Restore this day" onclick="toggleNoSchool('${blockKey}','${day}')">✕</button>
+            <button class="day-close" onclick="toggleNoSchool('${blockKey}','${day}')">✕</button>
           </div>
           <div class="no-school-message">
             <strong>No School</strong>
@@ -982,35 +1013,22 @@
       if (globalOn) {
         attachHTML += `
           <label class="day-attach-toggle">
-            <input type="checkbox" ${e.showAttach ? "checked" : ""} 
-                   onchange="toggleDayAttach('${blockKey}','${day}')" />
+            <input type="checkbox" ${e.showAttach ? "checked" : ""} onchange="toggleDayAttach('${blockKey}','${day}')" />
             Show attachment zone for this day
-          </label>
-        `;
-
+          </label>`;
         if (e.showAttach) {
           if (e.fileName) {
-            const link = e.fileUrl 
-              ? `<a href="${escapeHtml(e.fileUrl)}" target="_blank" rel="noopener">📎 ${escapeHtml(e.fileName)}</a>`
-              : `<span>📎 ${escapeHtml(e.fileName)}</span>`;
-            attachHTML += `
-              <div class="attached-file">
-                ${link}
-                <button onclick="removeFile('${blockKey}','${day}')" title="Remove file">✕</button>
-              </div>
-              <div class="file-note">Images & PDF pages will appear directly in the Printable Report.</div>`;
+            const link = e.fileUrl ? `<a href="${escapeHtml(e.fileUrl)}" target="_blank">📎 ${escapeHtml(e.fileName)}</a>` : `<span>📎 ${escapeHtml(e.fileName)}</span>`;
+            attachHTML += `<div class="attached-file">${link}<button onclick="removeFile('${blockKey}','${day}')">✕</button></div>`;
           } else {
             attachHTML += `
-              <div class="drop-zone"
-                   onclick="this.querySelector('input').click()"
-                   ondragover="event.preventDefault(); this.classList.add('dragover')"
+              <div class="drop-zone" onclick="this.querySelector('input').click()"
+                   ondragover="event.preventDefault();this.classList.add('dragover')"
                    ondragleave="this.classList.remove('dragover')"
-                   ondrop="event.preventDefault(); this.classList.remove('dragover'); handleFile('${blockKey}','${day}', event.dataTransfer.files[0])">
-                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt,.xlsx,.xls" 
-                       onchange="handleFile('${blockKey}','${day}', this.files[0])" />
+                   ondrop="event.preventDefault();this.classList.remove('dragover');handleFile('${blockKey}','${day}',event.dataTransfer.files[0])">
+                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt,.xlsx,.xls" onchange="handleFile('${blockKey}','${day}',this.files[0])" />
                 📄 Drop worksheet here or click to upload
-              </div>
-              <div class="file-note">Best results with Images or PDFs (they appear in the report).</div>`;
+              </div>`;
           }
         }
       }
@@ -1018,13 +1036,13 @@
       return `<div class="day-card" data-day="${day}">
         <div class="day-card-header">
           <span>${day}</span>
-          <button class="day-close" title="Mark as No School" onclick="toggleNoSchool('${blockKey}','${day}')">✕</button>
+          <button class="day-close" onclick="toggleNoSchool('${blockKey}','${day}')">✕</button>
         </div>
         <div class="day-card-body">
-          <div class="field"><label>Lesson / Activity Title</label><input type="text" data-field="title" value="${escapeHtml(e.title)}" placeholder="Title…"></div>
-          <div class="field"><label>Objective / Focus</label><input type="text" data-field="objective" value="${escapeHtml(e.objective)}" placeholder="What students will…"></div>
-          <div class="field"><label>Activities / Content</label><textarea data-field="activities" placeholder="What you will do…">${escapeHtml(e.activities)}</textarea></div>
-          <div class="field"><label>Notes / Materials</label><textarea data-field="notes" rows="2" placeholder="Materials, notes…">${escapeHtml(e.notes)}</textarea></div>
+          <div class="field"><label>Lesson / Activity Title</label><input type="text" data-field="title" value="${escapeHtml(e.title)}" oninput="syncSlotFromUI()"></div>
+          <div class="field"><label>Objective / Focus</label><input type="text" data-field="objective" value="${escapeHtml(e.objective)}" oninput="syncSlotFromUI()"></div>
+          <div class="field"><label>Activities / Content</label><textarea data-field="activities" oninput="syncSlotFromUI()">${escapeHtml(e.activities)}</textarea></div>
+          <div class="field"><label>Notes / Materials</label><textarea data-field="notes" rows="2" oninput="syncSlotFromUI()">${escapeHtml(e.notes)}</textarea></div>
           ${attachHTML}
         </div>
       </div>`;
@@ -1058,48 +1076,60 @@
       document.getElementById(`page-${id}`)?.classList.add("active");
       document.querySelector(`.nav-item[data-page="${id}"]`)?.classList.add("active");
     }
+    function setCloudStatus(msg) {
+      const el = document.getElementById("cloudStatus");
+      if (el) el.textContent = msg;
+    }
     function showToast(msg, isError = false) {
       const t = document.getElementById("toast");
       t.textContent = msg;
       t.classList.toggle("error", isError);
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 3000);
-    }
-    function exportJSON() {
-      collectFromDOM();
-      const payload = { currentWeek, data, archive };
-      const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `Scholastic-Batch-Backup.json`;
-      a.click();
+      setTimeout(() => t.classList.remove("show"), 2800);
     }
 
     // Events
     document.querySelectorAll(".nav-item").forEach(item => item.addEventListener("click", () => switchPage(item.dataset.page)));
-    document.getElementById("btnSave").addEventListener("click", cloudSave);
+    document.getElementById("btnSave").addEventListener("click", () => { syncSlotFromUI(); cloudSave(); });
     document.getElementById("btnArchive").addEventListener("click", archiveCurrentWeek);
     document.getElementById("btnNewWeek").addEventListener("click", startNewWeek);
     document.getElementById("btnPrintReport").addEventListener("click", generatePrintReport);
-    document.getElementById("btnExport").addEventListener("click", exportJSON);
+    document.getElementById("btnTitleScreen").addEventListener("click", returnToTitle);
     document.getElementById("btnLoadWeek").addEventListener("click", () => {
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? `Editing: ${w}` : "Current week";
+      syncSlotFromUI();
       cloudSave();
-      showToast("Week name saved");
     });
     document.getElementById("toggleAttachments").addEventListener("change", () => {
       data.showAttachments = document.getElementById("toggleAttachments").checked;
       renderAllDayGrids();
+      syncSlotFromUI();
       cloudSave();
     });
-    document.addEventListener("keydown", e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); cloudSave(); }
+    document.getElementById("canFocus").addEventListener("input", () => syncSlotFromUI());
+
+    // Auto-save every 25 seconds while in a slot
+    setInterval(() => {
+      if (saveSystem.activeSlot) {
+        syncSlotFromUI();
+        cloudSave();
+      }
+    }, 25000);
+
+    window.addEventListener("beforeunload", () => {
+      if (saveSystem.activeSlot) {
+        collectFromDOM();
+        syncSlotFromUI();
+        saveLocal();
+      }
     });
 
-    setInterval(cloudSave, 90000);
-    cloudLoad();
+    // ========== START ==========
+    loadLocal();
+    renderTitleSlots();
+    setTimeout(cloudLoadBackground, 1200);
   </script>
 </body>
 </html>
