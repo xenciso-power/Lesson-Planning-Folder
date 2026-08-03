@@ -178,6 +178,19 @@
       font-size: 0.85rem; font-family: inherit;
     }
     .field textarea { min-height: 70px; }
+    .day-attach-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+    .day-attach-toggle input {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--gold);
+    }
     .drop-zone {
       border: 2px dashed var(--border); border-radius: 8px;
       padding: 0.9rem; text-align: center; font-size: 0.8rem;
@@ -187,12 +200,6 @@
     .drop-zone:hover, .drop-zone.dragover {
       border-color: var(--gold); background: rgba(212,175,55,0.08);
       color: var(--gold-light);
-    }
-    .drop-zone.uploading {
-      border-color: var(--gold);
-      color: var(--gold-light);
-      pointer-events: none;
-      opacity: 0.7;
     }
     .drop-zone input[type="file"] { display: none; }
     .attached-file {
@@ -256,7 +263,7 @@
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
 
-    /* Print styles */
+    /* ========== PRINT STYLES ========== */
     .print-report {
       display: none;
       background: white;
@@ -264,6 +271,7 @@
       padding: 1.5rem;
       max-width: 1100px;
       margin: 0 auto;
+      font-family: "Segoe UI", system-ui, sans-serif;
     }
     .print-report h1 {
       font-size: 1.5rem;
@@ -323,6 +331,24 @@
     }
     .print-field strong {
       color: #334155;
+    }
+    .print-attachment {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    .print-attachment strong {
+      color: #166534;
+    }
+    .print-attachment .file-link {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      color: #15803d;
+      word-break: break-all;
     }
     .print-no-school-note {
       background: #fef2f2;
@@ -420,13 +446,13 @@
 
       <div class="toggle-row">
         <input type="checkbox" id="toggleAttachments" />
-        <label for="toggleAttachments">Show File Attachment Zones</label>
+        <label for="toggleAttachments">Enable File Attachments (then turn on per day below)</label>
       </div>
 
       <div class="can-box">
         <h3>C.A.N. Standards Focus</h3>
         <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-        <p class="notice">Note: All times are subject to change. Documents are uploaded to Cloudinary and linked permanently.</p>
+        <p class="notice">Note: All times are subject to change. Uploaded files appear in the Printable Report with their links.</p>
       </div>
 
       <section id="page-dashboard" class="page active">
@@ -473,7 +499,6 @@
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
     const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-    // Cloudinary
     const CLOUD_NAME = "udjs1xr5";
     const UPLOAD_PRESET = "scholastic-batch";
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
@@ -494,15 +519,24 @@
       const d = {};
       DAYS.forEach(day => d[day] = { 
         title:"", objective:"", activities:"", notes:"", 
-        noSchool:false, fileName:"", fileUrl:"" 
+        noSchool:false, 
+        showAttach: false,
+        fileName:"", fileUrl:"" 
       });
       return d;
     }
     function ensureData() {
-      Object.keys(BLOCKS).forEach(k => { if (!data.blocks[k]) data.blocks[k] = emptyBlock(); });
+      Object.keys(BLOCKS).forEach(k => { 
+        if (!data.blocks[k]) data.blocks[k] = emptyBlock(); 
+        DAYS.forEach(day => {
+          if (typeof data.blocks[k][day].showAttach === "undefined") {
+            data.blocks[k][day].showAttach = false;
+          }
+        });
+      });
     }
 
-    // ========== CLOUD SYNC (JSONBin) ==========
+    // ========== CLOUD SYNC ==========
     async function cloudLoad() {
       try {
         setCloudStatus("Loading from cloud...");
@@ -517,16 +551,6 @@
         data = record.data || { canFocus:"", blocks:{}, showAttachments:false };
         archive = record.archive || {};
         ensureData();
-
-        // Migrate old fileData if present
-        Object.keys(data.blocks || {}).forEach(b => {
-          Object.keys(data.blocks[b] || {}).forEach(d => {
-            if (data.blocks[b][d].fileData && !data.blocks[b][d].fileUrl) {
-              data.blocks[b][d].fileUrl = "";
-              delete data.blocks[b][d].fileData;
-            }
-          });
-        });
 
         document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
         document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? `Editing: ${currentWeek}` : "Current week";
@@ -683,7 +707,7 @@
       `).join("");
     }
 
-    // ========== PRINTABLE REPORT ==========
+    // ========== PRINTABLE REPORT (with visible files) ==========
     function generatePrintReport() {
       collectFromDOM();
       const weekName = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
@@ -720,7 +744,10 @@
           `;
         } else {
           Object.entries(BLOCKS).forEach(([key, info]) => {
-            const e = (data.blocks[key] && data.blocks[key][day]) || { title:"", objective:"", activities:"", notes:"", noSchool:false, fileName:"", fileUrl:"" };
+            const e = (data.blocks[key] && data.blocks[key][day]) || { 
+              title:"", objective:"", activities:"", notes:"", 
+              noSchool:false, fileName:"", fileUrl:"" 
+            };
             
             if (e.noSchool) {
               html += `
@@ -741,9 +768,19 @@
                   <div class="print-field"><strong>Objective:</strong> ${escapeHtml(e.objective) || "—"}</div>
                   <div class="print-field"><strong>Activities:</strong> ${escapeHtml(e.activities).replace(/\n/g,"<br>") || "—"}</div>
                   <div class="print-field"><strong>Notes / Materials:</strong> ${escapeHtml(e.notes).replace(/\n/g,"<br>") || "—"}</div>
-                  ${e.fileName ? `<div class="print-field"><strong>Attached Worksheet:</strong> ${escapeHtml(e.fileName)}${e.fileUrl ? ` (<a href="${escapeHtml(e.fileUrl)}" target="_blank">Open</a>)` : ""}</div>` : ""}
-                </div>
               `;
+
+              // Make uploaded files clearly visible
+              if (e.fileName) {
+                html += `
+                  <div class="print-attachment">
+                    <strong>📎 Attached Worksheet:</strong> ${escapeHtml(e.fileName)}
+                    ${e.fileUrl ? `<span class="file-link">${escapeHtml(e.fileUrl)}</span>` : ""}
+                  </div>
+                `;
+              }
+
+              html += `</div>`;
             }
           });
         }
@@ -753,7 +790,7 @@
       html += `
         <div class="print-footer">
           Mr. Enciso’s Scholastic Batch · La Viña Middle School · All times subject to change<br>
-          This document is for program record-keeping purposes.
+          This document is for program record-keeping purposes. Attached file links remain accessible online.
         </div>
       `;
 
@@ -783,6 +820,7 @@
             activities: card.querySelector('[data-field="activities"]')?.value || "",
             notes: card.querySelector('[data-field="notes"]')?.value || "",
             noSchool: isNoSchool,
+            showAttach: existing.showAttach || false,
             fileName: existing.fileName || "",
             fileUrl: existing.fileUrl || ""
           };
@@ -799,14 +837,18 @@
       cloudSave();
     }
 
+    function toggleDayAttach(blockKey, day) {
+      if (!data.blocks[blockKey]) data.blocks[blockKey] = emptyBlock();
+      data.blocks[blockKey][day].showAttach = !data.blocks[blockKey][day].showAttach;
+      renderAllDayGrids();
+      cloudSave();
+    }
+
     // ========== CLOUDINARY UPLOAD ==========
     async function handleFile(blockKey, day, file) {
       if (!file) return;
-
       if (!data.blocks[blockKey]) data.blocks[blockKey] = emptyBlock();
 
-      // Show uploading state
-      renderAllDayGrids(); // will show current state
       showToast("Uploading document…");
 
       const formData = new FormData();
@@ -829,6 +871,7 @@
 
         data.blocks[blockKey][day].fileName = result.original_filename || file.name;
         data.blocks[blockKey][day].fileUrl = result.secure_url;
+        data.blocks[blockKey][day].showAttach = true;
 
         renderAllDayGrids();
         cloudSave();
@@ -836,7 +879,6 @@
       } catch (err) {
         console.error(err);
         showToast("Upload failed: " + (err.message || "Unknown error"), true);
-        // Still store the name so user knows something was attempted
         data.blocks[blockKey][day].fileName = file.name;
         data.blocks[blockKey][day].fileUrl = "";
         renderAllDayGrids();
@@ -855,9 +897,10 @@
 
     function renderDayCard(blockKey, day) {
       const e = (data.blocks[blockKey] && data.blocks[blockKey][day]) || {
-        title:"", objective:"", activities:"", notes:"", noSchool:false, fileName:"", fileUrl:""
+        title:"", objective:"", activities:"", notes:"", noSchool:false, 
+        showAttach:false, fileName:"", fileUrl:""
       };
-      const showAttach = document.getElementById("toggleAttachments").checked;
+      const globalOn = document.getElementById("toggleAttachments").checked;
 
       if (e.noSchool) {
         return `<div class="day-card no-school" data-day="${day}">
@@ -873,29 +916,39 @@
       }
 
       let attachHTML = "";
-      if (showAttach) {
-        if (e.fileName) {
-          const link = e.fileUrl 
-            ? `<a href="${escapeHtml(e.fileUrl)}" target="_blank" rel="noopener">📎 ${escapeHtml(e.fileName)}</a>`
-            : `<span>📎 ${escapeHtml(e.fileName)}</span>`;
-          attachHTML = `
-            <div class="attached-file">
-              ${link}
-              <button onclick="removeFile('${blockKey}','${day}')" title="Remove file">✕</button>
-            </div>
-            <div class="file-note">Document is permanently linked and available on all devices.</div>`;
-        } else {
-          attachHTML = `
-            <div class="drop-zone" id="drop-${blockKey}-${day}"
-                 onclick="this.querySelector('input').click()"
-                 ondragover="event.preventDefault(); this.classList.add('dragover')"
-                 ondragleave="this.classList.remove('dragover')"
-                 ondrop="event.preventDefault(); this.classList.remove('dragover'); handleFile('${blockKey}','${day}', event.dataTransfer.files[0])">
-              <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt,.xlsx,.xls" 
-                     onchange="handleFile('${blockKey}','${day}', this.files[0])" />
-              📄 Drop worksheet here or click to upload
-            </div>
-            <div class="file-note">Supports larger files (PDFs, Word, PowerPoint, images). Uploaded to Cloudinary.</div>`;
+      if (globalOn) {
+        attachHTML += `
+          <label class="day-attach-toggle">
+            <input type="checkbox" ${e.showAttach ? "checked" : ""} 
+                   onchange="toggleDayAttach('${blockKey}','${day}')" />
+            Show attachment zone for this day
+          </label>
+        `;
+
+        if (e.showAttach) {
+          if (e.fileName) {
+            const link = e.fileUrl 
+              ? `<a href="${escapeHtml(e.fileUrl)}" target="_blank" rel="noopener">📎 ${escapeHtml(e.fileName)}</a>`
+              : `<span>📎 ${escapeHtml(e.fileName)}</span>`;
+            attachHTML += `
+              <div class="attached-file">
+                ${link}
+                <button onclick="removeFile('${blockKey}','${day}')" title="Remove file">✕</button>
+              </div>
+              <div class="file-note">This file will appear in the Printable Report.</div>`;
+          } else {
+            attachHTML += `
+              <div class="drop-zone"
+                   onclick="this.querySelector('input').click()"
+                   ondragover="event.preventDefault(); this.classList.add('dragover')"
+                   ondragleave="this.classList.remove('dragover')"
+                   ondrop="event.preventDefault(); this.classList.remove('dragover'); handleFile('${blockKey}','${day}', event.dataTransfer.files[0])">
+                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt,.xlsx,.xls" 
+                       onchange="handleFile('${blockKey}','${day}', this.files[0])" />
+                📄 Drop worksheet here or click to upload
+              </div>
+              <div class="file-note">Uploaded files appear in the Printable Report with their links.</div>`;
+          }
         }
       }
 
@@ -982,10 +1035,7 @@
       if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); cloudSave(); }
     });
 
-    // Auto-save every 90 seconds
     setInterval(cloudSave, 90000);
-
-    // Start
     cloudLoad();
   </script>
 </body>
