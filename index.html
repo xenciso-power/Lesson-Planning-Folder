@@ -30,7 +30,7 @@
       min-height: 100vh;
     }
 
-    /* ========== TITLE SCREEN ========== */
+    /* TITLE SCREEN */
     #title-screen {
       min-height: 100vh;
       display: flex;
@@ -41,89 +41,52 @@
       background: radial-gradient(ellipse at center, #1e293b 0%, #0f172a 70%);
     }
     .title-logo {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      border: 4px solid var(--gold);
-      object-fit: cover;
+      width: 160px; height: 160px; border-radius: 50%;
+      border: 4px solid var(--gold); object-fit: cover;
       margin-bottom: 1.5rem;
       box-shadow: 0 0 40px rgba(212,175,55,0.35);
     }
     .title-welcome {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 0.4rem;
-      text-align: center;
+      font-size: 1.8rem; font-weight: 700; color: white;
+      margin-bottom: 0.4rem; text-align: center;
     }
     .title-sub {
-      font-size: 1.05rem;
-      color: var(--gold-light);
-      margin-bottom: 2.5rem;
-      text-align: center;
+      font-size: 1.05rem; color: var(--gold-light);
+      margin-bottom: 2.5rem; text-align: center;
     }
     .save-slots {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      width: 100%;
-      max-width: 420px;
+      display: flex; flex-direction: column; gap: 1rem;
+      width: 100%; max-width: 420px;
     }
     .save-slot {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 1.1rem 1.4rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: var(--surface); border: 2px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1.4rem; cursor: pointer;
+      transition: all 0.2s; display: flex;
+      justify-content: space-between; align-items: center;
     }
     .save-slot:hover {
-      border-color: var(--gold);
-      background: #273549;
-      transform: translateY(-2px);
+      border-color: var(--gold); background: #273549; transform: translateY(-2px);
     }
     .save-slot .slot-info h3 {
-      font-size: 1.15rem;
-      color: var(--gold-light);
-      margin-bottom: 0.2rem;
+      font-size: 1.15rem; color: var(--gold-light); margin-bottom: 0.2rem;
     }
-    .save-slot .slot-info p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    .save-slot .slot-action {
-      font-size: 0.9rem;
-      color: var(--gold);
-      font-weight: 600;
-    }
+    .save-slot .slot-info p { font-size: 0.85rem; color: var(--text-muted); }
+    .save-slot .slot-action { font-size: 0.9rem; color: var(--gold); font-weight: 600; }
     .title-footer {
-      margin-top: 2.5rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-align: center;
+      margin-top: 2.5rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;
     }
 
-    /* ========== MAIN APP ========== */
+    /* MAIN APP */
     #main-app { display: none; }
     .header {
       background: linear-gradient(135deg, var(--navy-dark), var(--navy));
       border-bottom: 3px solid var(--gold);
-      padding: 0.75rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: var(--shadow);
+      padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem;
+      position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
     }
     .logo-img {
-      width: 52px; height: 52px; flex-shrink: 0;
-      border-radius: 50%; object-fit: cover;
-      border: 2px solid var(--gold); background: #000;
+      width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%;
+      object-fit: cover; border: 2px solid var(--gold); background: #000;
     }
     .header-text h1 { font-size: 1.2rem; font-weight: 700; color: white; }
     .header-text p { font-size: 0.78rem; color: var(--gold-light); }
@@ -131,40 +94,25 @@
     button {
       background: var(--surface-2); color: var(--text);
       border: 1px solid var(--border); border-radius: 6px;
-      padding: 0.45rem 0.9rem; font-size: 0.85rem;
-      cursor: pointer; font-weight: 500;
+      padding: 0.45rem 0.9rem; font-size: 0.85rem; cursor: pointer; font-weight: 500;
     }
     button:hover { background: var(--navy); border-color: var(--gold); }
-    button.primary {
-      background: var(--gold); color: #1a1a1a;
-      border-color: var(--gold); font-weight: 600;
-    }
-    button.danger {
-      background: #7f1d1d; border-color: #ef4444; color: #fecaca;
-    }
-    .cloud-status {
-      font-size: 0.75rem;
-      color: var(--gold-light);
-      margin-left: 0.5rem;
-    }
-    .app {
-      display: grid; grid-template-columns: 240px 1fr;
-      min-height: calc(100vh - 70px);
-    }
+    button.primary { background: var(--gold); color: #1a1a1a; border-color: var(--gold); font-weight: 600; }
+    button.danger { background: #7f1d1d; border-color: #ef4444; color: #fecaca; }
+    .cloud-status { font-size: 0.75rem; color: var(--gold-light); margin-left: 0.5rem; }
+    .app { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 70px); }
     .sidebar {
       background: var(--surface); border-right: 1px solid var(--border);
       padding: 1rem 0.75rem; overflow-y: auto;
     }
     .sidebar h2 {
-      font-size: 0.7rem; text-transform: uppercase;
-      letter-spacing: 0.08em; color: var(--text-muted);
-      margin: 0 0.5rem 0.75rem;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-muted); margin: 0 0.5rem 0.75rem;
     }
     .nav-item {
       display: flex; flex-direction: column; gap: 0.15rem;
-      padding: 0.7rem 0.85rem; border-radius: 8px;
-      cursor: pointer; margin-bottom: 0.35rem;
-      border: 1px solid transparent;
+      padding: 0.7rem 0.85rem; border-radius: 8px; cursor: pointer;
+      margin-bottom: 0.35rem; border: 1px solid transparent;
     }
     .nav-item:hover { background: var(--surface-2); }
     .nav-item.active { background: var(--navy); border-color: var(--gold); }
@@ -175,78 +123,54 @@
     .page { display: none; }
     .page.active { display: block; }
     .week-bar {
-      display: flex; flex-wrap: wrap; gap: 0.75rem;
-      align-items: center; margin-bottom: 1rem;
-      padding: 0.85rem 1rem; background: var(--surface);
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+      margin-bottom: 1rem; padding: 0.85rem 1rem; background: var(--surface);
       border-radius: var(--radius); border: 1px solid var(--border);
     }
     .week-bar label { font-size: 0.85rem; font-weight: 600; color: var(--gold-light); }
     .week-bar input {
-      background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); padding: 0.4rem 0.7rem;
-      border-radius: 6px; font-size: 0.9rem; min-width: 180px;
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.9rem; min-width: 180px;
     }
-    .toggle-row {
-      display: flex; align-items: center; gap: 0.6rem;
-      margin-bottom: 1rem; font-size: 0.9rem;
-    }
-    .toggle-row input[type="checkbox"] {
-      width: 18px; height: 18px; accent-color: var(--gold);
-    }
+    .toggle-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; font-size: 0.9rem; }
+    .toggle-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--gold); }
     .can-box {
       background: linear-gradient(135deg, rgba(31,78,121,0.35), rgba(30,41,59,0.8));
       border: 1px solid var(--gold); border-radius: var(--radius);
       padding: 1rem 1.15rem; margin-bottom: 1.25rem;
     }
     .can-box h3 {
-      font-size: 0.8rem; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--gold); margin-bottom: 0.5rem;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--gold); margin-bottom: 0.5rem;
     }
     .can-box textarea {
       width: 100%; background: var(--bg); border: 1px solid var(--border);
       color: var(--text); border-radius: 6px; padding: 0.6rem 0.8rem;
       font-size: 0.9rem; min-height: 60px; font-family: inherit;
     }
-    .notice {
-      margin-top: 0.75rem; font-size: 0.8rem;
-      color: var(--gold-light); font-style: italic;
-    }
+    .notice { margin-top: 0.75rem; font-size: 0.8rem; color: var(--gold-light); font-style: italic; }
     .days-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;
     }
     .day-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); overflow: hidden; position: relative;
     }
-    .day-card.no-school {
-      background: #1a1f2e; border-color: #4b5563; opacity: 0.75;
-    }
+    .day-card.no-school { background: #1a1f2e; border-color: #4b5563; opacity: 0.75; }
     .day-card-header {
-      background: var(--navy-dark); padding: 0.55rem 0.85rem;
-      font-weight: 600; border-bottom: 2px solid var(--gold);
-      display: flex; justify-content: space-between; align-items: center;
+      background: var(--navy-dark); padding: 0.55rem 0.85rem; font-weight: 600;
+      border-bottom: 2px solid var(--gold); display: flex;
+      justify-content: space-between; align-items: center;
     }
-    .day-card.no-school .day-card-header {
-      background: #374151; border-bottom-color: #6b7280;
-    }
+    .day-card.no-school .day-card-header { background: #374151; border-bottom-color: #6b7280; }
     .day-close {
       background: transparent; border: none; color: #f87171;
-      font-size: 1.1rem; font-weight: 700; cursor: pointer;
-      padding: 0 4px; line-height: 1;
+      font-size: 1.1rem; font-weight: 700; cursor: pointer; padding: 0 4px; line-height: 1;
     }
     .day-close:hover { color: #ef4444; background: transparent; }
-    .day-card-body {
-      padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem;
-    }
-    .no-school-message {
-      text-align: center; padding: 2rem 1rem;
-      color: var(--text-muted); font-size: 0.95rem;
-    }
-    .no-school-message strong {
-      display: block; font-size: 1.1rem; color: #f87171; margin-bottom: 0.4rem;
-    }
+    .day-card-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .no-school-message { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.95rem; }
+    .no-school-message strong { display: block; font-size: 1.1rem; color: #f87171; margin-bottom: 0.4rem; }
     .field label {
       display: block; font-size: 0.72rem; text-transform: uppercase;
       color: var(--text-muted); margin-bottom: 0.2rem;
@@ -258,27 +182,17 @@
     }
     .field textarea { min-height: 70px; }
     .day-attach-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;
     }
-    .day-attach-toggle input {
-      width: 15px;
-      height: 15px;
-      accent-color: var(--gold);
-    }
+    .day-attach-toggle input { width: 15px; height: 15px; accent-color: var(--gold); }
     .drop-zone {
-      border: 2px dashed var(--border); border-radius: 8px;
-      padding: 0.9rem; text-align: center; font-size: 0.8rem;
-      color: var(--text-muted); cursor: pointer; transition: all 0.2s;
-      background: rgba(0,0,0,0.15);
+      border: 2px dashed var(--border); border-radius: 8px; padding: 0.9rem;
+      text-align: center; font-size: 0.8rem; color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s; background: rgba(0,0,0,0.15);
     }
     .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--gold); background: rgba(212,175,55,0.08);
-      color: var(--gold-light);
+      border-color: var(--gold); background: rgba(212,175,55,0.08); color: var(--gold-light);
     }
     .drop-zone input[type="file"] { display: none; }
     .attached-file {
@@ -288,12 +202,8 @@
       margin-top: 0.4rem; gap: 0.5rem;
     }
     .attached-file a {
-      color: #86efac;
-      text-decoration: none;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
+      color: #86efac; text-decoration: none; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap; flex: 1;
     }
     .attached-file a:hover { text-decoration: underline; }
     .attached-file button {
@@ -301,9 +211,7 @@
       font-size: 1rem; cursor: pointer; padding: 0 4px; flex-shrink: 0;
     }
     .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;
     }
     .dash-card {
       background: var(--surface); border: 1px solid var(--border);
@@ -324,15 +232,12 @@
     .history-item h3 { color: var(--gold-light); margin-bottom: 0.25rem; }
     .history-item .meta { font-size: 0.8rem; color: var(--text-muted); }
     .history-actions { display: flex; gap: 0.5rem; }
-    .empty-history {
-      text-align: center; padding: 3rem 1rem; color: var(--text-muted);
-    }
+    .empty-history { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
     .toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
-      background: var(--success); color: white;
-      padding: 0.7rem 1.2rem; border-radius: 8px;
-      font-weight: 600; opacity: 0; transition: all 0.25s ease; z-index: 200;
-      max-width: 320px;
+      background: var(--success); color: white; padding: 0.7rem 1.2rem;
+      border-radius: 8px; font-weight: 600; opacity: 0;
+      transition: all 0.25s ease; z-index: 200; max-width: 320px;
     }
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
@@ -363,12 +268,11 @@
       .print-report { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; }
       .no-print { display: none !important; }
     }
-
     @media (max-width: 800px) {
       .app { grid-template-columns: 1fr; }
       .sidebar {
-        display: flex; overflow-x: auto; padding: 0.6rem;
-        gap: 0.4rem; border-right: none; border-bottom: 1px solid var(--border);
+        display: flex; overflow-x: auto; padding: 0.6rem; gap: 0.4rem;
+        border-right: none; border-bottom: 1px solid var(--border);
       }
       .sidebar h2 { display: none; }
       .nav-item { flex-shrink: 0; min-width: 120px; margin-bottom: 0; }
@@ -377,23 +281,19 @@
 </head>
 <body>
 
-  <!-- ========== TITLE / SAVE SELECT SCREEN ========== -->
+  <!-- TITLE / SAVE SELECT -->
   <div id="title-screen">
     <img class="title-logo" src="assets/xe-logo.jpg" alt="XE Logo" />
     <div class="title-welcome">Welcome, X</div>
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
-
-    <div class="save-slots" id="saveSlots">
-      <!-- filled by JS -->
-    </div>
-
+    <div class="save-slots" id="saveSlots"></div>
     <div class="title-footer">
       Choose a Save File to continue or start planning.<br>
-      Each save file is completely separate and protected.
+      Each Save File keeps its own permanent Archives.
     </div>
   </div>
 
-  <!-- ========== MAIN PLANNER ========== -->
+  <!-- MAIN PLANNER -->
   <div id="main-app">
     <header class="header no-print">
       <img class="logo-img" src="assets/xe-logo.jpg" alt="XE Logo" />
@@ -438,7 +338,7 @@
         </div>
         <div class="nav-item" data-page="history" style="margin-top:1.5rem;">
           <span class="block-name">📁 Archives</span>
-          <span class="block-time">Completed weeks</span>
+          <span class="block-time">Permanent history</span>
         </div>
       </nav>
 
@@ -458,7 +358,7 @@
         <div class="can-box">
           <h3>C.A.N. Standards Focus</h3>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-          <p class="notice">All times are subject to change. Progress is auto-saved to the current Save File.</p>
+          <p class="notice">All times are subject to change. Archives in this Save File are permanent and never auto-delete.</p>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -487,9 +387,9 @@
         </section>
 
         <section id="page-history" class="page">
-          <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Completed Weeks)</h2>
+          <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-            These are the weeks you have archived inside the current Save File.
+            These archived weeks stay in this Save File forever. Starting a new week does <strong>not</strong> delete them.
           </p>
           <div class="history-list" id="historyList"></div>
         </section>
@@ -508,7 +408,7 @@
     const CLOUD_NAME = "udjs1xr5";
     const UPLOAD_PRESET = "scholastic-batch";
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
-    const LOCAL_KEY = "scholastic-batch-saves-v1";
+    const LOCAL_KEY = "scholastic-batch-saves-v2"; // bumped version for safer structure
 
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
@@ -518,7 +418,6 @@
       spark: { name: "SPARK", time: "4:19 – 5:00" }
     };
 
-    // Game-style save structure
     let saveSystem = {
       activeSlot: null,
       slots: {
@@ -532,35 +431,38 @@
       return {
         currentWeek: "default",
         data: { canFocus: "", blocks: {}, showAttachments: false },
-        archive: {},
+        archive: {},          // PERMANENT – never auto-cleared
         lastSaved: null
       };
     }
 
     function emptyBlock() {
       const d = {};
-      DAYS.forEach(day => d[day] = { 
-        title:"", objective:"", activities:"", notes:"", 
-        noSchool:false, showAttach:false, fileName:"", fileUrl:"", publicId:"" 
+      DAYS.forEach(day => d[day] = {
+        title:"", objective:"", activities:"", notes:"",
+        noSchool:false, showAttach:false, fileName:"", fileUrl:"", publicId:""
       });
       return d;
     }
+
     function ensureData(slotData) {
-      Object.keys(BLOCKS).forEach(k => { 
-        if (!slotData.blocks[k]) slotData.blocks[k] = emptyBlock(); 
+      if (!slotData.blocks) slotData.blocks = {};
+      Object.keys(BLOCKS).forEach(k => {
+        if (!slotData.blocks[k]) slotData.blocks[k] = emptyBlock();
         DAYS.forEach(day => {
           if (typeof slotData.blocks[k][day].showAttach === "undefined") slotData.blocks[k][day].showAttach = false;
           if (typeof slotData.blocks[k][day].publicId === "undefined") slotData.blocks[k][day].publicId = "";
         });
       });
+      if (!slotData.archive) slotData.archive = {}; // never leave archive undefined
     }
 
-    // ========== LOCAL + CLOUD PERSISTENCE ==========
+    // ========== LOCAL + CLOUD ==========
     function saveLocal() {
       try {
         localStorage.setItem(LOCAL_KEY, JSON.stringify(saveSystem));
         return true;
-      } catch(e) { return false; }
+      } catch (e) { return false; }
     }
 
     function loadLocal() {
@@ -570,21 +472,23 @@
         const parsed = JSON.parse(raw);
         if (parsed && parsed.slots) {
           saveSystem = parsed;
-          // ensure all 3 slots exist
           [1,2,3].forEach(n => {
             if (!saveSystem.slots[n]) saveSystem.slots[n] = createEmptySlot();
+            if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
+            ensureData(saveSystem.slots[n].data);
           });
           return true;
         }
-      } catch(e) {}
+      } catch (e) {}
       return false;
     }
 
     async function cloudSave() {
-      // also keep a local copy
       if (saveSystem.activeSlot) {
         const slot = saveSystem.slots[saveSystem.activeSlot];
         slot.lastSaved = new Date().toISOString();
+        // CRITICAL: never allow archive to become undefined
+        if (!slot.archive) slot.archive = {};
       }
       saveLocal();
 
@@ -601,12 +505,13 @@
         if (!res.ok) throw new Error("fail");
         setCloudStatus("• Saved " + new Date().toLocaleTimeString());
         showToast("Progress saved ✓");
-      } catch(e) {
+      } catch (e) {
         setCloudStatus("• Saved on this device");
         showToast("Saved locally", true);
       }
     }
 
+    // Safer cloud merge: NEVER drop archives
     async function cloudLoadBackground() {
       try {
         const res = await fetch(`${API_URL}/latest`, {
@@ -615,21 +520,38 @@
         if (!res.ok) return;
         const json = await res.json();
         const record = json.record || json;
-        if (record && record.slots) {
-          // merge carefully – never wipe good local slots with empty cloud
-          [1,2,3].forEach(n => {
-            const cloudSlot = record.slots[n];
-            const localSlot = saveSystem.slots[n];
-            if (cloudSlot && hasSlotContent(cloudSlot)) {
-              if (!hasSlotContent(localSlot) || (cloudSlot.lastSaved && localSlot.lastSaved && cloudSlot.lastSaved > localSlot.lastSaved)) {
-                saveSystem.slots[n] = cloudSlot;
-              }
-            }
-          });
-          saveLocal();
-          renderTitleSlots();
-        }
-      } catch(e) {}
+        if (!record || !record.slots) return;
+
+        [1,2,3].forEach(n => {
+          const cloudSlot = record.slots[n];
+          const localSlot = saveSystem.slots[n];
+          if (!cloudSlot) return;
+
+          // Merge archives (union) – never lose any archived week
+          const mergedArchive = Object.assign({}, localSlot.archive || {}, cloudSlot.archive || {});
+
+          // Decide which current week/data to keep
+          const cloudHasContent = hasSlotContent(cloudSlot);
+          const localHasContent = hasSlotContent(localSlot);
+          const cloudNewer = cloudSlot.lastSaved && localSlot.lastSaved && cloudSlot.lastSaved > localSlot.lastSaved;
+
+          if (cloudHasContent && (!localHasContent || cloudNewer)) {
+            saveSystem.slots[n] = {
+              currentWeek: cloudSlot.currentWeek || localSlot.currentWeek,
+              data: cloudSlot.data || localSlot.data,
+              archive: mergedArchive,          // keep ALL archives
+              lastSaved: cloudSlot.lastSaved || localSlot.lastSaved
+            };
+          } else {
+            // Keep local data, but still merge any extra archives from cloud
+            localSlot.archive = mergedArchive;
+          }
+          ensureData(saveSystem.slots[n].data);
+        });
+
+        saveLocal();
+        renderTitleSlots();
+      } catch (e) {}
     }
 
     function hasSlotContent(slot) {
@@ -650,6 +572,7 @@
       container.innerHTML = [1,2,3].map(n => {
         const slot = saveSystem.slots[n];
         const hasData = hasSlotContent(slot);
+        const archiveCount = Object.keys(slot.archive || {}).length;
         const weekLabel = slot.currentWeek && slot.currentWeek !== "default" ? slot.currentWeek : "Empty";
         const timeLabel = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
         return `
@@ -657,7 +580,9 @@
             <div class="slot-info">
               <h3>Save File ${n}</h3>
               <p>${hasData ? weekLabel : "New Game"}</p>
-              <p style="font-size:0.75rem; margin-top:0.15rem;">Last saved: ${timeLabel}</p>
+              <p style="font-size:0.75rem; margin-top:0.15rem;">
+                Archives: ${archiveCount} · Last saved: ${timeLabel}
+              </p>
             </div>
             <div class="slot-action">${hasData ? "Continue →" : "Start →"}</div>
           </div>
@@ -668,7 +593,9 @@
     function selectSlot(n) {
       saveSystem.activeSlot = n;
       const slot = saveSystem.slots[n];
+      if (!slot.archive) slot.archive = {};
       ensureData(slot.data);
+
       document.getElementById("activeSlotLabel").textContent = `Save File ${n}`;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -678,13 +605,15 @@
     }
 
     function returnToTitle() {
-      // save current work first
       collectFromDOM();
       if (saveSystem.activeSlot) {
         const slot = saveSystem.slots[saveSystem.activeSlot];
         slot.currentWeek = currentWeek;
         slot.data = data;
-        slot.archive = archive;
+        // CRITICAL: keep the archive that is already in the slot
+        if (!slot.archive) slot.archive = {};
+        // Do NOT replace archive with a possibly empty global – merge instead
+        slot.archive = Object.assign({}, slot.archive, archive || {});
         slot.lastSaved = new Date().toISOString();
       }
       saveLocal();
@@ -698,12 +627,13 @@
     // ========== ACTIVE SLOT STATE ==========
     let currentWeek = "default";
     let data = { canFocus: "", blocks: {}, showAttachments: false };
-    let archive = {};
+    let archive = {};   // this is a working copy of the slot’s archive
 
     function applySlotToUI() {
       const slot = saveSystem.slots[saveSystem.activeSlot];
       currentWeek = slot.currentWeek || "default";
       data = slot.data;
+      // Always use the slot’s permanent archive
       archive = slot.archive || {};
       ensureData(data);
 
@@ -722,12 +652,17 @@
       const slot = saveSystem.slots[saveSystem.activeSlot];
       slot.currentWeek = currentWeek;
       slot.data = data;
-      slot.archive = archive;
+      // Keep permanent archives – never wipe them
+      if (!slot.archive) slot.archive = {};
+      // The global `archive` is the same object we read from the slot,
+      // so any user-driven archive changes are already reflected.
+      // We just make sure it stays.
+      slot.archive = archive || slot.archive;
       slot.lastSaved = new Date().toISOString();
       saveLocal();
     }
 
-    // ========== ARCHIVE (per save file) ==========
+    // ========== ARCHIVE (PERMANENT) ==========
     function archiveCurrentWeek() {
       collectFromDOM();
       const name = document.getElementById("weekOf").value.trim() || currentWeek;
@@ -737,37 +672,56 @@
       }
       if (archive[name] && !confirm(`"${name}" already exists in this Save File’s archive. Overwrite it?`)) return;
 
+      // Add to permanent archive
       archive[name] = {
         canFocus: data.canFocus,
         blocks: JSON.parse(JSON.stringify(data.blocks)),
         showAttachments: data.showAttachments,
         savedAt: new Date().toLocaleString()
       };
+
+      // Also write it into the slot immediately
+      if (saveSystem.activeSlot) {
+        saveSystem.slots[saveSystem.activeSlot].archive = archive;
+      }
+
       currentWeek = name;
       document.getElementById("currentWeekLabel").textContent = `Editing: ${name}`;
       syncSlotFromUI();
       cloudSave();
-      showToast(`Archived to Save File ${saveSystem.activeSlot}`);
+      renderHistory();
+      showToast(`Archived permanently in Save File ${saveSystem.activeSlot}`);
     }
 
     function startNewWeek() {
-      if (!confirm("Start a brand new week in this Save File?\n\nArchive the current week first if you want to keep it.")) return;
+      if (!confirm("Start a brand new week in this Save File?\n\nYour Archives will stay intact.")) return;
+
+      // ONLY reset the current planning data – NEVER touch archive
       currentWeek = "default";
-      data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
+      data = {
+        canFocus: "",
+        blocks: {},
+        showAttachments: document.getElementById("toggleAttachments").checked
+      };
       ensureData(data);
+
+      // archive variable is left completely alone
+
       document.getElementById("weekOf").value = "";
       document.getElementById("currentWeekLabel").textContent = "New blank week";
       document.getElementById("canFocus").value = "";
       renderAllDayGrids();
       updateDashboard();
+      // Re-render history so user still sees their archives
+      renderHistory();
       syncSlotFromUI();
       cloudSave();
-      showToast("New week started");
+      showToast("New week started – Archives preserved");
     }
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
-      if (!confirm(`Load archived week "${name}" into the current Save File?`)) return;
+      if (!confirm(`Load archived week "${name}" into the current planning area?`)) return;
       currentWeek = name;
       data = {
         canFocus: archive[name].canFocus || "",
@@ -783,18 +737,22 @@
     }
 
     function deleteFromArchive(name) {
-      if (!confirm(`Permanently delete archived week "${name}" from this Save File?`)) return;
+      if (!confirm(`Permanently delete archived week "${name}" from this Save File?\n\nThis cannot be undone.`)) return;
       delete archive[name];
+      if (saveSystem.activeSlot) {
+        saveSystem.slots[saveSystem.activeSlot].archive = archive;
+      }
       syncSlotFromUI();
       cloudSave();
+      renderHistory();
       showToast("Deleted from archive");
     }
 
     function renderHistory() {
       const list = document.getElementById("historyList");
-      const keys = Object.keys(archive).sort().reverse();
+      const keys = Object.keys(archive || {}).sort().reverse();
       if (keys.length === 0) {
-        list.innerHTML = `<div class="empty-history">No archived weeks in this Save File yet.<br><br>When you finish a week, click <strong>📦 Archive Week</strong>.</div>`;
+        list.innerHTML = `<div class="empty-history">No archived weeks in this Save File yet.<br><br>When you finish a week, click <strong>📦 Archive Week</strong>.<br>Archives stay forever and survive New Week.</div>`;
         return;
       }
       list.innerHTML = keys.map(name => `
@@ -811,7 +769,7 @@
       `).join("");
     }
 
-    // ========== PRINT + REST OF HELPERS (kept functional) ==========
+    // ========== PRINT + HELPERS ==========
     function isImage(fileName, url) {
       const name = (fileName || url || "").toLowerCase();
       return /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(name);
@@ -858,8 +816,9 @@
           html += `<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>`;
         } else {
           Object.entries(BLOCKS).forEach(([key, info]) => {
-            const e = (data.blocks[key] && data.blocks[key][day]) || { title:"", objective:"", activities:"", notes:"", noSchool:false, fileName:"", fileUrl:"", publicId:"" };
-            
+            const e = (data.blocks[key] && data.blocks[key][day]) || {
+              title:"", objective:"", activities:"", notes:"", noSchool:false, fileName:"", fileUrl:"", publicId:""
+            };
             if (e.noSchool) {
               html += `
                 <div class="print-block">
@@ -974,7 +933,7 @@
         syncSlotFromUI();
         cloudSave();
         showToast("Document uploaded ✓");
-      } catch(err) {
+      } catch (err) {
         showToast("Upload failed", true);
       }
     }
@@ -991,7 +950,7 @@
 
     function renderDayCard(blockKey, day) {
       const e = (data.blocks[blockKey] && data.blocks[blockKey][day]) || {
-        title:"", objective:"", activities:"", notes:"", noSchool:false, 
+        title:"", objective:"", activities:"", notes:"", noSchool:false,
         showAttach:false, fileName:"", fileUrl:"", publicId:""
       };
       const globalOn = document.getElementById("toggleAttachments").checked;
@@ -1026,7 +985,8 @@
                    ondragover="event.preventDefault();this.classList.add('dragover')"
                    ondragleave="this.classList.remove('dragover')"
                    ondrop="event.preventDefault();this.classList.remove('dragover');handleFile('${blockKey}','${day}',event.dataTransfer.files[0])">
-                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt,.xlsx,.xls" onchange="handleFile('${blockKey}','${day}',this.files[0])" />
+                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt,.xlsx,.xls"
+                       onchange="handleFile('${blockKey}','${day}',this.files[0])" />
                 📄 Drop worksheet here or click to upload
               </div>`;
           }
@@ -1058,9 +1018,9 @@
       grid.innerHTML = Object.entries(BLOCKS).map(([key, info]) => {
         const bd = data.blocks[key] || emptyBlock();
         let filled = 0;
-        DAYS.forEach(d => { 
-          const e = bd[d]; 
-          if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||e.fileName)) filled++; 
+        DAYS.forEach(d => {
+          const e = bd[d];
+          if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||e.fileName)) filled++;
         });
         return `<div class="dash-card" data-goto="${key}">
           <h3>${info.name}</h3>
@@ -1110,7 +1070,6 @@
     });
     document.getElementById("canFocus").addEventListener("input", () => syncSlotFromUI());
 
-    // Auto-save every 25 seconds while in a slot
     setInterval(() => {
       if (saveSystem.activeSlot) {
         syncSlotFromUI();
