@@ -21,15 +21,17 @@
     .title-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--gold); object-fit: cover; margin-bottom: 1.5rem; box-shadow: 0 0 40px rgba(212,175,55,0.35); }
     .title-welcome { font-size: 1.8rem; font-weight: 700; color: white; margin-bottom: 0.4rem; text-align: center; }
     .title-sub { font-size: 1.05rem; color: var(--gold-light); margin-bottom: 2.5rem; text-align: center; }
-    .save-slots { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 420px; }
+    .save-slots { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 440px; }
     .save-slot {
       background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1.1rem 1.4rem;
-      cursor: pointer; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center;
+      display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
     }
-    .save-slot:hover { border-color: var(--gold); background: #273549; transform: translateY(-2px); }
+    .save-slot .slot-main { flex: 1; cursor: pointer; }
+    .save-slot .slot-main:hover h3 { color: var(--gold); }
     .save-slot .slot-info h3 { font-size: 1.15rem; color: var(--gold-light); margin-bottom: 0.2rem; }
     .save-slot .slot-info p { font-size: 0.85rem; color: var(--text-muted); }
-    .save-slot .slot-action { font-size: 0.9rem; color: var(--gold); font-weight: 600; }
+    .save-slot .slot-actions { display: flex; flex-direction: column; gap: 0.4rem; }
+    .save-slot .slot-actions button { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
     .title-footer { margin-top: 2.5rem; font-size: 0.8rem; color: var(--text-muted); text-align: center; }
 
     #main-app { display: none; }
@@ -83,6 +85,17 @@
       width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
       border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.9rem; min-height: 60px; font-family: inherit;
     }
+    .field-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;
+    }
+    .field-header label {
+      font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted);
+    }
+    .copy-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; cursor: pointer;
+    }
+    .copy-btn:hover { border-color: var(--gold); color: var(--gold-light); }
     .notice { margin-top: 0.75rem; font-size: 0.8rem; color: var(--gold-light); font-style: italic; }
     .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
     .day-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -96,7 +109,6 @@
     .day-card-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
     .no-school-message { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.95rem; }
     .no-school-message strong { display: block; font-size: 1.1rem; color: #f87171; margin-bottom: 0.4rem; }
-    .field label { display: block; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.2rem; }
     .field input, .field textarea {
       width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
       border-radius: 5px; padding: 0.45rem 0.6rem; font-size: 0.85rem; font-family: inherit;
@@ -181,8 +193,8 @@
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
     <div class="title-footer">
-      Your progress is saved on this device first, then backed up to the cloud.<br>
-      Archives never auto-delete.
+      Progress is saved on this device first, then backed up to the cloud.<br>
+      Archives never auto-delete. You can wipe a Save File if needed.
     </div>
   </div>
 
@@ -231,9 +243,12 @@
         </div>
 
         <div class="can-box">
-          <h3>C.A.N. Standards Focus</h3>
+          <div class="field-header">
+            <h3 style="margin:0;">C.A.N. Standards Focus</h3>
+            <button class="copy-btn" onclick="copyField('canFocus')">Copy</button>
+          </div>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-          <p class="notice">Progress auto-saves on every change. Archives are permanent inside each Save File.</p>
+          <p class="notice">All times are subject to change. Archives are permanent inside each Save File.</p>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -259,7 +274,7 @@
         <section id="page-history" class="page">
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-            These stay in this Save File forever. Starting a new week does not delete them.
+            These stay in this Save File forever. Loading an archive restores the week name and all content.
           </p>
           <div class="history-list" id="historyList"></div>
         </section>
@@ -268,17 +283,16 @@
   </div>
 
   <div class="print-report" id="printReport"></div>
-  <div class="toast" id="toast">Saved</div>
+  <div class="toast" id="toast"></div>
 
   <script>
-    // ========== CONFIG ==========
     const BIN_ID = "6a6cfe28f5f4af5e29db8208";
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
     const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
     const CLOUD_NAME = "udjs1xr5";
     const UPLOAD_PRESET = "scholastic-batch";
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
-    const LOCAL_KEY = "XE_SCHOLASTIC_SAVES_V3"; // new isolated key
+    const LOCAL_KEY = "XE_SCHOLASTIC_SAVES_V3";
 
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
@@ -288,23 +302,13 @@
       spark: { name: "SPARK", time: "4:19 – 5:00" }
     };
 
-    // ========== STATE ==========
-    let saveSystem = {
-      activeSlot: null,
-      slots: { 1: emptySlot(), 2: emptySlot(), 3: emptySlot() }
-    };
-
+    let saveSystem = { activeSlot: null, slots: { 1: emptySlot(), 2: emptySlot(), 3: emptySlot() } };
     let currentWeek = "default";
     let data = { canFocus: "", blocks: {}, showAttachments: false };
-    let archive = {}; // working copy – always mirrors the slot's permanent archive
+    let archive = {};
 
     function emptySlot() {
-      return {
-        currentWeek: "default",
-        data: { canFocus: "", blocks: {}, showAttachments: false },
-        archive: {},
-        lastSaved: null
-      };
+      return { currentWeek: "default", data: { canFocus: "", blocks: {}, showAttachments: false }, archive: {}, lastSaved: null };
     }
     function emptyBlock() {
       const d = {};
@@ -325,22 +329,18 @@
       });
     }
 
-    // ========== LOCAL STORAGE = PRIMARY TRUTH ==========
     function persistLocal() {
       try {
         if (saveSystem.activeSlot) {
           const slot = saveSystem.slots[saveSystem.activeSlot];
           slot.currentWeek = currentWeek;
-          slot.data = JSON.parse(JSON.stringify(data)); // deep copy
-          slot.archive = JSON.parse(JSON.stringify(archive)); // deep copy – never lose archives
+          slot.data = JSON.parse(JSON.stringify(data));
+          slot.archive = JSON.parse(JSON.stringify(archive));
           slot.lastSaved = new Date().toISOString();
         }
         localStorage.setItem(LOCAL_KEY, JSON.stringify(saveSystem));
         return true;
-      } catch (e) {
-        console.error("Local save failed", e);
-        return false;
-      }
+      } catch (e) { return false; }
     }
 
     function loadLocal() {
@@ -356,18 +356,14 @@
           ensureBlocks(saveSystem.slots[n].data);
         });
         return true;
-      } catch (e) {
-        console.error("Local load failed", e);
-        return false;
-      }
+      } catch (e) { return false; }
     }
 
-    // Cloud is backup only – NEVER overwrites good local data
     let cloudBusy = false;
     async function pushCloud() {
       if (cloudBusy) return;
       cloudBusy = true;
-      persistLocal(); // always write local first
+      persistLocal();
       try {
         setStatus("Backing up…");
         const res = await fetch(API_URL, {
@@ -375,20 +371,16 @@
           headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
           body: JSON.stringify(saveSystem)
         });
-        if (!res.ok) throw new Error("cloud fail");
+        if (!res.ok) throw new Error("fail");
         setStatus("• Saved " + new Date().toLocaleTimeString());
       } catch (e) {
         setStatus("• Saved on this device");
-      } finally {
-        cloudBusy = false;
-      }
+      } finally { cloudBusy = false; }
     }
 
-    // Only pull cloud if local is completely empty
     async function maybePullCloud() {
       const anyLocal = [1,2,3].some(n => hasContent(saveSystem.slots[n]));
-      if (anyLocal) return; // protect local data
-
+      if (anyLocal) return;
       try {
         const res = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": MASTER_KEY } });
         if (!res.ok) return;
@@ -428,21 +420,18 @@
       t.textContent = msg;
       t.classList.toggle("error", err);
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2500);
+      setTimeout(() => t.classList.remove("show"), 2200);
     }
 
-    // ========== SAFE SAVE (call after every change) ==========
-    function safeSave(showMsg = false) {
+    function safeSave() {
       collectFromDOM();
-      const ok = persistLocal();
-      if (showMsg) showToast(ok ? "Saved on this device ✓" : "Save failed", !ok);
-      // background cloud backup
+      persistLocal();
       pushCloud();
       updateDashboard();
       renderHistory();
     }
 
-    // ========== TITLE SCREEN ==========
+    // ========== TITLE ==========
     function renderTitleSlots() {
       const box = document.getElementById("saveSlots");
       box.innerHTML = [1,2,3].map(n => {
@@ -452,13 +441,18 @@
         const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
         const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
         return `
-          <div class="save-slot" onclick="enterSlot(${n})">
-            <div class="slot-info">
-              <h3>Save File ${n}</h3>
-              <p>${has ? week : "New Game"}</p>
-              <p style="font-size:0.75rem;margin-top:0.15rem;">Archives: ${archives} · Last saved: ${when}</p>
+          <div class="save-slot">
+            <div class="slot-main" onclick="enterSlot(${n})">
+              <div class="slot-info">
+                <h3>Save File ${n}</h3>
+                <p>${has ? week : "New Game"}</p>
+                <p style="font-size:0.75rem;margin-top:0.15rem;">Archives: ${archives} · Last saved: ${when}</p>
+              </div>
             </div>
-            <div class="slot-action">${has ? "Continue →" : "Start →"}</div>
+            <div class="slot-actions">
+              <button class="primary" onclick="enterSlot(${n})">${has ? "Continue" : "Start"}</button>
+              <button class="danger" onclick="wipeSlot(${n})">Wipe</button>
+            </div>
           </div>`;
       }).join("");
     }
@@ -471,14 +465,22 @@
 
       currentWeek = slot.currentWeek || "default";
       data = JSON.parse(JSON.stringify(slot.data));
-      archive = JSON.parse(JSON.stringify(slot.archive)); // permanent copy
+      archive = JSON.parse(JSON.stringify(slot.archive));
 
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
       applyUI();
       setStatus("• Save File " + n);
-      showToast("Loaded Save File " + n);
+    }
+
+    function wipeSlot(n) {
+      if (!confirm(`Wipe Save File ${n} completely?\n\nThis deletes the current week AND all Archives in that file.\nThis cannot be undone.`)) return;
+      saveSystem.slots[n] = emptySlot();
+      persistLocal();
+      pushCloud();
+      renderTitleSlots();
+      showToast(`Save File ${n} wiped`, true);
     }
 
     function returnToTitle() {
@@ -499,7 +501,7 @@
       renderHistory();
     }
 
-    // ========== ARCHIVE (append-only) ==========
+    // ========== ARCHIVE ==========
     function archiveCurrentWeek() {
       collectFromDOM();
       const name = (document.getElementById("weekOf").value.trim() || currentWeek);
@@ -516,31 +518,30 @@
         savedAt: new Date().toLocaleString()
       };
       currentWeek = name;
+      document.getElementById("weekOf").value = name;
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
-      safeSave(true);
-      showToast("Archived permanently ✓");
+      safeSave();
     }
 
     function startNewWeek() {
-      if (!confirm("Start a new week?\n\nYour Archives will stay safe.")) return;
-      // ONLY clear current planning data
+      if (!confirm("Start a new week?\nYour Archives will stay safe.")) return;
       currentWeek = "default";
       data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
       ensureBlocks(data);
-      // archive is intentionally left alone
       document.getElementById("weekOf").value = "";
       document.getElementById("currentWeekLabel").textContent = "New blank week";
       document.getElementById("canFocus").value = "";
       renderAllDayGrids();
       updateDashboard();
-      renderHistory(); // still shows archives
-      safeSave(true);
-      showToast("New week started – Archives preserved");
+      renderHistory();
+      safeSave();
     }
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
-      if (!confirm(`Load "${name}" into the current planning area?`)) return;
+      if (!confirm(`Load "${name}"?`)) return;
+
+      // Load week name + full content
       currentWeek = name;
       data = {
         canFocus: archive[name].canFocus || "",
@@ -548,25 +549,33 @@
         showAttachments: !!archive[name].showAttachments
       };
       ensureBlocks(data);
-      applyUI();
-      safeSave(true);
+
+      // Put week name in the input field
+      document.getElementById("weekOf").value = name;
+      document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
+      document.getElementById("canFocus").value = data.canFocus || "";
+      document.getElementById("toggleAttachments").checked = !!data.showAttachments;
+
+      renderAllDayGrids();
+      updateDashboard();
+      renderHistory();
+      safeSave();
       switchPage("dashboard");
-      showToast("Loaded: " + name);
     }
 
     function deleteFromArchive(name) {
-      if (!confirm(`Permanently delete "${name}" from this Save File?\nThis cannot be undone.`)) return;
+      if (!confirm(`Permanently delete "${name}"?\nThis cannot be undone.`)) return;
       delete archive[name];
-      safeSave(true);
+      safeSave();
       renderHistory();
-      showToast("Deleted from archive");
+      showToast("Deleted from archive", true);
     }
 
     function renderHistory() {
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive || {}).sort().reverse();
       if (!keys.length) {
-        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br><br>Finish a week → click <strong>📦 Archive Week</strong>.<br>Archives never auto-delete.</div>`;
+        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br><br>Finish a week → click <strong>📦 Archive Week</strong>.</div>`;
         return;
       }
       list.innerHTML = keys.map(name => `
@@ -582,7 +591,27 @@
         </div>`).join("");
     }
 
-    // ========== DOM COLLECT / RENDER ==========
+    // ========== COPY ==========
+    function copyField(idOrValue) {
+      let text = "";
+      if (idOrValue === "canFocus") {
+        text = document.getElementById("canFocus").value;
+      } else {
+        text = idOrValue; // direct string from day fields
+      }
+      if (!text) return;
+      navigator.clipboard.writeText(text).catch(() => {
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      });
+    }
+
+    // ========== DOM ==========
     function collectFromDOM() {
       data.canFocus = document.getElementById("canFocus").value;
       data.showAttachments = document.getElementById("toggleAttachments").checked;
@@ -624,7 +653,6 @@
     async function handleFile(b, d, file) {
       if (!file) return;
       if (!data.blocks[b]) data.blocks[b] = emptyBlock();
-      showToast("Uploading…");
       const fd = new FormData();
       fd.append("file", file);
       fd.append("upload_preset", UPLOAD_PRESET);
@@ -638,8 +666,7 @@
         data.blocks[b][d].publicId = r.public_id || "";
         data.blocks[b][d].showAttach = true;
         renderAllDayGrids();
-        safeSave(true);
-        showToast("Document uploaded ✓");
+        safeSave();
       } catch (e) {
         showToast("Upload failed", true);
       }
@@ -690,14 +717,26 @@
         <div class="day-card-header"><span>${day}</span>
           <button class="day-close" onclick="toggleNoSchool('${b}','${day}')">✕</button></div>
         <div class="day-card-body">
-          <div class="field"><label>Lesson / Activity Title</label>
-            <input type="text" data-field="title" value="${esc(e.title)}" oninput="safeSave()"></div>
-          <div class="field"><label>Objective / Focus</label>
-            <input type="text" data-field="objective" value="${esc(e.objective)}" oninput="safeSave()"></div>
-          <div class="field"><label>Activities / Content</label>
-            <textarea data-field="activities" oninput="safeSave()">${esc(e.activities)}</textarea></div>
-          <div class="field"><label>Notes / Materials</label>
-            <textarea data-field="notes" rows="2" oninput="safeSave()">${esc(e.notes)}</textarea></div>
+          <div class="field">
+            <div class="field-header"><label>Lesson / Activity Title</label>
+              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('input').value)">Copy</button></div>
+            <input type="text" data-field="title" value="${esc(e.title)}" oninput="safeSave()">
+          </div>
+          <div class="field">
+            <div class="field-header"><label>Objective / Focus</label>
+              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('input').value)">Copy</button></div>
+            <input type="text" data-field="objective" value="${esc(e.objective)}" oninput="safeSave()">
+          </div>
+          <div class="field">
+            <div class="field-header"><label>Activities / Content</label>
+              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('textarea').value)">Copy</button></div>
+            <textarea data-field="activities" oninput="safeSave()">${esc(e.activities)}</textarea>
+          </div>
+          <div class="field">
+            <div class="field-header"><label>Notes / Materials</label>
+              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('textarea').value)">Copy</button></div>
+            <textarea data-field="notes" rows="2" oninput="safeSave()">${esc(e.notes)}</textarea>
+          </div>
           ${attach}
         </div></div>`;
     }
@@ -730,7 +769,6 @@
       document.querySelector(`.nav-item[data-page="${id}"]`)?.classList.add("active");
     }
 
-    // ========== PRINT ==========
     function isImage(n,u){ return /\.(jpg|jpeg|png|gif|webp)$/i.test(n||u||""); }
     function isPdf(n,u){ return (n||u||"").toLowerCase().endsWith(".pdf"); }
     function pdfPage(pid,p){ return pid ? `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,pg_${p}/${pid}` : null; }
@@ -795,12 +833,11 @@
       a.href = URL.createObjectURL(blob);
       a.download = `Scholastic-Batch-Backup-${new Date().toISOString().slice(0,10)}.json`;
       a.click();
-      showToast("Backup file downloaded");
     }
 
-    // ========== EVENTS ==========
+    // Events
     document.querySelectorAll(".nav-item").forEach(i => i.onclick = () => switchPage(i.dataset.page));
-    document.getElementById("btnSave").onclick = () => safeSave(true);
+    document.getElementById("btnSave").onclick = () => safeSave();
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
     document.getElementById("btnNewWeek").onclick = startNewWeek;
     document.getElementById("btnPrintReport").onclick = generatePrintReport;
@@ -810,7 +847,7 @@
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: "+w : "Current week";
-      safeSave(true);
+      safeSave();
     };
     document.getElementById("toggleAttachments").onchange = () => {
       data.showAttachments = document.getElementById("toggleAttachments").checked;
@@ -819,22 +856,14 @@
     };
     document.getElementById("canFocus").oninput = () => safeSave();
 
-    // Auto-save every 15 seconds while in a slot
     setInterval(() => { if (saveSystem.activeSlot) safeSave(); }, 15000);
-
-    // Save when leaving
     window.addEventListener("beforeunload", () => {
-      if (saveSystem.activeSlot) {
-        collectFromDOM();
-        persistLocal();
-      }
+      if (saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
     });
 
-    // ========== BOOT ==========
-    const hadLocal = loadLocal();
+    // Boot
+    loadLocal();
     renderTitleSlots();
-    if (hadLocal) setStatus("• Restored from this device");
-    // Only try cloud if local was empty
     setTimeout(maybePullCloud, 1000);
   </script>
 </body>
