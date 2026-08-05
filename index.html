@@ -139,6 +139,10 @@
     .history-item:hover { border-color: var(--gold); }
     .history-item h3 { color: var(--gold-light); margin-bottom: 0.25rem; }
     .history-item .meta { font-size: 0.8rem; color: var(--text-muted); }
+    .history-item .can-preview {
+      font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;
+      max-height: 2.4em; overflow: hidden;
+    }
     .history-actions { display: flex; gap: 0.5rem; }
     .empty-history { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
     .toast {
@@ -148,20 +152,13 @@
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
 
-    /* Preview page */
     .preview-banner {
       background: rgba(212,175,55,0.12); border: 1px solid var(--gold); border-radius: 8px;
       padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--gold-light);
     }
-    .preview-source-row {
-      display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem; align-items: center;
-    }
-    .preview-source-row button.source-btn {
-      min-width: 110px;
-    }
-    .preview-source-row button.source-btn.active {
-      background: var(--navy); border-color: var(--gold); color: var(--gold-light);
-    }
+    .preview-source-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem; align-items: center; }
+    .preview-source-row button.source-btn { min-width: 110px; }
+    .preview-source-row button.source-btn.active { background: var(--navy); border-color: var(--gold); color: var(--gold-light); }
     .preview-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.15rem 1.25rem; margin-bottom: 1rem;
@@ -216,10 +213,7 @@
     <div class="title-welcome">Welcome, X</div>
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
-    <div class="title-footer">
-      Progress is saved on this device first, then backed up to the cloud.<br>
-      Use Preview / Transfer inside a Save File to copy one save into another.
-    </div>
+    <div class="title-footer">Your data is stored on this device. Open a Save File to continue.</div>
   </div>
 
   <div id="main-app">
@@ -272,7 +266,7 @@
             <button class="copy-btn" onclick="copyField('canFocus')">Copy</button>
           </div>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-          <p class="notice">All times are subject to change. Archives are permanent inside each Save File.</p>
+          <p class="notice">C.A.N. Focus is saved with every week and restored when you load that archive.</p>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -298,23 +292,18 @@
         <section id="page-history" class="page">
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-            Loading an archive restores the week name and all content.
+            Each archive stores its own C.A.N. Focus with the lesson plans.
           </p>
           <div class="history-list" id="historyList"></div>
         </section>
 
-        <!-- PREVIEW / TRANSFER PAGE (single save file only) -->
         <section id="page-preview" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Preview / Transfer</h2>
           <div class="preview-banner">
-            <strong>Preview only.</strong> You are viewing one Save File. If it looks right, use
-            <strong>Transfer data</strong> to replace the Save File you are currently working in
-            (Save File <span id="previewTargetLabel">—</span>).
+            <strong>Preview only.</strong> Transfer replaces Save File <span id="previewTargetLabel">—</span> only.
           </div>
-
           <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.6rem;">Choose a Save File to preview:</p>
           <div class="preview-source-row" id="previewSourceButtons"></div>
-
           <div id="previewPanel"></div>
         </section>
       </main>
@@ -345,7 +334,8 @@
     let currentWeek = "default";
     let data = { canFocus: "", blocks: {}, showAttachments: false };
     let archive = {};
-    let previewSource = null; // which slot is being previewed
+    let previewSource = null;
+    let sessionOpen = false;
 
     function emptySlot() {
       return { currentWeek: "default", data: { canFocus: "", blocks: {}, showAttachments: false }, archive: {}, lastSaved: null };
@@ -359,6 +349,8 @@
       return d;
     }
     function ensureBlocks(d) {
+      if (!d) d = { canFocus: "", blocks: {}, showAttachments: false };
+      if (typeof d.canFocus !== "string") d.canFocus = d.canFocus || "";
       if (!d.blocks) d.blocks = {};
       Object.keys(BLOCKS).forEach(k => {
         if (!d.blocks[k]) d.blocks[k] = emptyBlock();
@@ -367,18 +359,34 @@
           if (typeof d.blocks[k][day].publicId === "undefined") d.blocks[k][day].publicId = "";
         });
       });
+      return d;
+    }
+
+    // Snapshot of current planning week INCLUDING canFocus
+    function snapshotCurrentWeek() {
+      collectFromDOM();
+      return {
+        canFocus: (data.canFocus || "").toString(),
+        blocks: JSON.parse(JSON.stringify(data.blocks || {})),
+        showAttachments: !!data.showAttachments,
+        savedAt: new Date().toLocaleString()
+      };
     }
 
     function persistLocal() {
       try {
-        if (saveSystem.activeSlot) {
+        if (sessionOpen && saveSystem.activeSlot) {
           const slot = saveSystem.slots[saveSystem.activeSlot];
           slot.currentWeek = currentWeek;
-          slot.data = JSON.parse(JSON.stringify(data));
+          slot.data = {
+            canFocus: (data.canFocus || "").toString(),
+            blocks: JSON.parse(JSON.stringify(data.blocks || {})),
+            showAttachments: !!data.showAttachments
+          };
           slot.archive = JSON.parse(JSON.stringify(archive));
           slot.lastSaved = new Date().toISOString();
         }
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(saveSystem));
+        localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots }));
         return true;
       } catch (e) { return false; }
     }
@@ -389,11 +397,18 @@
         if (!raw) return false;
         const parsed = JSON.parse(raw);
         if (!parsed || !parsed.slots) return false;
-        saveSystem = parsed;
+        saveSystem.slots = parsed.slots;
+        saveSystem.activeSlot = null;
+        sessionOpen = false;
         [1,2,3].forEach(n => {
           if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
           if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
-          ensureBlocks(saveSystem.slots[n].data);
+          saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || {});
+          // Repair older archive entries missing canFocus
+          Object.keys(saveSystem.slots[n].archive).forEach(k => {
+            const a = saveSystem.slots[n].archive[k];
+            if (typeof a.canFocus !== "string") a.canFocus = a.canFocus || "";
+          });
         });
         return true;
       } catch (e) { return false; }
@@ -409,7 +424,7 @@
         const res = await fetch(API_URL, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-          body: JSON.stringify(saveSystem)
+          body: JSON.stringify({ activeSlot: null, slots: saveSystem.slots })
         });
         if (!res.ok) throw new Error("fail");
         setStatus("• Saved " + new Date().toLocaleTimeString());
@@ -427,11 +442,15 @@
         const json = await res.json();
         const record = json.record || json;
         if (record && record.slots) {
-          saveSystem = record;
+          const cloudHas = [1,2,3].some(n => hasContent(record.slots[n]));
+          if (!cloudHas) return;
+          saveSystem.slots = record.slots;
+          saveSystem.activeSlot = null;
+          sessionOpen = false;
           [1,2,3].forEach(n => {
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
             if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
-            ensureBlocks(saveSystem.slots[n].data);
+            saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || {});
           });
           persistLocal();
           renderTitleSlots();
@@ -442,8 +461,18 @@
     function hasContent(slot) {
       if (!slot) return false;
       if (Object.keys(slot.archive || {}).length > 0) return true;
-      if (slot.data && slot.data.canFocus && slot.data.canFocus.trim()) return true;
+      if (slot.data && slot.data.canFocus && String(slot.data.canFocus).trim()) return true;
       for (const b of Object.values(slot.data?.blocks || {})) {
+        for (const d of Object.values(b)) {
+          if (d.title || d.objective || d.activities || d.notes || d.fileName) return true;
+        }
+      }
+      return false;
+    }
+
+    function hasCurrentWork() {
+      if (data.canFocus && String(data.canFocus).trim()) return true;
+      for (const b of Object.values(data.blocks || {})) {
         for (const d of Object.values(b)) {
           if (d.title || d.objective || d.activities || d.notes || d.fileName) return true;
         }
@@ -471,10 +500,12 @@
       t.textContent = msg;
       t.classList.toggle("error", err);
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2200);
+      setTimeout(() => t.classList.remove("show"), 2500);
     }
 
     function safeSave() {
+      if (!sessionOpen || !saveSystem.activeSlot) return;
+      if (document.getElementById("main-app").style.display === "none") return;
       collectFromDOM();
       persistLocal();
       pushCloud();
@@ -482,7 +513,42 @@
       renderHistory();
     }
 
-    // ========== TITLE ==========
+    // Preserve current week (including C.A.N.) before switching
+    function preserveCurrentWorkBeforeSwitch(nextName) {
+      collectFromDOM();
+      if (!hasCurrentWork()) return true;
+
+      // Same week already open — keep live data, do not clobber with older archive
+      if (nextName && currentWeek === nextName) return true;
+
+      let name = (document.getElementById("weekOf").value.trim() || currentWeek || "").trim();
+      if (!name || name === "default") {
+        name = prompt(
+          "Your current week (including C.A.N. Focus) needs a name before switching.\n\nEnter a name to archive it:",
+          "Week " + new Date().toLocaleDateString()
+        );
+        if (name === null) return false;
+        name = name.trim();
+        if (!name) {
+          alert("A name is required to keep your current work. Action cancelled.");
+          return false;
+        }
+      }
+
+      if (archive[name] && name !== nextName) {
+        if (!confirm(`Archive "${name}" already exists.\n\nOK = update it with your current work (including C.A.N. Focus)\nCancel = stop`)) {
+          return false;
+        }
+      }
+
+      archive[name] = snapshotCurrentWeek();
+      if (saveSystem.activeSlot) {
+        saveSystem.slots[saveSystem.activeSlot].archive = JSON.parse(JSON.stringify(archive));
+      }
+      persistLocal();
+      return true;
+    }
+
     function renderTitleSlots() {
       const box = document.getElementById("saveSlots");
       box.innerHTML = [1,2,3].map(n => {
@@ -509,16 +575,22 @@
     }
 
     function enterSlot(n) {
-      // flush current first if switching
-      if (saveSystem.activeSlot) safeSave();
+      if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) safeSave();
 
       saveSystem.activeSlot = n;
+      sessionOpen = true;
+
       const slot = saveSystem.slots[n];
-      ensureBlocks(slot.data);
+      slot.data = ensureBlocks(slot.data || {});
       if (!slot.archive) slot.archive = {};
 
       currentWeek = slot.currentWeek || "default";
-      data = JSON.parse(JSON.stringify(slot.data));
+      data = {
+        canFocus: (slot.data.canFocus || "").toString(),
+        blocks: JSON.parse(JSON.stringify(slot.data.blocks || {})),
+        showAttachments: !!slot.data.showAttachments
+      };
+      ensureBlocks(data);
       archive = JSON.parse(JSON.stringify(slot.archive));
 
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
@@ -530,13 +602,14 @@
     }
 
     function wipeSlot(n) {
-      if (!confirm(`Wipe Save File ${n} completely?\n\nThis deletes the current week AND all Archives in that file.\nThis cannot be undone.`)) return;
+      if (!confirm(`Wipe Save File ${n} completely?\nThis cannot be undone.`)) return;
       saveSystem.slots[n] = emptySlot();
-      if (saveSystem.activeSlot === n) {
+      if (sessionOpen && saveSystem.activeSlot === n) {
         currentWeek = "default";
         data = { canFocus: "", blocks: {}, showAttachments: false };
         archive = {};
         ensureBlocks(data);
+        applyUI();
       }
       persistLocal();
       pushCloud();
@@ -545,7 +618,8 @@
     }
 
     function returnToTitle() {
-      safeSave();
+      if (sessionOpen) safeSave();
+      sessionOpen = false;
       saveSystem.activeSlot = null;
       document.getElementById("main-app").style.display = "none";
       document.getElementById("title-screen").style.display = "flex";
@@ -555,7 +629,7 @@
     function applyUI() {
       document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
       document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? "Editing: " + currentWeek : "Current week";
-      document.getElementById("canFocus").value = data.canFocus || "";
+      document.getElementById("canFocus").value = (data.canFocus || "").toString();
       document.getElementById("toggleAttachments").checked = !!data.showAttachments;
       renderAllDayGrids();
       updateDashboard();
@@ -563,11 +637,9 @@
       if (document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
     }
 
-    // ========== PREVIEW / TRANSFER (one save file only) ==========
     function renderPreviewPage() {
       const target = saveSystem.activeSlot;
       document.getElementById("previewTargetLabel").textContent = target || "—";
-
       const btnRow = document.getElementById("previewSourceButtons");
       btnRow.innerHTML = [1,2,3].map(n => {
         const isActive = previewSource === n;
@@ -583,17 +655,10 @@
         return;
       }
 
-      // Always read latest from saveSystem (and merge live state if previewing active)
       let slot;
-      if (previewSource === saveSystem.activeSlot) {
-        // live view of current
+      if (previewSource === saveSystem.activeSlot && sessionOpen) {
         collectFromDOM();
-        slot = {
-          currentWeek,
-          data,
-          archive,
-          lastSaved: saveSystem.slots[previewSource].lastSaved
-        };
+        slot = { currentWeek, data, archive, lastSaved: saveSystem.slots[previewSource].lastSaved };
       } else {
         slot = saveSystem.slots[previewSource];
       }
@@ -602,16 +667,17 @@
       const archives = Object.keys(slot.archive || {});
       const filled = countFilledDays(slot);
       const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
-      const can = (slot.data?.canFocus || "").trim();
+      const can = (slot.data?.canFocus || "").toString().trim();
 
       let archHtml = archives.length
         ? `<ul class="preview-archives">${archives.sort().reverse().map(a =>
-            `<li>${esc(a)}${slot.archive[a].savedAt ? " · " + esc(slot.archive[a].savedAt) : ""}</li>`
+            `<li>${esc(a)}${slot.archive[a].savedAt ? " · " + esc(slot.archive[a].savedAt) : ""}${
+              slot.archive[a].canFocus ? " · has C.A.N." : ""
+            }</li>`
           ).join("")}</ul>`
         : `<p class="meta">No archived weeks in this Save File.</p>`;
 
       const same = previewSource === saveSystem.activeSlot;
-
       panel.innerHTML = `
         <div class="preview-card">
           <h3>Save File ${previewSource} — Preview only</h3>
@@ -619,7 +685,7 @@
           <p class="meta"><strong>Days with content:</strong> ${filled}</p>
           <p class="meta"><strong>Archives:</strong> ${archives.length}</p>
           <p class="meta"><strong>Last saved:</strong> ${when}</p>
-          ${can ? `<div class="can-snippet"><strong>C.A.N. Focus:</strong><br>${esc(can)}</div>` : ""}
+          ${can ? `<div class="can-snippet"><strong>C.A.N. Focus:</strong><br>${esc(can)}</div>` : `<p class="meta">No C.A.N. Focus on current week.</p>`}
           <div style="margin-top:0.85rem;"><strong style="font-size:0.85rem;color:var(--text-muted);">Archived weeks</strong>${archHtml}</div>
         </div>
         <div class="preview-actions">
@@ -631,31 +697,29 @@
       `;
     }
 
-    function setPreviewSource(n) {
-      previewSource = n;
-      renderPreviewPage();
-    }
+    function setPreviewSource(n) { previewSource = n; renderPreviewPage(); }
 
     function transferPreviewToCurrent() {
-      if (!saveSystem.activeSlot || !previewSource) return;
+      if (!sessionOpen || !saveSystem.activeSlot || !previewSource) return;
       if (previewSource === saveSystem.activeSlot) return;
+      if (!preserveCurrentWorkBeforeSwitch(null)) return;
+      if (!confirm(`Transfer Save File ${previewSource} into Save File ${saveSystem.activeSlot}?`)) return;
 
       const source = saveSystem.slots[previewSource];
-      if (!confirm(
-        `Transfer data from Save File ${previewSource} into Save File ${saveSystem.activeSlot}?\n\n` +
-        `This replaces the current week, plans, and Archives in Save File ${saveSystem.activeSlot} only.`
-      )) return;
-
-      // Deep copy source into current slot
       const copy = JSON.parse(JSON.stringify(source));
       if (!copy.archive) copy.archive = {};
-      ensureBlocks(copy.data);
+      copy.archive = Object.assign({}, archive, copy.archive);
+      copy.data = ensureBlocks(copy.data || {});
 
       saveSystem.slots[saveSystem.activeSlot] = copy;
       currentWeek = copy.currentWeek || "default";
-      data = JSON.parse(JSON.stringify(copy.data));
+      data = {
+        canFocus: (copy.data.canFocus || "").toString(),
+        blocks: JSON.parse(JSON.stringify(copy.data.blocks || {})),
+        showAttachments: !!copy.data.showAttachments
+      };
+      ensureBlocks(data);
       archive = JSON.parse(JSON.stringify(copy.archive));
-
       applyUI();
       persistLocal();
       pushCloud();
@@ -663,30 +727,29 @@
       switchPage("dashboard");
     }
 
-    // ========== ARCHIVE ==========
     function archiveCurrentWeek() {
+      if (!sessionOpen) return;
       collectFromDOM();
       const name = (document.getElementById("weekOf").value.trim() || currentWeek);
       if (!name || name === "default") {
         alert("Enter a week name first (example: Aug 4 – Aug 8, 2026)");
         return;
       }
-      if (archive[name] && !confirm(`"${name}" already exists. Overwrite that archive entry?`)) return;
+      if (archive[name] && !confirm(`"${name}" already exists. Overwrite that archive entry (including C.A.N. Focus)?`)) return;
 
-      archive[name] = {
-        canFocus: data.canFocus,
-        blocks: JSON.parse(JSON.stringify(data.blocks)),
-        showAttachments: data.showAttachments,
-        savedAt: new Date().toLocaleString()
-      };
+      archive[name] = snapshotCurrentWeek();
       currentWeek = name;
       document.getElementById("weekOf").value = name;
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
       safeSave();
+      renderHistory();
     }
 
     function startNewWeek() {
-      if (!confirm("Start a new week?\nYour Archives will stay safe.")) return;
+      if (!sessionOpen) return;
+      if (!preserveCurrentWorkBeforeSwitch(null)) return;
+      if (!confirm("Start a new blank week?\n(Previous work including C.A.N. was archived if it had content.)")) return;
+
       currentWeek = "default";
       data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
       ensureBlocks(data);
@@ -701,30 +764,44 @@
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
-      if (!confirm(`Load "${name}"?`)) return;
 
+      // Already on this week with live edits — keep live data (including C.A.N.), refresh archive snapshot
+      if (currentWeek === name) {
+        collectFromDOM();
+        archive[name] = snapshotCurrentWeek();
+        safeSave();
+        document.getElementById("canFocus").value = (data.canFocus || "").toString();
+        return;
+      }
+
+      if (!preserveCurrentWorkBeforeSwitch(name)) return;
+      if (!confirm(`Load archived week "${name}"?\n(C.A.N. Focus for that week will be restored.)`)) return;
+
+      const entry = archive[name];
       currentWeek = name;
       data = {
-        canFocus: archive[name].canFocus || "",
-        blocks: JSON.parse(JSON.stringify(archive[name].blocks)),
-        showAttachments: !!archive[name].showAttachments
+        canFocus: (entry.canFocus || "").toString(),
+        blocks: JSON.parse(JSON.stringify(entry.blocks || {})),
+        showAttachments: !!entry.showAttachments
       };
       ensureBlocks(data);
 
       document.getElementById("weekOf").value = name;
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
-      document.getElementById("canFocus").value = data.canFocus || "";
+      document.getElementById("canFocus").value = data.canFocus;
       document.getElementById("toggleAttachments").checked = !!data.showAttachments;
 
       renderAllDayGrids();
       updateDashboard();
       renderHistory();
       safeSave();
+      // Force C.A.N. again after save path
+      document.getElementById("canFocus").value = (data.canFocus || "").toString();
       switchPage("dashboard");
     }
 
     function deleteFromArchive(name) {
-      if (!confirm(`Permanently delete "${name}"?\nThis cannot be undone.`)) return;
+      if (!confirm(`Permanently delete "${name}" from Archives?`)) return;
       delete archive[name];
       safeSave();
       renderHistory();
@@ -738,23 +815,28 @@
         list.innerHTML = `<div class="empty-history">No archived weeks yet.<br><br>Finish a week → click <strong>📦 Archive Week</strong>.</div>`;
         return;
       }
-      list.innerHTML = keys.map(name => `
+      list.innerHTML = keys.map(name => {
+        const can = (archive[name].canFocus || "").toString().trim();
+        const canLine = can
+          ? `<div class="can-preview"><strong>C.A.N.:</strong> ${esc(can.length > 120 ? can.slice(0,120)+"…" : can)}</div>`
+          : `<div class="can-preview">No C.A.N. Focus stored</div>`;
+        return `
         <div class="history-item">
           <div>
             <h3>${esc(name)}</h3>
             <div class="meta">Saved: ${archive[name].savedAt || "Unknown"}</div>
+            ${canLine}
           </div>
           <div class="history-actions">
             <button class="primary" onclick="loadFromArchive('${esc(name)}')">Load</button>
             <button class="danger" onclick="deleteFromArchive('${esc(name)}')">Delete</button>
           </div>
-        </div>`).join("");
+        </div>`;
+      }).join("");
     }
 
     function copyField(idOrValue) {
-      let text = "";
-      if (idOrValue === "canFocus") text = document.getElementById("canFocus").value;
-      else text = idOrValue;
+      let text = idOrValue === "canFocus" ? document.getElementById("canFocus").value : idOrValue;
       if (!text) return;
       navigator.clipboard.writeText(text).catch(() => {
         const ta = document.createElement("textarea");
@@ -766,9 +848,9 @@
       });
     }
 
-    // ========== DOM ==========
     function collectFromDOM() {
-      data.canFocus = document.getElementById("canFocus").value;
+      if (!sessionOpen) return;
+      data.canFocus = document.getElementById("canFocus").value || "";
       data.showAttachments = document.getElementById("toggleAttachments").checked;
       document.querySelectorAll(".days-grid").forEach(grid => {
         const block = grid.dataset.block;
@@ -930,6 +1012,7 @@
     function pdfPage(pid,p){ return pid ? `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,pg_${p}/${pid}` : null; }
 
     function generatePrintReport() {
+      if (!sessionOpen) return;
       collectFromDOM();
       const week = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
       let html = `<h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>
@@ -982,7 +1065,6 @@
       setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 1500); }, 800);
     }
 
-    // Events
     document.querySelectorAll(".nav-item").forEach(i => i.onclick = () => switchPage(i.dataset.page));
     document.getElementById("btnSave").onclick = () => safeSave();
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
@@ -990,26 +1072,38 @@
     document.getElementById("btnPrintReport").onclick = generatePrintReport;
     document.getElementById("btnTitleScreen").onclick = returnToTitle;
     document.getElementById("btnLoadWeek").onclick = () => {
+      if (!sessionOpen) return;
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: "+w : "Current week";
       safeSave();
     };
     document.getElementById("toggleAttachments").onchange = () => {
+      if (!sessionOpen) return;
       data.showAttachments = document.getElementById("toggleAttachments").checked;
       renderAllDayGrids();
       safeSave();
     };
-    document.getElementById("canFocus").oninput = () => safeSave();
+    document.getElementById("canFocus").oninput = () => { if (sessionOpen) safeSave(); };
 
-    setInterval(() => { if (saveSystem.activeSlot) safeSave(); }, 15000);
+    setInterval(() => {
+      if (sessionOpen && saveSystem.activeSlot) safeSave();
+    }, 15000);
+
     window.addEventListener("beforeunload", () => {
-      if (saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
+      if (sessionOpen && saveSystem.activeSlot) {
+        collectFromDOM();
+        persistLocal();
+      }
     });
 
     loadLocal();
+    sessionOpen = false;
+    saveSystem.activeSlot = null;
+    document.getElementById("title-screen").style.display = "flex";
+    document.getElementById("main-app").style.display = "none";
     renderTitleSlots();
-    setTimeout(maybePullCloud, 1000);
+    setTimeout(maybePullCloud, 1200);
   </script>
 </body>
 </html>
