@@ -148,13 +148,20 @@
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
 
+    /* Preview page */
     .preview-banner {
       background: rgba(212,175,55,0.12); border: 1px solid var(--gold); border-radius: 8px;
       padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--gold-light);
     }
-    .preview-source-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem; align-items: center; }
-    .preview-source-row button.source-btn { min-width: 110px; }
-    .preview-source-row button.source-btn.active { background: var(--navy); border-color: var(--gold); color: var(--gold-light); }
+    .preview-source-row {
+      display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem; align-items: center;
+    }
+    .preview-source-row button.source-btn {
+      min-width: 110px;
+    }
+    .preview-source-row button.source-btn.active {
+      background: var(--navy); border-color: var(--gold); color: var(--gold-light);
+    }
     .preview-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.15rem 1.25rem; margin-bottom: 1rem;
@@ -210,7 +217,8 @@
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
     <div class="title-footer">
-      Your data is stored on this device. Open a Save File to continue.
+      Progress is saved on this device first, then backed up to the cloud.<br>
+      Use Preview / Transfer inside a Save File to copy one save into another.
     </div>
   </div>
 
@@ -295,14 +303,18 @@
           <div class="history-list" id="historyList"></div>
         </section>
 
+        <!-- PREVIEW / TRANSFER PAGE (single save file only) -->
         <section id="page-preview" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Preview / Transfer</h2>
           <div class="preview-banner">
-            <strong>Preview only.</strong> Viewing one Save File. Use
-            <strong>Transfer data</strong> to replace Save File <span id="previewTargetLabel">—</span> only.
+            <strong>Preview only.</strong> You are viewing one Save File. If it looks right, use
+            <strong>Transfer data</strong> to replace the Save File you are currently working in
+            (Save File <span id="previewTargetLabel">—</span>).
           </div>
+
           <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.6rem;">Choose a Save File to preview:</p>
           <div class="preview-source-row" id="previewSourceButtons"></div>
+
           <div id="previewPanel"></div>
         </section>
       </main>
@@ -333,10 +345,7 @@
     let currentWeek = "default";
     let data = { canFocus: "", blocks: {}, showAttachments: false };
     let archive = {};
-    let previewSource = null;
-
-    // CRITICAL: only true after user clicks into a Save File this session
-    let sessionOpen = false;
+    let previewSource = null; // which slot is being previewed
 
     function emptySlot() {
       return { currentWeek: "default", data: { canFocus: "", blocks: {}, showAttachments: false }, archive: {}, lastSaved: null };
@@ -362,25 +371,16 @@
 
     function persistLocal() {
       try {
-        // Only write live editing state back if a session is actually open
-        if (sessionOpen && saveSystem.activeSlot) {
+        if (saveSystem.activeSlot) {
           const slot = saveSystem.slots[saveSystem.activeSlot];
           slot.currentWeek = currentWeek;
           slot.data = JSON.parse(JSON.stringify(data));
           slot.archive = JSON.parse(JSON.stringify(archive));
           slot.lastSaved = new Date().toISOString();
         }
-        // Always store slots; never store a "stuck" active session across reloads
-        const toStore = {
-          activeSlot: null,
-          slots: saveSystem.slots
-        };
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(toStore));
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(saveSystem));
         return true;
-      } catch (e) {
-        console.error("persistLocal failed", e);
-        return false;
-      }
+      } catch (e) { return false; }
     }
 
     function loadLocal() {
@@ -389,20 +389,14 @@
         if (!raw) return false;
         const parsed = JSON.parse(raw);
         if (!parsed || !parsed.slots) return false;
-        saveSystem.slots = parsed.slots;
-        // ALWAYS start with no active session after refresh
-        saveSystem.activeSlot = null;
-        sessionOpen = false;
+        saveSystem = parsed;
         [1,2,3].forEach(n => {
           if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
           if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
           ensureBlocks(saveSystem.slots[n].data);
         });
         return true;
-      } catch (e) {
-        console.error("loadLocal failed", e);
-        return false;
-      }
+      } catch (e) { return false; }
     }
 
     let cloudBusy = false;
@@ -412,11 +406,10 @@
       persistLocal();
       try {
         setStatus("Backing up…");
-        const payload = { activeSlot: null, slots: saveSystem.slots };
         const res = await fetch(API_URL, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(saveSystem)
         });
         if (!res.ok) throw new Error("fail");
         setStatus("• Saved " + new Date().toLocaleTimeString());
@@ -425,7 +418,6 @@
       } finally { cloudBusy = false; }
     }
 
-    // Only pull cloud if EVERY local slot is empty — never overwrite good local data
     async function maybePullCloud() {
       const anyLocal = [1,2,3].some(n => hasContent(saveSystem.slots[n]));
       if (anyLocal) return;
@@ -435,11 +427,7 @@
         const json = await res.json();
         const record = json.record || json;
         if (record && record.slots) {
-          const cloudHas = [1,2,3].some(n => hasContent(record.slots[n]));
-          if (!cloudHas) return;
-          saveSystem.slots = record.slots;
-          saveSystem.activeSlot = null;
-          sessionOpen = false;
+          saveSystem = record;
           [1,2,3].forEach(n => {
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
             if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
@@ -487,10 +475,6 @@
     }
 
     function safeSave() {
-      // HARD GUARD: never save from title screen or empty DOM
-      if (!sessionOpen || !saveSystem.activeSlot) return;
-      if (document.getElementById("main-app").style.display === "none") return;
-
       collectFromDOM();
       persistLocal();
       pushCloud();
@@ -525,13 +509,10 @@
     }
 
     function enterSlot(n) {
-      if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) {
-        safeSave();
-      }
+      // flush current first if switching
+      if (saveSystem.activeSlot) safeSave();
 
       saveSystem.activeSlot = n;
-      sessionOpen = true;
-
       const slot = saveSystem.slots[n];
       ensureBlocks(slot.data);
       if (!slot.archive) slot.archive = {};
@@ -551,12 +532,11 @@
     function wipeSlot(n) {
       if (!confirm(`Wipe Save File ${n} completely?\n\nThis deletes the current week AND all Archives in that file.\nThis cannot be undone.`)) return;
       saveSystem.slots[n] = emptySlot();
-      if (sessionOpen && saveSystem.activeSlot === n) {
+      if (saveSystem.activeSlot === n) {
         currentWeek = "default";
         data = { canFocus: "", blocks: {}, showAttachments: false };
         archive = {};
         ensureBlocks(data);
-        applyUI();
       }
       persistLocal();
       pushCloud();
@@ -565,8 +545,7 @@
     }
 
     function returnToTitle() {
-      if (sessionOpen) safeSave();
-      sessionOpen = false;
+      safeSave();
       saveSystem.activeSlot = null;
       document.getElementById("main-app").style.display = "none";
       document.getElementById("title-screen").style.display = "flex";
@@ -584,7 +563,7 @@
       if (document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
     }
 
-    // ========== PREVIEW / TRANSFER ==========
+    // ========== PREVIEW / TRANSFER (one save file only) ==========
     function renderPreviewPage() {
       const target = saveSystem.activeSlot;
       document.getElementById("previewTargetLabel").textContent = target || "—";
@@ -604,10 +583,17 @@
         return;
       }
 
+      // Always read latest from saveSystem (and merge live state if previewing active)
       let slot;
-      if (previewSource === saveSystem.activeSlot && sessionOpen) {
+      if (previewSource === saveSystem.activeSlot) {
+        // live view of current
         collectFromDOM();
-        slot = { currentWeek, data, archive, lastSaved: saveSystem.slots[previewSource].lastSaved };
+        slot = {
+          currentWeek,
+          data,
+          archive,
+          lastSaved: saveSystem.slots[previewSource].lastSaved
+        };
       } else {
         slot = saveSystem.slots[previewSource];
       }
@@ -651,7 +637,7 @@
     }
 
     function transferPreviewToCurrent() {
-      if (!sessionOpen || !saveSystem.activeSlot || !previewSource) return;
+      if (!saveSystem.activeSlot || !previewSource) return;
       if (previewSource === saveSystem.activeSlot) return;
 
       const source = saveSystem.slots[previewSource];
@@ -660,6 +646,7 @@
         `This replaces the current week, plans, and Archives in Save File ${saveSystem.activeSlot} only.`
       )) return;
 
+      // Deep copy source into current slot
       const copy = JSON.parse(JSON.stringify(source));
       if (!copy.archive) copy.archive = {};
       ensureBlocks(copy.data);
@@ -678,7 +665,6 @@
 
     // ========== ARCHIVE ==========
     function archiveCurrentWeek() {
-      if (!sessionOpen) return;
       collectFromDOM();
       const name = (document.getElementById("weekOf").value.trim() || currentWeek);
       if (!name || name === "default") {
@@ -700,7 +686,6 @@
     }
 
     function startNewWeek() {
-      if (!sessionOpen) return;
       if (!confirm("Start a new week?\nYour Archives will stay safe.")) return;
       currentWeek = "default";
       data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
@@ -781,8 +766,8 @@
       });
     }
 
+    // ========== DOM ==========
     function collectFromDOM() {
-      if (!sessionOpen) return;
       data.canFocus = document.getElementById("canFocus").value;
       data.showAttachments = document.getElementById("toggleAttachments").checked;
       document.querySelectorAll(".days-grid").forEach(grid => {
@@ -945,7 +930,6 @@
     function pdfPage(pid,p){ return pid ? `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,pg_${p}/${pid}` : null; }
 
     function generatePrintReport() {
-      if (!sessionOpen) return;
       collectFromDOM();
       const week = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
       let html = `<h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>
@@ -1006,43 +990,26 @@
     document.getElementById("btnPrintReport").onclick = generatePrintReport;
     document.getElementById("btnTitleScreen").onclick = returnToTitle;
     document.getElementById("btnLoadWeek").onclick = () => {
-      if (!sessionOpen) return;
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: "+w : "Current week";
       safeSave();
     };
     document.getElementById("toggleAttachments").onchange = () => {
-      if (!sessionOpen) return;
       data.showAttachments = document.getElementById("toggleAttachments").checked;
       renderAllDayGrids();
       safeSave();
     };
-    document.getElementById("canFocus").oninput = () => { if (sessionOpen) safeSave(); };
+    document.getElementById("canFocus").oninput = () => safeSave();
 
-    // Auto-save only while a Save File is open this session
-    setInterval(() => {
-      if (sessionOpen && saveSystem.activeSlot) safeSave();
-    }, 15000);
-
+    setInterval(() => { if (saveSystem.activeSlot) safeSave(); }, 15000);
     window.addEventListener("beforeunload", () => {
-      if (sessionOpen && saveSystem.activeSlot) {
-        collectFromDOM();
-        persistLocal();
-      }
+      if (saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
     });
 
-    // ========== BOOT (safe) ==========
-    // 1. Load local data
     loadLocal();
-    // 2. Force title screen — never auto-open a slot after refresh
-    sessionOpen = false;
-    saveSystem.activeSlot = null;
-    document.getElementById("title-screen").style.display = "flex";
-    document.getElementById("main-app").style.display = "none";
     renderTitleSlots();
-    // 3. Cloud only if local is completely empty
-    setTimeout(maybePullCloud, 1200);
+    setTimeout(maybePullCloud, 1000);
   </script>
 </body>
 </html>
