@@ -85,12 +85,8 @@
       width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
       border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.9rem; min-height: 60px; font-family: inherit;
     }
-    .field-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;
-    }
-    .field-header label {
-      font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted);
-    }
+    .field-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; }
+    .field-header label { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); }
     .copy-btn {
       background: transparent; border: 1px solid var(--border); color: var(--text-muted);
       font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; cursor: pointer;
@@ -152,6 +148,34 @@
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
 
+    /* Preview page */
+    .preview-banner {
+      background: rgba(212,175,55,0.12); border: 1px solid var(--gold); border-radius: 8px;
+      padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--gold-light);
+    }
+    .preview-source-row {
+      display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem; align-items: center;
+    }
+    .preview-source-row button.source-btn {
+      min-width: 110px;
+    }
+    .preview-source-row button.source-btn.active {
+      background: var(--navy); border-color: var(--gold); color: var(--gold-light);
+    }
+    .preview-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.15rem 1.25rem; margin-bottom: 1rem;
+    }
+    .preview-card h3 { color: var(--gold-light); margin-bottom: 0.5rem; }
+    .preview-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .preview-card .can-snippet {
+      margin-top: 0.6rem; padding: 0.6rem 0.75rem; background: var(--bg); border-radius: 6px;
+      font-size: 0.85rem; white-space: pre-wrap; max-height: 120px; overflow-y: auto;
+    }
+    .preview-archives { margin-top: 0.75rem; }
+    .preview-archives li { font-size: 0.85rem; color: var(--text-muted); margin-left: 1.1rem; margin-bottom: 0.25rem; }
+    .preview-actions { margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
     .print-report { display: none; background: white; color: #111; padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
     .print-report h1 { font-size: 1.5rem; color: #1F4E79; border-bottom: 3px solid #D4AF37; padding-bottom: 0.4rem; margin-bottom: 0.5rem; }
     .print-report .meta { font-size: 0.95rem; margin-bottom: 1.25rem; color: #333; }
@@ -194,7 +218,7 @@
     <div class="save-slots" id="saveSlots"></div>
     <div class="title-footer">
       Progress is saved on this device first, then backed up to the cloud.<br>
-      Archives never auto-delete. You can wipe a Save File if needed.
+      Use Preview / Transfer inside a Save File to copy one save into another.
     </div>
   </div>
 
@@ -213,7 +237,6 @@
         <button id="btnArchive">📦 Archive Week</button>
         <button id="btnNewWeek">🆕 New Week</button>
         <button id="btnPrintReport">📄 Printable Report</button>
-        <button id="btnExport">⬇ Backup File</button>
         <button id="btnTitleScreen">🎮 Change Save File</button>
       </div>
     </header>
@@ -226,7 +249,8 @@
         <div class="nav-item" data-page="intervention"><span class="block-name">INTERVENTION</span><span class="block-time">3:00 – 3:45</span></div>
         <div class="nav-item" data-page="enrichment"><span class="block-name">ENRICHMENT</span><span class="block-time">3:49 – 4:15</span></div>
         <div class="nav-item" data-page="spark"><span class="block-name">SPARK</span><span class="block-time">4:19 – 5:00</span></div>
-        <div class="nav-item" data-page="history" style="margin-top:1.5rem;"><span class="block-name">📁 Archives</span><span class="block-time">Permanent</span></div>
+        <div class="nav-item" data-page="history" style="margin-top:1.25rem;"><span class="block-name">📁 Archives</span><span class="block-time">Permanent</span></div>
+        <div class="nav-item" data-page="preview"><span class="block-name">🔁 Preview / Transfer</span><span class="block-time">Save → Save</span></div>
       </nav>
 
       <main class="content">
@@ -274,9 +298,24 @@
         <section id="page-history" class="page">
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-            These stay in this Save File forever. Loading an archive restores the week name and all content.
+            Loading an archive restores the week name and all content.
           </p>
           <div class="history-list" id="historyList"></div>
+        </section>
+
+        <!-- PREVIEW / TRANSFER PAGE (single save file only) -->
+        <section id="page-preview" class="page">
+          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Preview / Transfer</h2>
+          <div class="preview-banner">
+            <strong>Preview only.</strong> You are viewing one Save File. If it looks right, use
+            <strong>Transfer data</strong> to replace the Save File you are currently working in
+            (Save File <span id="previewTargetLabel">—</span>).
+          </div>
+
+          <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.6rem;">Choose a Save File to preview:</p>
+          <div class="preview-source-row" id="previewSourceButtons"></div>
+
+          <div id="previewPanel"></div>
         </section>
       </main>
     </div>
@@ -306,6 +345,7 @@
     let currentWeek = "default";
     let data = { canFocus: "", blocks: {}, showAttachments: false };
     let archive = {};
+    let previewSource = null; // which slot is being previewed
 
     function emptySlot() {
       return { currentWeek: "default", data: { canFocus: "", blocks: {}, showAttachments: false }, archive: {}, lastSaved: null };
@@ -411,6 +451,17 @@
       return false;
     }
 
+    function countFilledDays(slot) {
+      let n = 0;
+      Object.values(slot.data?.blocks || {}).forEach(block => {
+        DAYS.forEach(day => {
+          const e = block[day];
+          if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||e.fileName)) n++;
+        });
+      });
+      return n;
+    }
+
     function setStatus(msg) {
       const el = document.getElementById("cloudStatus");
       if (el) el.textContent = msg;
@@ -458,6 +509,9 @@
     }
 
     function enterSlot(n) {
+      // flush current first if switching
+      if (saveSystem.activeSlot) safeSave();
+
       saveSystem.activeSlot = n;
       const slot = saveSystem.slots[n];
       ensureBlocks(slot.data);
@@ -472,11 +526,18 @@
       document.getElementById("main-app").style.display = "block";
       applyUI();
       setStatus("• Save File " + n);
+      previewSource = null;
     }
 
     function wipeSlot(n) {
       if (!confirm(`Wipe Save File ${n} completely?\n\nThis deletes the current week AND all Archives in that file.\nThis cannot be undone.`)) return;
       saveSystem.slots[n] = emptySlot();
+      if (saveSystem.activeSlot === n) {
+        currentWeek = "default";
+        data = { canFocus: "", blocks: {}, showAttachments: false };
+        archive = {};
+        ensureBlocks(data);
+      }
       persistLocal();
       pushCloud();
       renderTitleSlots();
@@ -499,6 +560,107 @@
       renderAllDayGrids();
       updateDashboard();
       renderHistory();
+      if (document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
+    }
+
+    // ========== PREVIEW / TRANSFER (one save file only) ==========
+    function renderPreviewPage() {
+      const target = saveSystem.activeSlot;
+      document.getElementById("previewTargetLabel").textContent = target || "—";
+
+      const btnRow = document.getElementById("previewSourceButtons");
+      btnRow.innerHTML = [1,2,3].map(n => {
+        const isActive = previewSource === n;
+        const isCurrent = n === target;
+        return `<button class="source-btn ${isActive ? "active" : ""}" onclick="setPreviewSource(${n})">
+          Save File ${n}${isCurrent ? " (current)" : ""}
+        </button>`;
+      }).join("");
+
+      const panel = document.getElementById("previewPanel");
+      if (!previewSource) {
+        panel.innerHTML = `<p style="color:var(--text-muted);">Select a Save File above to preview it.</p>`;
+        return;
+      }
+
+      // Always read latest from saveSystem (and merge live state if previewing active)
+      let slot;
+      if (previewSource === saveSystem.activeSlot) {
+        // live view of current
+        collectFromDOM();
+        slot = {
+          currentWeek,
+          data,
+          archive,
+          lastSaved: saveSystem.slots[previewSource].lastSaved
+        };
+      } else {
+        slot = saveSystem.slots[previewSource];
+      }
+
+      const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty / no week name";
+      const archives = Object.keys(slot.archive || {});
+      const filled = countFilledDays(slot);
+      const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
+      const can = (slot.data?.canFocus || "").trim();
+
+      let archHtml = archives.length
+        ? `<ul class="preview-archives">${archives.sort().reverse().map(a =>
+            `<li>${esc(a)}${slot.archive[a].savedAt ? " · " + esc(slot.archive[a].savedAt) : ""}</li>`
+          ).join("")}</ul>`
+        : `<p class="meta">No archived weeks in this Save File.</p>`;
+
+      const same = previewSource === saveSystem.activeSlot;
+
+      panel.innerHTML = `
+        <div class="preview-card">
+          <h3>Save File ${previewSource} — Preview only</h3>
+          <p class="meta"><strong>Week:</strong> ${esc(week)}</p>
+          <p class="meta"><strong>Days with content:</strong> ${filled}</p>
+          <p class="meta"><strong>Archives:</strong> ${archives.length}</p>
+          <p class="meta"><strong>Last saved:</strong> ${when}</p>
+          ${can ? `<div class="can-snippet"><strong>C.A.N. Focus:</strong><br>${esc(can)}</div>` : ""}
+          <div style="margin-top:0.85rem;"><strong style="font-size:0.85rem;color:var(--text-muted);">Archived weeks</strong>${archHtml}</div>
+        </div>
+        <div class="preview-actions">
+          ${same
+            ? `<p style="color:var(--text-muted);font-size:0.9rem;">This is your current Save File — nothing to transfer.</p>`
+            : `<button class="primary" onclick="transferPreviewToCurrent()">Transfer data → replace Save File ${target}</button>`
+          }
+        </div>
+      `;
+    }
+
+    function setPreviewSource(n) {
+      previewSource = n;
+      renderPreviewPage();
+    }
+
+    function transferPreviewToCurrent() {
+      if (!saveSystem.activeSlot || !previewSource) return;
+      if (previewSource === saveSystem.activeSlot) return;
+
+      const source = saveSystem.slots[previewSource];
+      if (!confirm(
+        `Transfer data from Save File ${previewSource} into Save File ${saveSystem.activeSlot}?\n\n` +
+        `This replaces the current week, plans, and Archives in Save File ${saveSystem.activeSlot} only.`
+      )) return;
+
+      // Deep copy source into current slot
+      const copy = JSON.parse(JSON.stringify(source));
+      if (!copy.archive) copy.archive = {};
+      ensureBlocks(copy.data);
+
+      saveSystem.slots[saveSystem.activeSlot] = copy;
+      currentWeek = copy.currentWeek || "default";
+      data = JSON.parse(JSON.stringify(copy.data));
+      archive = JSON.parse(JSON.stringify(copy.archive));
+
+      applyUI();
+      persistLocal();
+      pushCloud();
+      showToast(`Transferred into Save File ${saveSystem.activeSlot}`);
+      switchPage("dashboard");
     }
 
     // ========== ARCHIVE ==========
@@ -541,7 +703,6 @@
       if (!archive[name]) return;
       if (!confirm(`Load "${name}"?`)) return;
 
-      // Load week name + full content
       currentWeek = name;
       data = {
         canFocus: archive[name].canFocus || "",
@@ -550,7 +711,6 @@
       };
       ensureBlocks(data);
 
-      // Put week name in the input field
       document.getElementById("weekOf").value = name;
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
       document.getElementById("canFocus").value = data.canFocus || "";
@@ -591,17 +751,12 @@
         </div>`).join("");
     }
 
-    // ========== COPY ==========
     function copyField(idOrValue) {
       let text = "";
-      if (idOrValue === "canFocus") {
-        text = document.getElementById("canFocus").value;
-      } else {
-        text = idOrValue; // direct string from day fields
-      }
+      if (idOrValue === "canFocus") text = document.getElementById("canFocus").value;
+      else text = idOrValue;
       if (!text) return;
       navigator.clipboard.writeText(text).catch(() => {
-        // fallback
         const ta = document.createElement("textarea");
         ta.value = text;
         document.body.appendChild(ta);
@@ -767,6 +922,7 @@
       document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
       document.getElementById("page-"+id)?.classList.add("active");
       document.querySelector(`.nav-item[data-page="${id}"]`)?.classList.add("active");
+      if (id === "preview") renderPreviewPage();
     }
 
     function isImage(n,u){ return /\.(jpg|jpeg|png|gif|webp)$/i.test(n||u||""); }
@@ -826,22 +982,12 @@
       setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 1500); }, 800);
     }
 
-    function exportBackup() {
-      safeSave();
-      const blob = new Blob([JSON.stringify(saveSystem, null, 2)], {type:"application/json"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `Scholastic-Batch-Backup-${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
-    }
-
     // Events
     document.querySelectorAll(".nav-item").forEach(i => i.onclick = () => switchPage(i.dataset.page));
     document.getElementById("btnSave").onclick = () => safeSave();
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
     document.getElementById("btnNewWeek").onclick = startNewWeek;
     document.getElementById("btnPrintReport").onclick = generatePrintReport;
-    document.getElementById("btnExport").onclick = exportBackup;
     document.getElementById("btnTitleScreen").onclick = returnToTitle;
     document.getElementById("btnLoadWeek").onclick = () => {
       const w = document.getElementById("weekOf").value.trim() || "default";
@@ -861,7 +1007,6 @@
       if (saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
     });
 
-    // Boot
     loadLocal();
     renderTitleSlots();
     setTimeout(maybePullCloud, 1000);
