@@ -74,8 +74,6 @@
       background: var(--bg); border: 1px solid var(--border); color: var(--text);
       padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.9rem; min-width: 180px;
     }
-    .toggle-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; font-size: 0.9rem; }
-    .toggle-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--gold); }
     .can-box {
       background: linear-gradient(135deg, rgba(31,78,121,0.35), rgba(30,41,59,0.8));
       border: 1px solid var(--gold); border-radius: var(--radius); padding: 1rem 1.15rem; margin-bottom: 1.25rem;
@@ -85,13 +83,14 @@
       width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
       border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.9rem; min-height: 60px; font-family: inherit;
     }
-    .field-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; }
+    .field-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; gap: 0.5rem; }
     .field-header label { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); }
     .copy-btn {
-      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
-      font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; cursor: pointer;
+      background: var(--surface-2); border: 1px solid var(--border); color: var(--gold-light);
+      font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; flex-shrink: 0;
     }
-    .copy-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+    .copy-btn:hover { border-color: var(--gold); background: var(--navy); }
+    .copy-btn.copied { border-color: var(--success); color: #86efac; }
     .notice { margin-top: 0.75rem; font-size: 0.8rem; color: var(--gold-light); font-style: italic; }
     .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
     .day-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -110,8 +109,6 @@
       border-radius: 5px; padding: 0.45rem 0.6rem; font-size: 0.85rem; font-family: inherit;
     }
     .field textarea { min-height: 70px; }
-    .day-attach-toggle { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
-    .day-attach-toggle input { width: 15px; height: 15px; accent-color: var(--gold); }
     .drop-zone {
       border: 2px dashed var(--border); border-radius: 8px; padding: 0.9rem; text-align: center;
       font-size: 0.8rem; color: var(--text-muted); cursor: pointer; background: rgba(0,0,0,0.15);
@@ -119,11 +116,15 @@
     .drop-zone:hover, .drop-zone.dragover { border-color: var(--gold); background: rgba(212,175,55,0.08); color: var(--gold-light); }
     .drop-zone input[type="file"] { display: none; }
     .attached-file {
-      display: flex; align-items: center; justify-content: space-between; background: rgba(34,197,94,0.12);
-      border: 1px solid #22c55e55; border-radius: 6px; padding: 0.45rem 0.7rem; font-size: 0.8rem; margin-top: 0.4rem; gap: 0.5rem;
+      background: rgba(34,197,94,0.12); border: 1px solid #22c55e55; border-radius: 6px;
+      padding: 0.55rem 0.7rem; font-size: 0.8rem; margin-top: 0.2rem;
     }
-    .attached-file a { color: #86efac; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-    .attached-file button { background: transparent; border: none; color: #f87171; font-size: 1rem; cursor: pointer; }
+    .attached-file .af-name { color: #86efac; font-weight: 600; margin-bottom: 0.35rem; }
+    .attached-file .af-preview img {
+      max-width: 100%; max-height: 180px; border-radius: 4px; border: 1px solid var(--border); display: block; margin-bottom: 0.4rem;
+    }
+    .attached-file .af-actions { display: flex; gap: 0.4rem; }
+    .attached-file .af-actions button { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
     .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; cursor: pointer; }
     .dash-card:hover { border-color: var(--gold); }
@@ -139,10 +140,7 @@
     .history-item:hover { border-color: var(--gold); }
     .history-item h3 { color: var(--gold-light); margin-bottom: 0.25rem; }
     .history-item .meta { font-size: 0.8rem; color: var(--text-muted); }
-    .history-item .can-preview {
-      font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;
-      max-height: 2.4em; overflow: hidden;
-    }
+    .history-item .can-preview { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem; max-height: 2.4em; overflow: hidden; }
     .history-actions { display: flex; gap: 0.5rem; }
     .empty-history { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
     .toast {
@@ -156,8 +154,7 @@
       background: rgba(212,175,55,0.12); border: 1px solid var(--gold); border-radius: 8px;
       padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--gold-light);
     }
-    .preview-source-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem; align-items: center; }
-    .preview-source-row button.source-btn { min-width: 110px; }
+    .preview-source-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem; }
     .preview-source-row button.source-btn.active { background: var(--navy); border-color: var(--gold); color: var(--gold-light); }
     .preview-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -169,9 +166,8 @@
       margin-top: 0.6rem; padding: 0.6rem 0.75rem; background: var(--bg); border-radius: 6px;
       font-size: 0.85rem; white-space: pre-wrap; max-height: 120px; overflow-y: auto;
     }
-    .preview-archives { margin-top: 0.75rem; }
     .preview-archives li { font-size: 0.85rem; color: var(--text-muted); margin-left: 1.1rem; margin-bottom: 0.25rem; }
-    .preview-actions { margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .preview-actions { margin-top: 1.25rem; }
 
     .print-report { display: none; background: white; color: #111; padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
     .print-report h1 { font-size: 1.5rem; color: #1F4E79; border-bottom: 3px solid #D4AF37; padding-bottom: 0.4rem; margin-bottom: 0.5rem; }
@@ -186,9 +182,14 @@
     .print-block-time { font-size: 0.8rem; color: #64748b; margin-bottom: 0.4rem; }
     .print-field { font-size: 0.9rem; margin-bottom: 0.25rem; }
     .print-field strong { color: #334155; }
-    .print-attachment { margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; }
-    .print-attachment strong { color: #166534; display: block; margin-bottom: 0.4rem; }
-    .print-doc-preview img { max-width: 100%; max-height: 450px; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0.4rem 0; }
+    .print-attachment { margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .print-attachment strong { color: #1F4E79; display: block; margin-bottom: 0.5rem; }
+    .print-doc-preview { margin-top: 0.4rem; }
+    .print-doc-preview img {
+      max-width: 100%; max-height: 520px; border: 1px solid #cbd5e1; border-radius: 4px;
+      display: block; margin: 0.35rem 0; page-break-inside: avoid;
+    }
+    .print-doc-preview .page-label { font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; }
     .print-no-school-note { background: #fef2f2; color: #991b1b; padding: 0.75rem 1rem; font-size: 0.9rem; font-style: italic; }
     .print-footer { margin-top: 2rem; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; }
 
@@ -255,18 +256,13 @@
           <span id="currentWeekLabel" style="margin-left:auto; font-size:0.85rem; color:var(--text-muted);"></span>
         </div>
 
-        <div class="toggle-row">
-          <input type="checkbox" id="toggleAttachments" />
-          <label for="toggleAttachments">Enable File Attachments (then turn on per day)</label>
-        </div>
-
         <div class="can-box">
           <div class="field-header">
             <h3 style="margin:0;">C.A.N. Standards Focus</h3>
-            <button class="copy-btn" onclick="copyField('canFocus')">Copy</button>
+            <button type="button" class="copy-btn" data-copy-target="canFocus">Copy</button>
           </div>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-          <p class="notice">C.A.N. Focus is saved with every week and restored when you load that archive.</p>
+          <p class="notice">C.A.N. Focus is saved with every week. Worksheets (image/PDF) print as the document itself, not a link.</p>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -291,17 +287,12 @@
         </section>
         <section id="page-history" class="page">
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
-          <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">
-            Each archive stores its own C.A.N. Focus with the lesson plans.
-          </p>
+          <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">Each archive stores its own C.A.N. Focus with the lesson plans.</p>
           <div class="history-list" id="historyList"></div>
         </section>
-
         <section id="page-preview" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Preview / Transfer</h2>
-          <div class="preview-banner">
-            <strong>Preview only.</strong> Transfer replaces Save File <span id="previewTargetLabel">—</span> only.
-          </div>
+          <div class="preview-banner"><strong>Preview only.</strong> Transfer replaces Save File <span id="previewTargetLabel">—</span> only.</div>
           <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.6rem;">Choose a Save File to preview:</p>
           <div class="preview-source-row" id="previewSourceButtons"></div>
           <div id="previewPanel"></div>
@@ -332,43 +323,42 @@
 
     let saveSystem = { activeSlot: null, slots: { 1: emptySlot(), 2: emptySlot(), 3: emptySlot() } };
     let currentWeek = "default";
-    let data = { canFocus: "", blocks: {}, showAttachments: false };
+    let data = { canFocus: "", blocks: {}, showAttachments: true };
     let archive = {};
     let previewSource = null;
     let sessionOpen = false;
 
     function emptySlot() {
-      return { currentWeek: "default", data: { canFocus: "", blocks: {}, showAttachments: false }, archive: {}, lastSaved: null };
+      return { currentWeek: "default", data: { canFocus: "", blocks: {}, showAttachments: true }, archive: {}, lastSaved: null };
     }
     function emptyBlock() {
       const d = {};
       DAYS.forEach(day => d[day] = {
         title:"", objective:"", activities:"", notes:"",
-        noSchool:false, showAttach:false, fileName:"", fileUrl:"", publicId:""
+        noSchool:false, showAttach:true, fileName:"", fileUrl:"", publicId:""
       });
       return d;
     }
     function ensureBlocks(d) {
-      if (!d) d = { canFocus: "", blocks: {}, showAttachments: false };
+      if (!d) d = { canFocus: "", blocks: {}, showAttachments: true };
       if (typeof d.canFocus !== "string") d.canFocus = d.canFocus || "";
       if (!d.blocks) d.blocks = {};
       Object.keys(BLOCKS).forEach(k => {
         if (!d.blocks[k]) d.blocks[k] = emptyBlock();
         DAYS.forEach(day => {
-          if (typeof d.blocks[k][day].showAttach === "undefined") d.blocks[k][day].showAttach = false;
+          if (typeof d.blocks[k][day].showAttach === "undefined") d.blocks[k][day].showAttach = true;
           if (typeof d.blocks[k][day].publicId === "undefined") d.blocks[k][day].publicId = "";
         });
       });
       return d;
     }
 
-    // Snapshot of current planning week INCLUDING canFocus
     function snapshotCurrentWeek() {
       collectFromDOM();
       return {
         canFocus: (data.canFocus || "").toString(),
         blocks: JSON.parse(JSON.stringify(data.blocks || {})),
-        showAttachments: !!data.showAttachments,
+        showAttachments: true,
         savedAt: new Date().toLocaleString()
       };
     }
@@ -381,7 +371,7 @@
           slot.data = {
             canFocus: (data.canFocus || "").toString(),
             blocks: JSON.parse(JSON.stringify(data.blocks || {})),
-            showAttachments: !!data.showAttachments
+            showAttachments: true
           };
           slot.archive = JSON.parse(JSON.stringify(archive));
           slot.lastSaved = new Date().toISOString();
@@ -404,7 +394,6 @@
           if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
           if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
           saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || {});
-          // Repair older archive entries missing canFocus
           Object.keys(saveSystem.slots[n].archive).forEach(k => {
             const a = saveSystem.slots[n].archive[k];
             if (typeof a.canFocus !== "string") a.canFocus = a.canFocus || "";
@@ -469,7 +458,6 @@
       }
       return false;
     }
-
     function hasCurrentWork() {
       if (data.canFocus && String(data.canFocus).trim()) return true;
       for (const b of Object.values(data.blocks || {})) {
@@ -479,7 +467,6 @@
       }
       return false;
     }
-
     function countFilledDays(slot) {
       let n = 0;
       Object.values(slot.data?.blocks || {}).forEach(block => {
@@ -490,7 +477,6 @@
       });
       return n;
     }
-
     function setStatus(msg) {
       const el = document.getElementById("cloudStatus");
       if (el) el.textContent = msg;
@@ -500,7 +486,7 @@
       t.textContent = msg;
       t.classList.toggle("error", err);
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2500);
+      setTimeout(() => t.classList.remove("show"), 2200);
     }
 
     function safeSave() {
@@ -513,38 +499,75 @@
       renderHistory();
     }
 
-    // Preserve current week (including C.A.N.) before switching
+    // ===== FIXED COPY =====
+    async function copyText(text, btn) {
+      text = (text || "").toString();
+      if (!text) return;
+      let ok = false;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          ok = true;
+        }
+      } catch (e) {}
+      if (!ok) {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          ta.setSelectionRange(0, ta.value.length);
+          ok = document.execCommand("copy");
+          document.body.removeChild(ta);
+        } catch (e) { ok = false; }
+      }
+      if (btn) {
+        const prev = btn.textContent;
+        btn.textContent = ok ? "Copied" : "Failed";
+        btn.classList.toggle("copied", ok);
+        setTimeout(() => { btn.textContent = prev; btn.classList.remove("copied"); }, 1200);
+      }
+    }
+
+    function onCopyClick(ev) {
+      const btn = ev.target.closest(".copy-btn");
+      if (!btn) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      let text = "";
+      if (btn.dataset.copyTarget === "canFocus") {
+        text = document.getElementById("canFocus").value;
+      } else {
+        const field = btn.closest(".field");
+        if (field) {
+          const input = field.querySelector("input, textarea");
+          if (input) text = input.value;
+        }
+      }
+      copyText(text, btn);
+    }
+    document.addEventListener("click", onCopyClick);
+
     function preserveCurrentWorkBeforeSwitch(nextName) {
       collectFromDOM();
       if (!hasCurrentWork()) return true;
-
-      // Same week already open — keep live data, do not clobber with older archive
       if (nextName && currentWeek === nextName) return true;
 
       let name = (document.getElementById("weekOf").value.trim() || currentWeek || "").trim();
       if (!name || name === "default") {
-        name = prompt(
-          "Your current week (including C.A.N. Focus) needs a name before switching.\n\nEnter a name to archive it:",
-          "Week " + new Date().toLocaleDateString()
-        );
+        name = prompt("Name this week to keep it (including C.A.N. Focus):", "Week " + new Date().toLocaleDateString());
         if (name === null) return false;
         name = name.trim();
-        if (!name) {
-          alert("A name is required to keep your current work. Action cancelled.");
-          return false;
-        }
+        if (!name) { alert("A name is required. Cancelled."); return false; }
       }
-
       if (archive[name] && name !== nextName) {
-        if (!confirm(`Archive "${name}" already exists.\n\nOK = update it with your current work (including C.A.N. Focus)\nCancel = stop`)) {
-          return false;
-        }
+        if (!confirm(`Archive "${name}" exists. Update it with current work?`)) return false;
       }
-
       archive[name] = snapshotCurrentWeek();
-      if (saveSystem.activeSlot) {
-        saveSystem.slots[saveSystem.activeSlot].archive = JSON.parse(JSON.stringify(archive));
-      }
+      if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = JSON.parse(JSON.stringify(archive));
       persistLocal();
       return true;
     }
@@ -576,23 +599,19 @@
 
     function enterSlot(n) {
       if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) safeSave();
-
       saveSystem.activeSlot = n;
       sessionOpen = true;
-
       const slot = saveSystem.slots[n];
       slot.data = ensureBlocks(slot.data || {});
       if (!slot.archive) slot.archive = {};
-
       currentWeek = slot.currentWeek || "default";
       data = {
         canFocus: (slot.data.canFocus || "").toString(),
         blocks: JSON.parse(JSON.stringify(slot.data.blocks || {})),
-        showAttachments: !!slot.data.showAttachments
+        showAttachments: true
       };
       ensureBlocks(data);
       archive = JSON.parse(JSON.stringify(slot.archive));
-
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -602,11 +621,11 @@
     }
 
     function wipeSlot(n) {
-      if (!confirm(`Wipe Save File ${n} completely?\nThis cannot be undone.`)) return;
+      if (!confirm(`Wipe Save File ${n} completely?`)) return;
       saveSystem.slots[n] = emptySlot();
       if (sessionOpen && saveSystem.activeSlot === n) {
         currentWeek = "default";
-        data = { canFocus: "", blocks: {}, showAttachments: false };
+        data = { canFocus: "", blocks: {}, showAttachments: true };
         archive = {};
         ensureBlocks(data);
         applyUI();
@@ -630,7 +649,6 @@
       document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
       document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? "Editing: " + currentWeek : "Current week";
       document.getElementById("canFocus").value = (data.canFocus || "").toString();
-      document.getElementById("toggleAttachments").checked = !!data.showAttachments;
       renderAllDayGrids();
       updateDashboard();
       renderHistory();
@@ -640,83 +658,54 @@
     function renderPreviewPage() {
       const target = saveSystem.activeSlot;
       document.getElementById("previewTargetLabel").textContent = target || "—";
-      const btnRow = document.getElementById("previewSourceButtons");
-      btnRow.innerHTML = [1,2,3].map(n => {
-        const isActive = previewSource === n;
-        const isCurrent = n === target;
-        return `<button class="source-btn ${isActive ? "active" : ""}" onclick="setPreviewSource(${n})">
-          Save File ${n}${isCurrent ? " (current)" : ""}
-        </button>`;
-      }).join("");
-
+      document.getElementById("previewSourceButtons").innerHTML = [1,2,3].map(n =>
+        `<button class="source-btn ${previewSource===n?"active":""}" onclick="setPreviewSource(${n})">Save File ${n}${n===target?" (current)":""}</button>`
+      ).join("");
       const panel = document.getElementById("previewPanel");
       if (!previewSource) {
         panel.innerHTML = `<p style="color:var(--text-muted);">Select a Save File above to preview it.</p>`;
         return;
       }
-
       let slot;
       if (previewSource === saveSystem.activeSlot && sessionOpen) {
         collectFromDOM();
         slot = { currentWeek, data, archive, lastSaved: saveSystem.slots[previewSource].lastSaved };
-      } else {
-        slot = saveSystem.slots[previewSource];
-      }
+      } else slot = saveSystem.slots[previewSource];
 
-      const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty / no week name";
+      const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
       const archives = Object.keys(slot.archive || {});
-      const filled = countFilledDays(slot);
-      const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
       const can = (slot.data?.canFocus || "").toString().trim();
-
-      let archHtml = archives.length
-        ? `<ul class="preview-archives">${archives.sort().reverse().map(a =>
-            `<li>${esc(a)}${slot.archive[a].savedAt ? " · " + esc(slot.archive[a].savedAt) : ""}${
-              slot.archive[a].canFocus ? " · has C.A.N." : ""
-            }</li>`
-          ).join("")}</ul>`
-        : `<p class="meta">No archived weeks in this Save File.</p>`;
-
       const same = previewSource === saveSystem.activeSlot;
       panel.innerHTML = `
         <div class="preview-card">
           <h3>Save File ${previewSource} — Preview only</h3>
           <p class="meta"><strong>Week:</strong> ${esc(week)}</p>
-          <p class="meta"><strong>Days with content:</strong> ${filled}</p>
+          <p class="meta"><strong>Days with content:</strong> ${countFilledDays(slot)}</p>
           <p class="meta"><strong>Archives:</strong> ${archives.length}</p>
-          <p class="meta"><strong>Last saved:</strong> ${when}</p>
-          ${can ? `<div class="can-snippet"><strong>C.A.N. Focus:</strong><br>${esc(can)}</div>` : `<p class="meta">No C.A.N. Focus on current week.</p>`}
-          <div style="margin-top:0.85rem;"><strong style="font-size:0.85rem;color:var(--text-muted);">Archived weeks</strong>${archHtml}</div>
+          ${can ? `<div class="can-snippet"><strong>C.A.N.:</strong><br>${esc(can)}</div>` : ""}
         </div>
         <div class="preview-actions">
-          ${same
-            ? `<p style="color:var(--text-muted);font-size:0.9rem;">This is your current Save File — nothing to transfer.</p>`
-            : `<button class="primary" onclick="transferPreviewToCurrent()">Transfer data → replace Save File ${target}</button>`
-          }
-        </div>
-      `;
+          ${same ? `<p style="color:var(--text-muted);font-size:0.9rem;">Current Save File.</p>`
+            : `<button class="primary" onclick="transferPreviewToCurrent()">Transfer data → replace Save File ${target}</button>`}
+        </div>`;
     }
-
     function setPreviewSource(n) { previewSource = n; renderPreviewPage(); }
 
     function transferPreviewToCurrent() {
-      if (!sessionOpen || !saveSystem.activeSlot || !previewSource) return;
-      if (previewSource === saveSystem.activeSlot) return;
+      if (!sessionOpen || !saveSystem.activeSlot || !previewSource || previewSource === saveSystem.activeSlot) return;
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
       if (!confirm(`Transfer Save File ${previewSource} into Save File ${saveSystem.activeSlot}?`)) return;
-
       const source = saveSystem.slots[previewSource];
       const copy = JSON.parse(JSON.stringify(source));
       if (!copy.archive) copy.archive = {};
       copy.archive = Object.assign({}, archive, copy.archive);
       copy.data = ensureBlocks(copy.data || {});
-
       saveSystem.slots[saveSystem.activeSlot] = copy;
       currentWeek = copy.currentWeek || "default";
       data = {
         canFocus: (copy.data.canFocus || "").toString(),
         blocks: JSON.parse(JSON.stringify(copy.data.blocks || {})),
-        showAttachments: !!copy.data.showAttachments
+        showAttachments: true
       };
       ensureBlocks(data);
       archive = JSON.parse(JSON.stringify(copy.archive));
@@ -732,11 +721,10 @@
       collectFromDOM();
       const name = (document.getElementById("weekOf").value.trim() || currentWeek);
       if (!name || name === "default") {
-        alert("Enter a week name first (example: Aug 4 – Aug 8, 2026)");
+        alert("Enter a week name first.");
         return;
       }
-      if (archive[name] && !confirm(`"${name}" already exists. Overwrite that archive entry (including C.A.N. Focus)?`)) return;
-
+      if (archive[name] && !confirm(`"${name}" exists. Overwrite?`)) return;
       archive[name] = snapshotCurrentWeek();
       currentWeek = name;
       document.getElementById("weekOf").value = name;
@@ -748,10 +736,9 @@
     function startNewWeek() {
       if (!sessionOpen) return;
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
-      if (!confirm("Start a new blank week?\n(Previous work including C.A.N. was archived if it had content.)")) return;
-
+      if (!confirm("Start a new blank week?")) return;
       currentWeek = "default";
-      data = { canFocus: "", blocks: {}, showAttachments: document.getElementById("toggleAttachments").checked };
+      data = { canFocus: "", blocks: {}, showAttachments: true };
       ensureBlocks(data);
       document.getElementById("weekOf").value = "";
       document.getElementById("currentWeekLabel").textContent = "New blank week";
@@ -764,8 +751,6 @@
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
-
-      // Already on this week with live edits — keep live data (including C.A.N.), refresh archive snapshot
       if (currentWeek === name) {
         collectFromDOM();
         archive[name] = snapshotCurrentWeek();
@@ -773,35 +758,29 @@
         document.getElementById("canFocus").value = (data.canFocus || "").toString();
         return;
       }
-
       if (!preserveCurrentWorkBeforeSwitch(name)) return;
-      if (!confirm(`Load archived week "${name}"?\n(C.A.N. Focus for that week will be restored.)`)) return;
-
+      if (!confirm(`Load archived week "${name}"?`)) return;
       const entry = archive[name];
       currentWeek = name;
       data = {
         canFocus: (entry.canFocus || "").toString(),
         blocks: JSON.parse(JSON.stringify(entry.blocks || {})),
-        showAttachments: !!entry.showAttachments
+        showAttachments: true
       };
       ensureBlocks(data);
-
       document.getElementById("weekOf").value = name;
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
       document.getElementById("canFocus").value = data.canFocus;
-      document.getElementById("toggleAttachments").checked = !!data.showAttachments;
-
       renderAllDayGrids();
       updateDashboard();
       renderHistory();
       safeSave();
-      // Force C.A.N. again after save path
       document.getElementById("canFocus").value = (data.canFocus || "").toString();
       switchPage("dashboard");
     }
 
     function deleteFromArchive(name) {
-      if (!confirm(`Permanently delete "${name}" from Archives?`)) return;
+      if (!confirm(`Delete "${name}" from Archives?`)) return;
       delete archive[name];
       safeSave();
       renderHistory();
@@ -812,7 +791,7 @@
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive || {}).sort().reverse();
       if (!keys.length) {
-        list.innerHTML = `<div class="empty-history">No archived weeks yet.<br><br>Finish a week → click <strong>📦 Archive Week</strong>.</div>`;
+        list.innerHTML = `<div class="empty-history">No archived weeks yet.</div>`;
         return;
       }
       list.innerHTML = keys.map(name => {
@@ -820,13 +799,8 @@
         const canLine = can
           ? `<div class="can-preview"><strong>C.A.N.:</strong> ${esc(can.length > 120 ? can.slice(0,120)+"…" : can)}</div>`
           : `<div class="can-preview">No C.A.N. Focus stored</div>`;
-        return `
-        <div class="history-item">
-          <div>
-            <h3>${esc(name)}</h3>
-            <div class="meta">Saved: ${archive[name].savedAt || "Unknown"}</div>
-            ${canLine}
-          </div>
+        return `<div class="history-item">
+          <div><h3>${esc(name)}</h3><div class="meta">Saved: ${archive[name].savedAt || "Unknown"}</div>${canLine}</div>
           <div class="history-actions">
             <button class="primary" onclick="loadFromArchive('${esc(name)}')">Load</button>
             <button class="danger" onclick="deleteFromArchive('${esc(name)}')">Delete</button>
@@ -835,23 +809,10 @@
       }).join("");
     }
 
-    function copyField(idOrValue) {
-      let text = idOrValue === "canFocus" ? document.getElementById("canFocus").value : idOrValue;
-      if (!text) return;
-      navigator.clipboard.writeText(text).catch(() => {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-      });
-    }
-
     function collectFromDOM() {
       if (!sessionOpen) return;
       data.canFocus = document.getElementById("canFocus").value || "";
-      data.showAttachments = document.getElementById("toggleAttachments").checked;
+      data.showAttachments = true;
       document.querySelectorAll(".days-grid").forEach(grid => {
         const block = grid.dataset.block;
         if (!data.blocks[block]) data.blocks[block] = emptyBlock();
@@ -864,7 +825,7 @@
             activities: card.querySelector('[data-field="activities"]')?.value || "",
             notes: card.querySelector('[data-field="notes"]')?.value || "",
             noSchool: card.classList.contains("no-school"),
-            showAttach: existing.showAttach || false,
+            showAttach: true,
             fileName: existing.fileName || "",
             fileUrl: existing.fileUrl || "",
             publicId: existing.publicId || ""
@@ -880,15 +841,30 @@
       renderAllDayGrids();
       safeSave();
     }
-    function toggleDayAttach(b, d) {
-      if (!data.blocks[b]) data.blocks[b] = emptyBlock();
-      data.blocks[b][d].showAttach = !data.blocks[b][d].showAttach;
-      renderAllDayGrids();
-      safeSave();
+
+    function isImageName(n,u){ return /\.(jpe?g|png|gif|webp)$/i.test(n||"") || /\.(jpe?g|png|gif|webp)(\?|$)/i.test(u||""); }
+    function isPdfName(n,u){ return /\.pdf$/i.test(n||"") || /\.pdf(\?|$)/i.test(u||""); }
+    function pdfPageUrl(publicId, page) {
+      if (!publicId) return null;
+      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,pg_${page}/${publicId}`;
+    }
+    // Derive public_id from a Cloudinary secure_url if missing
+    function publicIdFromUrl(url) {
+      if (!url) return "";
+      try {
+        const m = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
+        if (!m) return "";
+        return m[1].replace(/\.[a-z0-9]+$/i, "");
+      } catch (e) { return ""; }
     }
 
     async function handleFile(b, d, file) {
       if (!file) return;
+      const name = file.name || "";
+      if (!isImageName(name) && !isPdfName(name)) {
+        alert("Please upload an image (JPG/PNG) or PDF so it can print as the document itself.");
+        return;
+      }
       if (!data.blocks[b]) data.blocks[b] = emptyBlock();
       const fd = new FormData();
       fd.append("file", file);
@@ -900,7 +876,7 @@
         const r = await res.json();
         data.blocks[b][d].fileName = r.original_filename || file.name;
         data.blocks[b][d].fileUrl = r.secure_url;
-        data.blocks[b][d].publicId = r.public_id || "";
+        data.blocks[b][d].publicId = r.public_id || publicIdFromUrl(r.secure_url) || "";
         data.blocks[b][d].showAttach = true;
         renderAllDayGrids();
         safeSave();
@@ -917,9 +893,8 @@
 
     function renderDayCard(b, day) {
       const e = (data.blocks[b] && data.blocks[b][day]) || {
-        title:"",objective:"",activities:"",notes:"",noSchool:false,showAttach:false,fileName:"",fileUrl:"",publicId:""
+        title:"",objective:"",activities:"",notes:"",noSchool:false,showAttach:true,fileName:"",fileUrl:"",publicId:""
       };
-      const globalOn = document.getElementById("toggleAttachments").checked;
 
       if (e.noSchool) {
         return `<div class="day-card no-school" data-day="${day}">
@@ -929,25 +904,25 @@
         </div>`;
       }
 
-      let attach = "";
-      if (globalOn) {
-        attach += `<label class="day-attach-toggle">
-          <input type="checkbox" ${e.showAttach?"checked":""} onchange="toggleDayAttach('${b}','${day}')" />
-          Show attachment zone for this day</label>`;
-        if (e.showAttach) {
-          if (e.fileName) {
-            const link = e.fileUrl ? `<a href="${esc(e.fileUrl)}" target="_blank">📎 ${esc(e.fileName)}</a>` : `<span>📎 ${esc(e.fileName)}</span>`;
-            attach += `<div class="attached-file">${link}<button onclick="removeFile('${b}','${day}')">✕</button></div>`;
-          } else {
-            attach += `<div class="drop-zone" onclick="this.querySelector('input').click()"
-              ondragover="event.preventDefault();this.classList.add('dragover')"
-              ondragleave="this.classList.remove('dragover')"
-              ondrop="event.preventDefault();this.classList.remove('dragover');handleFile('${b}','${day}',event.dataTransfer.files[0])">
-              <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt,.xlsx,.xls"
-                onchange="handleFile('${b}','${day}',this.files[0])" />
-              📄 Drop worksheet here or click to upload</div>`;
-          }
-        }
+      let attachHtml = "";
+      if (e.fileName) {
+        const isImg = isImageName(e.fileName, e.fileUrl);
+        const preview = isImg && e.fileUrl
+          ? `<div class="af-preview"><img src="${esc(e.fileUrl)}" alt="${esc(e.fileName)}"></div>`
+          : (isPdfName(e.fileName, e.fileUrl) ? `<div class="af-name">PDF worksheet attached — prints as pages</div>` : "");
+        attachHtml = `<div class="attached-file">
+          <div class="af-name">📎 ${esc(e.fileName)}</div>
+          ${preview}
+          <div class="af-actions"><button class="danger" onclick="removeFile('${b}','${day}')">Remove</button></div>
+        </div>`;
+      } else {
+        attachHtml = `<div class="drop-zone" onclick="this.querySelector('input').click()"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="event.preventDefault();this.classList.remove('dragover');handleFile('${b}','${day}',event.dataTransfer.files[0])">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif"
+            onchange="handleFile('${b}','${day}',this.files[0])" />
+          📄 Drop image or PDF worksheet (prints as the document)</div>`;
       }
 
       return `<div class="day-card" data-day="${day}">
@@ -956,25 +931,25 @@
         <div class="day-card-body">
           <div class="field">
             <div class="field-header"><label>Lesson / Activity Title</label>
-              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('input').value)">Copy</button></div>
+              <button type="button" class="copy-btn">Copy</button></div>
             <input type="text" data-field="title" value="${esc(e.title)}" oninput="safeSave()">
           </div>
           <div class="field">
             <div class="field-header"><label>Objective / Focus</label>
-              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('input').value)">Copy</button></div>
+              <button type="button" class="copy-btn">Copy</button></div>
             <input type="text" data-field="objective" value="${esc(e.objective)}" oninput="safeSave()">
           </div>
           <div class="field">
             <div class="field-header"><label>Activities / Content</label>
-              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('textarea').value)">Copy</button></div>
+              <button type="button" class="copy-btn">Copy</button></div>
             <textarea data-field="activities" oninput="safeSave()">${esc(e.activities)}</textarea>
           </div>
           <div class="field">
             <div class="field-header"><label>Notes / Materials</label>
-              <button class="copy-btn" onclick="copyField(this.closest('.field').querySelector('textarea').value)">Copy</button></div>
+              <button type="button" class="copy-btn">Copy</button></div>
             <textarea data-field="notes" rows="2" oninput="safeSave()">${esc(e.notes)}</textarea>
           </div>
-          ${attach}
+          ${attachHtml}
         </div></div>`;
     }
 
@@ -1007,9 +982,32 @@
       if (id === "preview") renderPreviewPage();
     }
 
-    function isImage(n,u){ return /\.(jpg|jpeg|png|gif|webp)$/i.test(n||u||""); }
-    function isPdf(n,u){ return (n||u||"").toLowerCase().endsWith(".pdf"); }
-    function pdfPage(pid,p){ return pid ? `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,pg_${p}/${pid}` : null; }
+    // ===== PRINT: embed document, never lead with a link =====
+    function printAttachmentHtml(e) {
+      if (!e.fileName && !e.fileUrl) return "";
+      let html = `<div class="print-attachment"><strong>Worksheet: ${esc(e.fileName || "Document")}</strong><div class="print-doc-preview">`;
+
+      const url = e.fileUrl || "";
+      let pid = e.publicId || publicIdFromUrl(url);
+
+      if (isImageName(e.fileName, url) && url) {
+        html += `<img src="${esc(url)}" alt="${esc(e.fileName)}">`;
+      } else if (isPdfName(e.fileName, url)) {
+        if (pid) {
+          for (let p = 1; p <= 3; p++) {
+            const pageUrl = pdfPageUrl(pid, p);
+            html += `<div class="page-label">Page ${p}</div><img src="${pageUrl}" alt="Page ${p}" onerror="this.style.display='none';this.previousElementSibling&&(this.previousElementSibling.style.display='none')">`;
+          }
+        } else if (url) {
+          // Last resort: try Cloudinary raw image transform on the delivery URL pattern
+          html += `<img src="${esc(url)}" alt="PDF" onerror="this.parentNode.innerHTML='<em>PDF attached (preview unavailable)</em>'">`;
+        }
+      } else if (url) {
+        html += `<em>File attached: ${esc(e.fileName)}</em>`;
+      }
+      html += `</div></div>`;
+      return html;
+    }
 
     function generatePrintReport() {
       if (!sessionOpen) return;
@@ -1041,18 +1039,9 @@
                 <div class="print-field"><strong>Title:</strong> ${esc(e.title)||"—"}</div>
                 <div class="print-field"><strong>Objective:</strong> ${esc(e.objective)||"—"}</div>
                 <div class="print-field"><strong>Activities:</strong> ${esc(e.activities).replace(/\n/g,"<br>")||"—"}</div>
-                <div class="print-field"><strong>Notes:</strong> ${esc(e.notes).replace(/\n/g,"<br>")||"—"}</div>`;
-              if (e.fileName || e.fileUrl) {
-                html += `<div class="print-attachment"><strong>📎 ${esc(e.fileName||"Document")}</strong>`;
-                if (isImage(e.fileName,e.fileUrl) && e.fileUrl) html += `<div class="print-doc-preview"><img src="${esc(e.fileUrl)}"></div>`;
-                else if (isPdf(e.fileName,e.fileUrl) && e.publicId) {
-                  html += `<div class="print-doc-preview">`;
-                  for (let p=1;p<=2;p++){ const u=pdfPage(e.publicId,p); if(u) html+=`<img src="${u}" onerror="this.style.display='none'">`; }
-                  html += `</div>`;
-                } else if (e.fileUrl) html += `<div style="font-size:0.85rem;margin-top:0.3rem;">${esc(e.fileUrl)}</div>`;
-                html += `</div>`;
-              }
-              html += `</div>`;
+                <div class="print-field"><strong>Notes:</strong> ${esc(e.notes).replace(/\n/g,"<br>")||"—"}</div>
+                ${printAttachmentHtml(e)}
+              </div>`;
             }
           });
         }
@@ -1061,8 +1050,10 @@
       html += `<div class="print-footer">Mr. Enciso’s Scholastic Batch · Save File ${saveSystem.activeSlot} · La Viña Middle School</div>`;
 
       const r = document.getElementById("printReport");
-      r.innerHTML = html; r.style.display = "block";
-      setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 1500); }, 800);
+      r.innerHTML = html;
+      r.style.display = "block";
+      // Give images a moment to start loading before print
+      setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 2000); }, 900);
     }
 
     document.querySelectorAll(".nav-item").forEach(i => i.onclick = () => switchPage(i.dataset.page));
@@ -1078,23 +1069,11 @@
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: "+w : "Current week";
       safeSave();
     };
-    document.getElementById("toggleAttachments").onchange = () => {
-      if (!sessionOpen) return;
-      data.showAttachments = document.getElementById("toggleAttachments").checked;
-      renderAllDayGrids();
-      safeSave();
-    };
     document.getElementById("canFocus").oninput = () => { if (sessionOpen) safeSave(); };
 
-    setInterval(() => {
-      if (sessionOpen && saveSystem.activeSlot) safeSave();
-    }, 15000);
-
+    setInterval(() => { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
     window.addEventListener("beforeunload", () => {
-      if (sessionOpen && saveSystem.activeSlot) {
-        collectFromDOM();
-        persistLocal();
-      }
+      if (sessionOpen && saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
     });
 
     loadLocal();
