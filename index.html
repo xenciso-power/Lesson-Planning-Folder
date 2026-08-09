@@ -85,12 +85,13 @@
     }
     .field-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; gap: 0.5rem; }
     .field-header label { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); }
-    .copy-btn {
+    .field-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+    .copy-btn, .paste-btn {
       background: var(--surface-2); border: 1px solid var(--border); color: var(--gold-light);
-      font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; flex-shrink: 0;
+      font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer;
     }
-    .copy-btn:hover { border-color: var(--gold); background: var(--navy); }
-    .copy-btn.copied { border-color: var(--success); color: #86efac; }
+    .copy-btn:hover, .paste-btn:hover { border-color: var(--gold); background: var(--navy); }
+    .copy-btn.copied, .paste-btn.pasted { border-color: var(--success); color: #86efac; }
     .notice { margin-top: 0.75rem; font-size: 0.8rem; color: var(--gold-light); font-style: italic; }
     .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
     .day-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -166,7 +167,6 @@
       margin-top: 0.6rem; padding: 0.6rem 0.75rem; background: var(--bg); border-radius: 6px;
       font-size: 0.85rem; white-space: pre-wrap; max-height: 120px; overflow-y: auto;
     }
-    .preview-archives li { font-size: 0.85rem; color: var(--text-muted); margin-left: 1.1rem; margin-bottom: 0.25rem; }
     .preview-actions { margin-top: 1.25rem; }
 
     .print-report { display: none; background: white; color: #111; padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
@@ -184,7 +184,6 @@
     .print-field strong { color: #334155; }
     .print-attachment { margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; }
     .print-attachment strong { color: #1F4E79; display: block; margin-bottom: 0.5rem; }
-    .print-doc-preview { margin-top: 0.4rem; }
     .print-doc-preview img {
       max-width: 100%; max-height: 520px; border: 1px solid #cbd5e1; border-radius: 4px;
       display: block; margin: 0.35rem 0; page-break-inside: avoid;
@@ -259,10 +258,13 @@
         <div class="can-box">
           <div class="field-header">
             <h3 style="margin:0;">C.A.N. Standards Focus</h3>
-            <button type="button" class="copy-btn" data-copy-target="canFocus">Copy</button>
+            <div class="field-actions">
+              <button type="button" class="copy-btn" data-copy-target="canFocus">Copy</button>
+              <button type="button" class="paste-btn" data-paste-target="canFocus">Paste</button>
+            </div>
           </div>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-          <p class="notice">C.A.N. Focus is saved with every week. Worksheets (image/PDF) print as the document itself, not a link.</p>
+          <p class="notice">Copy / Paste work on every field. Worksheets (image/PDF) print as the document itself.</p>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -499,7 +501,7 @@
       renderHistory();
     }
 
-    // ===== FIXED COPY =====
+    // ===== COPY + PASTE =====
     async function copyText(text, btn) {
       text = (text || "").toString();
       if (!text) return;
@@ -532,30 +534,68 @@
       }
     }
 
-    function onCopyClick(ev) {
-      const btn = ev.target.closest(".copy-btn");
-      if (!btn) return;
+    async function readClipboardText() {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          return await navigator.clipboard.readText();
+        }
+      } catch (e) {}
+      // Fallback: prompt (browsers often block silent paste without permission)
+      const t = prompt("Paste is blocked by the browser. Paste here, then OK:");
+      return t === null ? "" : t;
+    }
+
+    async function pasteIntoField(inputEl, btn) {
+      if (!inputEl) return;
+      const text = await readClipboardText();
+      if (text === "" || text === null) return;
+      inputEl.value = text;
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      if (sessionOpen) safeSave();
+      if (btn) {
+        const prev = btn.textContent;
+        btn.textContent = "Pasted";
+        btn.classList.add("pasted");
+        setTimeout(() => { btn.textContent = prev; btn.classList.remove("pasted"); }, 1200);
+      }
+    }
+
+    document.addEventListener("click", async (ev) => {
+      const copyBtn = ev.target.closest(".copy-btn");
+      const pasteBtn = ev.target.closest(".paste-btn");
+      if (!copyBtn && !pasteBtn) return;
       ev.preventDefault();
       ev.stopPropagation();
-      let text = "";
-      if (btn.dataset.copyTarget === "canFocus") {
-        text = document.getElementById("canFocus").value;
-      } else {
-        const field = btn.closest(".field");
-        if (field) {
-          const input = field.querySelector("input, textarea");
+
+      if (copyBtn) {
+        let text = "";
+        if (copyBtn.dataset.copyTarget === "canFocus") {
+          text = document.getElementById("canFocus").value;
+        } else {
+          const field = copyBtn.closest(".field");
+          const input = field && field.querySelector("input, textarea");
           if (input) text = input.value;
         }
+        await copyText(text, copyBtn);
+        return;
       }
-      copyText(text, btn);
-    }
-    document.addEventListener("click", onCopyClick);
+
+      if (pasteBtn) {
+        let input = null;
+        if (pasteBtn.dataset.pasteTarget === "canFocus") {
+          input = document.getElementById("canFocus");
+        } else {
+          const field = pasteBtn.closest(".field");
+          input = field && field.querySelector("input, textarea");
+        }
+        await pasteIntoField(input, pasteBtn);
+      }
+    });
 
     function preserveCurrentWorkBeforeSwitch(nextName) {
       collectFromDOM();
       if (!hasCurrentWork()) return true;
       if (nextName && currentWeek === nextName) return true;
-
       let name = (document.getElementById("weekOf").value.trim() || currentWeek || "").trim();
       if (!name || name === "default") {
         name = prompt("Name this week to keep it (including C.A.N. Focus):", "Week " + new Date().toLocaleDateString());
@@ -671,9 +711,7 @@
         collectFromDOM();
         slot = { currentWeek, data, archive, lastSaved: saveSystem.slots[previewSource].lastSaved };
       } else slot = saveSystem.slots[previewSource];
-
       const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
-      const archives = Object.keys(slot.archive || {});
       const can = (slot.data?.canFocus || "").toString().trim();
       const same = previewSource === saveSystem.activeSlot;
       panel.innerHTML = `
@@ -681,7 +719,7 @@
           <h3>Save File ${previewSource} — Preview only</h3>
           <p class="meta"><strong>Week:</strong> ${esc(week)}</p>
           <p class="meta"><strong>Days with content:</strong> ${countFilledDays(slot)}</p>
-          <p class="meta"><strong>Archives:</strong> ${archives.length}</p>
+          <p class="meta"><strong>Archives:</strong> ${Object.keys(slot.archive||{}).length}</p>
           ${can ? `<div class="can-snippet"><strong>C.A.N.:</strong><br>${esc(can)}</div>` : ""}
         </div>
         <div class="preview-actions">
@@ -720,10 +758,7 @@
       if (!sessionOpen) return;
       collectFromDOM();
       const name = (document.getElementById("weekOf").value.trim() || currentWeek);
-      if (!name || name === "default") {
-        alert("Enter a week name first.");
-        return;
-      }
+      if (!name || name === "default") { alert("Enter a week name first."); return; }
       if (archive[name] && !confirm(`"${name}" exists. Overwrite?`)) return;
       archive[name] = snapshotCurrentWeek();
       currentWeek = name;
@@ -848,7 +883,6 @@
       if (!publicId) return null;
       return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,pg_${page}/${publicId}`;
     }
-    // Derive public_id from a Cloudinary secure_url if missing
     function publicIdFromUrl(url) {
       if (!url) return "";
       try {
@@ -931,22 +965,38 @@
         <div class="day-card-body">
           <div class="field">
             <div class="field-header"><label>Lesson / Activity Title</label>
-              <button type="button" class="copy-btn">Copy</button></div>
+              <div class="field-actions">
+                <button type="button" class="copy-btn">Copy</button>
+                <button type="button" class="paste-btn">Paste</button>
+              </div>
+            </div>
             <input type="text" data-field="title" value="${esc(e.title)}" oninput="safeSave()">
           </div>
           <div class="field">
             <div class="field-header"><label>Objective / Focus</label>
-              <button type="button" class="copy-btn">Copy</button></div>
+              <div class="field-actions">
+                <button type="button" class="copy-btn">Copy</button>
+                <button type="button" class="paste-btn">Paste</button>
+              </div>
+            </div>
             <input type="text" data-field="objective" value="${esc(e.objective)}" oninput="safeSave()">
           </div>
           <div class="field">
             <div class="field-header"><label>Activities / Content</label>
-              <button type="button" class="copy-btn">Copy</button></div>
+              <div class="field-actions">
+                <button type="button" class="copy-btn">Copy</button>
+                <button type="button" class="paste-btn">Paste</button>
+              </div>
+            </div>
             <textarea data-field="activities" oninput="safeSave()">${esc(e.activities)}</textarea>
           </div>
           <div class="field">
             <div class="field-header"><label>Notes / Materials</label>
-              <button type="button" class="copy-btn">Copy</button></div>
+              <div class="field-actions">
+                <button type="button" class="copy-btn">Copy</button>
+                <button type="button" class="paste-btn">Paste</button>
+              </div>
+            </div>
             <textarea data-field="notes" rows="2" oninput="safeSave()">${esc(e.notes)}</textarea>
           </div>
           ${attachHtml}
@@ -982,14 +1032,11 @@
       if (id === "preview") renderPreviewPage();
     }
 
-    // ===== PRINT: embed document, never lead with a link =====
     function printAttachmentHtml(e) {
       if (!e.fileName && !e.fileUrl) return "";
       let html = `<div class="print-attachment"><strong>Worksheet: ${esc(e.fileName || "Document")}</strong><div class="print-doc-preview">`;
-
       const url = e.fileUrl || "";
       let pid = e.publicId || publicIdFromUrl(url);
-
       if (isImageName(e.fileName, url) && url) {
         html += `<img src="${esc(url)}" alt="${esc(e.fileName)}">`;
       } else if (isPdfName(e.fileName, url)) {
@@ -999,7 +1046,6 @@
             html += `<div class="page-label">Page ${p}</div><img src="${pageUrl}" alt="Page ${p}" onerror="this.style.display='none';this.previousElementSibling&&(this.previousElementSibling.style.display='none')">`;
           }
         } else if (url) {
-          // Last resort: try Cloudinary raw image transform on the delivery URL pattern
           html += `<img src="${esc(url)}" alt="PDF" onerror="this.parentNode.innerHTML='<em>PDF attached (preview unavailable)</em>'">`;
         }
       } else if (url) {
@@ -1052,7 +1098,6 @@
       const r = document.getElementById("printReport");
       r.innerHTML = html;
       r.style.display = "block";
-      // Give images a moment to start loading before print
       setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 2000); }, 900);
     }
 
