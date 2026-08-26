@@ -60,12 +60,12 @@
     .sidebar h2 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 0 0.5rem 0.75rem; }
     .nav-item {
       display: flex; flex-direction: column; gap: 0.15rem; padding: 0.7rem 0.85rem; border-radius: 8px;
-      cursor: pointer; margin-bottom: 0.35rem; border: 1px solid transparent;
+      cursor: pointer; margin-bottom: 0.35rem; border: 1px solid transparent; user-select: none;
     }
     .nav-item:hover { background: var(--surface-2); }
     .nav-item.active { background: var(--navy); border-color: var(--gold); }
-    .nav-item .block-name { font-weight: 600; font-size: 0.9rem; }
-    .nav-item .block-time { font-size: 0.75rem; color: var(--text-muted); }
+    .nav-item .block-name { font-weight: 600; font-size: 0.9rem; pointer-events: none; }
+    .nav-item .block-time { font-size: 0.75rem; color: var(--text-muted); pointer-events: none; }
     .nav-item.active .block-time { color: var(--gold-light); }
     .content { padding: 1.25rem 1.5rem; overflow-y: auto; }
     .page { display: none; } .page.active { display: block; }
@@ -80,13 +80,12 @@
       padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.9rem; min-width: 180px;
     }
     .toolbar-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
-    .can-box, .notes-box, .template-box {
+    .can-box, .notes-box {
       background: linear-gradient(135deg, rgba(31,78,121,0.35), rgba(30,41,59,0.8));
       border: 1px solid var(--gold); border-radius: var(--radius); padding: 1rem 1.15rem; margin-bottom: 1.25rem;
     }
     .notes-box { border-color: var(--border); background: var(--surface); }
-    .template-box { border-color: var(--border); background: var(--surface); }
-    .can-box h3, .notes-box h3, .template-box h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 0.5rem; }
+    .can-box h3, .notes-box h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 0.5rem; }
     .notes-box h3 { color: var(--gold-light); }
     .can-box textarea, .notes-box textarea {
       width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
@@ -128,11 +127,6 @@
       border-radius: 5px; padding: 0.45rem 0.6rem; font-size: 0.85rem; font-family: inherit;
     }
     .field textarea { min-height: 70px; }
-    .dup-row { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-top: 0.25rem; }
-    .dup-row select {
-      background: var(--bg); border: 1px solid var(--border); color: var(--text);
-      border-radius: 5px; padding: 0.25rem 0.4rem; font-size: 0.75rem;
-    }
 
     .drop-zone {
       border: 2px dashed var(--border); border-radius: 8px; padding: 0.75rem; text-align: center;
@@ -176,7 +170,8 @@
       display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
       background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 0.85rem;
     }
-    .template-item span { font-size: 0.9rem; }
+    .template-item span { font-size: 0.9rem; word-break: break-word; }
+    .template-item .t-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
 
     .toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--success); color: white;
@@ -250,7 +245,7 @@
     <div class="title-welcome">Welcome, X</div>
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
-    <div class="title-footer">Data saves on this device first, then to the cloud. Templates are shared across Save Files.</div>
+    <div class="title-footer">Open a Save File first. Templates are shared across all Save Files on this device.</div>
   </div>
 
   <div id="main-app">
@@ -265,17 +260,17 @@
         </p>
       </div>
       <div class="header-actions">
-        <button id="btnSave" class="primary">💾 Save Now</button>
-        <button id="btnArchive">📦 Archive Week</button>
-        <button id="btnNewWeek">🆕 New Week</button>
-        <button id="btnPrintReport">🖨 Print</button>
-        <button id="btnPdfReport" class="primary">⬇ PDF</button>
-        <button id="btnTitleScreen">🎮 Change Save File</button>
+        <button type="button" id="btnSave" class="primary">💾 Save Now</button>
+        <button type="button" id="btnArchive">📦 Archive Week</button>
+        <button type="button" id="btnNewWeek">🆕 New Week</button>
+        <button type="button" id="btnPrintReport">🖨 Print</button>
+        <button type="button" id="btnPdfReport" class="primary">⬇ PDF</button>
+        <button type="button" id="btnTitleScreen">🎮 Change Save File</button>
       </div>
     </header>
 
     <div class="app no-print">
-      <nav class="sidebar">
+      <nav class="sidebar" id="sidebarNav">
         <h2>Time Blocks</h2>
         <div class="nav-item active" data-page="dashboard"><span class="block-name">📊 Dashboard</span><span class="block-time">Week overview</span></div>
         <div class="nav-item" data-page="sel"><span class="block-name">SEL / CHECK-IN</span><span class="block-time">2:52 – 3:00</span></div>
@@ -291,8 +286,8 @@
         <div class="week-bar">
           <label for="weekOf">Week of:</label>
           <input type="text" id="weekOf" placeholder="e.g. Aug 25 – Aug 29, 2026" />
-          <button id="btnThisWeek" class="small">This week</button>
-          <button id="btnLoadWeek" class="primary">Set Week Name</button>
+          <button type="button" id="btnThisWeek" class="small">This week</button>
+          <button type="button" id="btnLoadWeek" class="primary">Set Week Name</button>
           <span id="currentWeekLabel" style="margin-left:auto; font-size:0.85rem; color:var(--text-muted);"></span>
         </div>
 
@@ -330,8 +325,8 @@
             <select id="dupFrom-sel"></select>
             <span style="color:var(--text-muted);">to</span>
             <select id="dupTo-sel"></select>
-            <button class="small primary" onclick="duplicateDayInBlock('sel')">Duplicate day</button>
-            <button class="small" onclick="copyDayToAllInBlock('sel')">Apply source to all days</button>
+            <button type="button" class="small primary" data-dup-block="sel">Duplicate day</button>
+            <button type="button" class="small" data-dup-all="sel">Apply source to all days</button>
           </div>
           <div class="days-grid" data-block="sel"></div>
         </section>
@@ -342,8 +337,8 @@
             <select id="dupFrom-intervention"></select>
             <span style="color:var(--text-muted);">to</span>
             <select id="dupTo-intervention"></select>
-            <button class="small primary" onclick="duplicateDayInBlock('intervention')">Duplicate day</button>
-            <button class="small" onclick="copyDayToAllInBlock('intervention')">Apply source to all days</button>
+            <button type="button" class="small primary" data-dup-block="intervention">Duplicate day</button>
+            <button type="button" class="small" data-dup-all="intervention">Apply source to all days</button>
           </div>
           <div class="days-grid" data-block="intervention"></div>
         </section>
@@ -354,8 +349,8 @@
             <select id="dupFrom-enrichment"></select>
             <span style="color:var(--text-muted);">to</span>
             <select id="dupTo-enrichment"></select>
-            <button class="small primary" onclick="duplicateDayInBlock('enrichment')">Duplicate day</button>
-            <button class="small" onclick="copyDayToAllInBlock('enrichment')">Apply source to all days</button>
+            <button type="button" class="small primary" data-dup-block="enrichment">Duplicate day</button>
+            <button type="button" class="small" data-dup-all="enrichment">Apply source to all days</button>
           </div>
           <div class="days-grid" data-block="enrichment"></div>
         </section>
@@ -366,8 +361,8 @@
             <select id="dupFrom-spark"></select>
             <span style="color:var(--text-muted);">to</span>
             <select id="dupTo-spark"></select>
-            <button class="small primary" onclick="duplicateDayInBlock('spark')">Duplicate day</button>
-            <button class="small" onclick="copyDayToAllInBlock('spark')">Apply source to all days</button>
+            <button type="button" class="small primary" data-dup-block="spark">Duplicate day</button>
+            <button type="button" class="small" data-dup-all="spark">Apply source to all days</button>
           </div>
           <div class="days-grid" data-block="spark"></div>
         </section>
@@ -377,14 +372,15 @@
           <div class="history-list" id="historyList"></div>
         </section>
 
+        <!-- TEMPLATES PAGE -->
         <section id="page-templates" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Week Templates</h2>
           <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">
-            Save the current week’s structure (C.A.N., notes, and day content) as a reusable starter. Templates are shared across all Save Files on this device.
+            Save the current week (C.A.N., notes, and day plans) as a reusable starter. Templates are stored on this device and work in every Save File.
           </p>
           <div class="toolbar-row">
             <input type="text" id="templateName" placeholder="Template name…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:200px;" />
-            <button class="primary" id="btnSaveTemplate">Save current week as template</button>
+            <button type="button" class="primary" id="btnSaveTemplate">Save current week as template</button>
           </div>
           <div class="template-list" id="templateList"></div>
         </section>
@@ -403,6 +399,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
+  (function () {
     const BIN_ID = "6a6cfe28f5f4af5e29db8208";
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
     const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
@@ -437,10 +434,7 @@
       return { currentWeek: "default", data: emptyData(), archive: {}, lastSaved: null };
     }
     function emptyDay() {
-      return {
-        title:"", objective:"", activities:"", notes:"",
-        noSchool:false, files: []
-      };
+      return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] };
     }
     function emptyBlock() {
       const d = {};
@@ -452,11 +446,7 @@
       if (!Array.isArray(d.files)) {
         d.files = [];
         if (d.fileName || d.fileUrl) {
-          d.files.push({
-            fileName: d.fileName || "",
-            fileUrl: d.fileUrl || "",
-            publicId: d.publicId || ""
-          });
+          d.files.push({ fileName: d.fileName || "", fileUrl: d.fileUrl || "", publicId: d.publicId || "" });
         }
       }
       if (d.files.length > MAX_FILES) d.files = d.files.slice(0, MAX_FILES);
@@ -469,9 +459,7 @@
       if (!d.blocks) d.blocks = {};
       Object.keys(BLOCKS).forEach(k => {
         if (!d.blocks[k]) d.blocks[k] = emptyBlock();
-        DAYS.forEach(day => {
-          d.blocks[k][day] = migrateDay(d.blocks[k][day] || emptyDay());
-        });
+        DAYS.forEach(day => { d.blocks[k][day] = migrateDay(d.blocks[k][day] || emptyDay()); });
       });
       return d;
     }
@@ -496,7 +484,7 @@
         if (ls) when = new Date(ls).toLocaleString();
       }
       const cloud = lastCloudOk === true ? "Cloud OK" : lastCloudOk === false ? "Device only" : "—";
-      el.textContent = `Last saved: ${when} · ${cloud}`;
+      el.textContent = "Last saved: " + when + " · " + cloud;
     }
 
     function persistLocal() {
@@ -544,7 +532,7 @@
         if (!templates || typeof templates !== "object") templates = {};
       } catch (e) { templates = {}; }
     }
-    function saveTemplates() {
+    function saveTemplatesStore() {
       try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
     }
 
@@ -584,8 +572,6 @@
           const cloudHas = [1,2,3].some(n => hasContent(record.slots[n]));
           if (!cloudHas) return;
           saveSystem.slots = record.slots;
-          saveSystem.activeSlot = null;
-          sessionOpen = false;
           [1,2,3].forEach(n => {
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
             if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
@@ -634,10 +620,10 @@
       const el = document.getElementById("cloudStatus");
       if (el) el.textContent = msg;
     }
-    function showToast(msg, err = false) {
+    function showToast(msg, err) {
       const t = document.getElementById("toast");
       t.textContent = msg;
-      t.classList.toggle("error", err);
+      t.classList.toggle("error", !!err);
       t.classList.add("show");
       setTimeout(() => t.classList.remove("show"), 2200);
     }
@@ -652,7 +638,6 @@
       renderHistory();
     }
 
-    // ===== COPY / PASTE =====
     async function copyText(text, btn) {
       text = (text || "").toString();
       if (!text) return;
@@ -704,37 +689,7 @@
         setTimeout(() => { btn.textContent = prev; btn.classList.remove("pasted"); }, 1200);
       }
     }
-    document.addEventListener("click", async (ev) => {
-      const copyBtn = ev.target.closest(".copy-btn");
-      const pasteBtn = ev.target.closest(".paste-btn");
-      if (!copyBtn && !pasteBtn) return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      if (copyBtn) {
-        let text = "";
-        if (copyBtn.dataset.copyTarget === "canFocus") text = document.getElementById("canFocus").value;
-        else if (copyBtn.dataset.copyTarget === "weekNotes") text = document.getElementById("weekNotes").value;
-        else {
-          const field = copyBtn.closest(".field");
-          const input = field && field.querySelector("input, textarea");
-          if (input) text = input.value;
-        }
-        await copyText(text, copyBtn);
-        return;
-      }
-      if (pasteBtn) {
-        let input = null;
-        if (pasteBtn.dataset.pasteTarget === "canFocus") input = document.getElementById("canFocus");
-        else if (pasteBtn.dataset.pasteTarget === "weekNotes") input = document.getElementById("weekNotes");
-        else {
-          const field = pasteBtn.closest(".field");
-          input = field && field.querySelector("input, textarea");
-        }
-        await pasteIntoField(input, pasteBtn);
-      }
-    });
 
-    // ===== #20 Auto week name =====
     function mondayOf(d) {
       const x = new Date(d);
       const day = x.getDay();
@@ -750,9 +705,10 @@
       const mon = mondayOf(new Date());
       const fri = new Date(mon);
       fri.setDate(mon.getDate() + 4);
-      return `${formatShort(mon)} – ${formatShort(fri)}`;
+      return formatShort(mon) + " – " + formatShort(fri);
     }
     function setThisWeekName() {
+      if (!sessionOpen) return;
       const label = thisWeekLabel();
       document.getElementById("weekOf").value = label;
       currentWeek = label;
@@ -760,13 +716,12 @@
       safeSave();
     }
 
-    // ===== #5 Duplicate day / block =====
     function fillDupSelects() {
       Object.keys(BLOCKS).forEach(b => {
         const from = document.getElementById("dupFrom-" + b);
         const to = document.getElementById("dupTo-" + b);
         if (!from || !to) return;
-        const opts = DAYS.map(d => `<option value="${d}">${d}</option>`).join("");
+        const opts = DAYS.map(d => '<option value="' + d + '">' + d + "</option>").join("");
         from.innerHTML = opts;
         to.innerHTML = opts;
         if (DAYS[1]) to.value = DAYS[1];
@@ -785,7 +740,7 @@
       data.blocks[block][to] = cloneDay(data.blocks[block][from]);
       renderAllDayGrids();
       safeSave();
-      showToast(`${from} → ${to}`);
+      showToast(from + " → " + to);
     }
     function copyDayToAllInBlock(block) {
       if (!sessionOpen) return;
@@ -793,52 +748,67 @@
       const from = document.getElementById("dupFrom-" + block).value;
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
       const src = cloneDay(data.blocks[block][from]);
-      DAYS.forEach(d => {
-        if (d !== from) data.blocks[block][d] = cloneDay(src);
-      });
+      DAYS.forEach(d => { if (d !== from) data.blocks[block][d] = cloneDay(src); });
       renderAllDayGrids();
       safeSave();
-      showToast(`${from} applied to all days`);
+      showToast(from + " applied to all days");
     }
 
-    // ===== #6 Templates =====
+    // ===== TEMPLATES (fixed) =====
     function renderTemplates() {
       const list = document.getElementById("templateList");
+      if (!list) return;
       const keys = Object.keys(templates || {}).sort();
       if (!keys.length) {
-        list.innerHTML = `<p style="color:var(--text-muted);">No templates yet. Fill a week, then save it as a template.</p>`;
+        list.innerHTML = '<p style="color:var(--text-muted);">No templates yet. Fill a week, type a name above, then click <strong>Save current week as template</strong>.</p>';
         return;
       }
-      list.innerHTML = keys.map(name => `
-        <div class="template-item">
-          <span>${esc(name)}</span>
-          <div style="display:flex;gap:0.4rem;">
-            <button class="primary small" onclick="applyTemplate('${esc(name)}')">Use</button>
-            <button class="danger small" onclick="deleteTemplate('${esc(name)}')">Delete</button>
-          </div>
-        </div>`).join("");
+      list.innerHTML = keys.map(name => {
+        const safe = esc(name);
+        return '<div class="template-item" data-template-name="' + safe + '">' +
+          "<span>" + safe + "</span>" +
+          '<div class="t-actions">' +
+          '<button type="button" class="primary small tpl-use">Use</button>' +
+          '<button type="button" class="danger small tpl-del">Delete</button>' +
+          "</div></div>";
+      }).join("");
     }
+
     function saveCurrentAsTemplate() {
-      if (!sessionOpen) return;
+      if (!sessionOpen) {
+        alert("Open a Save File first, then come back to Templates.");
+        return;
+      }
       collectFromDOM();
       const name = (document.getElementById("templateName").value || "").trim();
-      if (!name) { alert("Enter a template name."); return; }
-      if (templates[name] && !confirm(`Overwrite template "${name}"?`)) return;
+      if (!name) {
+        alert("Enter a template name first.");
+        return;
+      }
+      if (templates[name] && !confirm('Overwrite template "' + name + '"?')) return;
       templates[name] = {
         canFocus: data.canFocus || "",
         weekNotes: data.weekNotes || "",
         blocks: JSON.parse(JSON.stringify(data.blocks || {})),
         savedAt: new Date().toLocaleString()
       };
-      saveTemplates();
+      saveTemplatesStore();
       document.getElementById("templateName").value = "";
       renderTemplates();
-      showToast("Template saved");
+      showToast("Template saved: " + name);
     }
+
     function applyTemplate(name) {
-      if (!templates[name] || !sessionOpen) return;
+      if (!sessionOpen) {
+        alert("Open a Save File first.");
+        return;
+      }
+      if (!templates[name]) {
+        alert("Template not found.");
+        return;
+      }
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
-      if (!confirm(`Start from template "${name}"?\n(Current work will be archived if it has content.)`)) return;
+      if (!confirm('Start from template "' + name + '"?\n(Current work will be archived if it has content.)')) return;
       const t = templates[name];
       data = {
         canFocus: t.canFocus || "",
@@ -858,11 +828,13 @@
       switchPage("dashboard");
       showToast("Template applied");
     }
+
     function deleteTemplate(name) {
-      if (!confirm(`Delete template "${name}"?`)) return;
+      if (!confirm('Delete template "' + name + '"?')) return;
       delete templates[name];
-      saveTemplates();
+      saveTemplatesStore();
       renderTemplates();
+      showToast("Template deleted", true);
     }
 
     function preserveCurrentWorkBeforeSwitch(nextName) {
@@ -877,7 +849,7 @@
         if (!name) { alert("A name is required. Cancelled."); return false; }
       }
       if (archive[name] && name !== nextName) {
-        if (!confirm(`Archive "${name}" exists. Update it with current work?`)) return false;
+        if (!confirm('Archive "' + name + '" exists. Update it with current work?')) return false;
       }
       archive[name] = snapshotCurrentWeek();
       if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = JSON.parse(JSON.stringify(archive));
@@ -893,24 +865,19 @@
         const archives = Object.keys(slot.archive || {}).length;
         const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
         const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
-        return `
-          <div class="save-slot">
-            <div class="slot-main" onclick="enterSlot(${n})">
-              <div class="slot-info">
-                <h3>Save File ${n}</h3>
-                <p>${has ? week : "New Game"}</p>
-                <p style="font-size:0.75rem;margin-top:0.15rem;">Archives: ${archives} · Last saved: ${when}</p>
-              </div>
-            </div>
-            <div class="slot-actions">
-              <button class="primary" onclick="enterSlot(${n})">${has ? "Continue" : "Start"}</button>
-              <button class="danger" onclick="wipeSlot(${n})">Wipe</button>
-            </div>
-          </div>`;
+        return '<div class="save-slot">' +
+          '<div class="slot-main" data-enter="' + n + '"><div class="slot-info">' +
+          "<h3>Save File " + n + "</h3><p>" + (has ? esc(week) : "New Game") + "</p>" +
+          '<p style="font-size:0.75rem;margin-top:0.15rem;">Archives: ' + archives + " · Last saved: " + when + "</p>" +
+          '</div></div><div class="slot-actions">' +
+          '<button type="button" class="primary" data-enter="' + n + '">' + (has ? "Continue" : "Start") + "</button>" +
+          '<button type="button" class="danger" data-wipe="' + n + '">Wipe</button>' +
+          "</div></div>";
       }).join("");
     }
 
     function enterSlot(n) {
+      n = Number(n);
       if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) safeSave();
       saveSystem.activeSlot = n;
       sessionOpen = true;
@@ -936,7 +903,8 @@
     }
 
     function wipeSlot(n) {
-      if (!confirm(`Wipe Save File ${n} completely?`)) return;
+      n = Number(n);
+      if (!confirm("Wipe Save File " + n + " completely?")) return;
       saveSystem.slots[n] = emptySlot();
       if (sessionOpen && saveSystem.activeSlot === n) {
         currentWeek = "default";
@@ -948,7 +916,7 @@
       persistLocal();
       pushCloud();
       renderTitleSlots();
-      showToast(`Save File ${n} wiped`, true);
+      showToast("Save File " + n + " wiped", true);
     }
 
     function returnToTitle() {
@@ -974,15 +942,27 @@
       updateSaveMeta();
     }
 
+    function switchPage(id) {
+      if (!id) return;
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      const page = document.getElementById("page-" + id);
+      const nav = document.querySelector('.nav-item[data-page="' + id + '"]');
+      if (page) page.classList.add("active");
+      if (nav) nav.classList.add("active");
+      if (id === "preview") renderPreviewPage();
+      if (id === "templates") renderTemplates();
+    }
+
     function renderPreviewPage() {
       const target = saveSystem.activeSlot;
       document.getElementById("previewTargetLabel").textContent = target || "—";
       document.getElementById("previewSourceButtons").innerHTML = [1,2,3].map(n =>
-        `<button class="source-btn ${previewSource===n?"active":""}" onclick="setPreviewSource(${n})">Save File ${n}${n===target?" (current)":""}</button>`
+        '<button type="button" class="source-btn' + (previewSource===n?" active":"") + '" data-preview-src="' + n + '">Save File ' + n + (n===target?" (current)":"") + "</button>"
       ).join("");
       const panel = document.getElementById("previewPanel");
       if (!previewSource) {
-        panel.innerHTML = `<p style="color:var(--text-muted);">Select a Save File above to preview it.</p>`;
+        panel.innerHTML = '<p style="color:var(--text-muted);">Select a Save File above to preview it.</p>';
         return;
       }
       let slot;
@@ -993,25 +973,23 @@
       const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
       const can = (slot.data?.canFocus || "").toString().trim();
       const same = previewSource === saveSystem.activeSlot;
-      panel.innerHTML = `
-        <div class="preview-card">
-          <h3>Save File ${previewSource} — Preview only</h3>
-          <p class="meta"><strong>Week:</strong> ${esc(week)}</p>
-          <p class="meta"><strong>Days with content:</strong> ${countFilledDays(slot)}</p>
-          <p class="meta"><strong>Archives:</strong> ${Object.keys(slot.archive||{}).length}</p>
-          ${can ? `<div class="can-snippet"><strong>C.A.N.:</strong><br>${esc(can)}</div>` : ""}
-        </div>
-        <div class="preview-actions">
-          ${same ? `<p style="color:var(--text-muted);font-size:0.9rem;">Current Save File.</p>`
-            : `<button class="primary" onclick="transferPreviewToCurrent()">Transfer data → replace Save File ${target}</button>`}
-        </div>`;
+      panel.innerHTML =
+        '<div class="preview-card"><h3>Save File ' + previewSource + " — Preview only</h3>" +
+        '<p class="meta"><strong>Week:</strong> ' + esc(week) + "</p>" +
+        '<p class="meta"><strong>Days with content:</strong> ' + countFilledDays(slot) + "</p>" +
+        '<p class="meta"><strong>Archives:</strong> ' + Object.keys(slot.archive||{}).length + "</p>" +
+        (can ? '<div class="can-snippet"><strong>C.A.N.:</strong><br>' + esc(can) + "</div>" : "") +
+        '</div><div class="preview-actions">' +
+        (same
+          ? '<p style="color:var(--text-muted);font-size:0.9rem;">Current Save File.</p>'
+          : '<button type="button" class="primary" id="btnTransferPreview">Transfer data → replace Save File ' + target + "</button>") +
+        "</div>";
     }
-    function setPreviewSource(n) { previewSource = n; renderPreviewPage(); }
 
     function transferPreviewToCurrent() {
       if (!sessionOpen || !saveSystem.activeSlot || !previewSource || previewSource === saveSystem.activeSlot) return;
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
-      if (!confirm(`Transfer Save File ${previewSource} into Save File ${saveSystem.activeSlot}?`)) return;
+      if (!confirm("Transfer Save File " + previewSource + " into Save File " + saveSystem.activeSlot + "?")) return;
       const source = saveSystem.slots[previewSource];
       const copy = JSON.parse(JSON.stringify(source));
       if (!copy.archive) copy.archive = {};
@@ -1030,7 +1008,7 @@
       applyUI();
       persistLocal();
       pushCloud();
-      showToast(`Transferred into Save File ${saveSystem.activeSlot}`);
+      showToast("Transferred into Save File " + saveSystem.activeSlot);
       switchPage("dashboard");
     }
 
@@ -1039,7 +1017,7 @@
       collectFromDOM();
       const name = (document.getElementById("weekOf").value.trim() || currentWeek);
       if (!name || name === "default") { alert("Enter a week name first (or click This week)."); return; }
-      if (archive[name] && !confirm(`"${name}" exists. Overwrite?`)) return;
+      if (archive[name] && !confirm('"' + name + '" exists. Overwrite?')) return;
       archive[name] = snapshotCurrentWeek();
       currentWeek = name;
       document.getElementById("weekOf").value = name;
@@ -1074,7 +1052,7 @@
         return;
       }
       if (!preserveCurrentWorkBeforeSwitch(name)) return;
-      if (!confirm(`Load archived week "${name}"?`)) return;
+      if (!confirm('Load archived week "' + name + '"?')) return;
       const entry = archive[name];
       currentWeek = name;
       data = {
@@ -1096,7 +1074,7 @@
     }
 
     function deleteFromArchive(name) {
-      if (!confirm(`Delete "${name}" from Archives?`)) return;
+      if (!confirm('Delete "' + name + '" from Archives?')) return;
       delete archive[name];
       safeSave();
       renderHistory();
@@ -1107,21 +1085,20 @@
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive || {}).sort().reverse();
       if (!keys.length) {
-        list.innerHTML = `<div class="empty-history">No archived weeks yet.</div>`;
+        list.innerHTML = '<div class="empty-history">No archived weeks yet.</div>';
         return;
       }
       list.innerHTML = keys.map(name => {
         const can = (archive[name].canFocus || "").toString().trim();
         const canLine = can
-          ? `<div class="can-preview"><strong>C.A.N.:</strong> ${esc(can.length > 120 ? can.slice(0,120)+"…" : can)}</div>`
-          : `<div class="can-preview">No C.A.N. Focus stored</div>`;
-        return `<div class="history-item">
-          <div><h3>${esc(name)}</h3><div class="meta">Saved: ${archive[name].savedAt || "Unknown"}</div>${canLine}</div>
-          <div class="history-actions">
-            <button class="primary" onclick="loadFromArchive('${esc(name)}')">Load</button>
-            <button class="danger" onclick="deleteFromArchive('${esc(name)}')">Delete</button>
-          </div>
-        </div>`;
+          ? '<div class="can-preview"><strong>C.A.N.:</strong> ' + esc(can.length > 120 ? can.slice(0,120)+"…" : can) + "</div>"
+          : '<div class="can-preview">No C.A.N. Focus stored</div>';
+        return '<div class="history-item" data-arch-name="' + esc(name) + '">' +
+          "<div><h3>" + esc(name) + "</h3><div class=\"meta\">Saved: " + (archive[name].savedAt || "Unknown") + "</div>" + canLine + "</div>" +
+          '<div class="history-actions">' +
+          '<button type="button" class="primary arch-load">Load</button>' +
+          '<button type="button" class="danger arch-del">Delete</button>' +
+          "</div></div>";
       }).join("");
     }
 
@@ -1147,7 +1124,14 @@
         });
       });
     }
-    function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function esc(s) {
+      return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+    function unescAttr(s) {
+      const t = document.createElement("textarea");
+      t.innerHTML = s;
+      return t.value;
+    }
 
     function toggleNoSchool(b, d) {
       if (!data.blocks[b]) data.blocks[b] = emptyBlock();
@@ -1160,7 +1144,7 @@
     function isPdfName(n,u){ return /\.pdf$/i.test(n||"") || /\.pdf(\?|$)/i.test(u||""); }
     function pdfPageUrl(publicId, page) {
       if (!publicId) return null;
-      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,pg_${page}/${publicId}`;
+      return "https://res.cloudinary.com/" + CLOUD_NAME + "/image/upload/f_auto,q_auto,pg_" + page + "/" + publicId;
     }
     function publicIdFromUrl(url) {
       if (!url) return "";
@@ -1178,15 +1162,9 @@
       const day = data.blocks[b][d];
       day.files = day.files || [];
       for (const file of files) {
-        if (day.files.length >= MAX_FILES) {
-          alert(`Max ${MAX_FILES} files per day.`);
-          break;
-        }
+        if (day.files.length >= MAX_FILES) { alert("Max " + MAX_FILES + " files per day."); break; }
         const name = file.name || "";
-        if (!isImageName(name) && !isPdfName(name)) {
-          alert("Images (JPG/PNG) or PDF only.");
-          continue;
-        }
+        if (!isImageName(name) && !isPdfName(name)) { alert("Images (JPG/PNG) or PDF only."); continue; }
         const fd = new FormData();
         fd.append("file", file);
         fd.append("upload_preset", UPLOAD_PRESET);
@@ -1200,9 +1178,7 @@
             fileUrl: r.secure_url,
             publicId: r.public_id || publicIdFromUrl(r.secure_url) || ""
           });
-        } catch (e) {
-          showToast("Upload failed", true);
-        }
+        } catch (e) { showToast("Upload failed", true); }
       }
       renderAllDayGrids();
       safeSave();
@@ -1216,67 +1192,44 @@
 
     function renderDayCard(b, day) {
       const e = migrateDay((data.blocks[b] && data.blocks[b][day]) || emptyDay());
-
       if (e.noSchool) {
-        return `<div class="day-card no-school" data-day="${day}">
-          <div class="day-card-header"><span>${day}</span>
-            <button class="day-close" onclick="toggleNoSchool('${b}','${day}')">✕</button></div>
-          <div class="no-school-message"><strong>No School</strong>There was no session this day due to a holiday or event.</div>
-        </div>`;
+        return '<div class="day-card no-school" data-day="' + day + '">' +
+          '<div class="day-card-header"><span>' + day + '</span>' +
+          '<button type="button" class="day-close" data-noschool="' + b + '|' + day + '">✕</button></div>' +
+          '<div class="no-school-message"><strong>No School</strong>There was no session this day due to a holiday or event.</div></div>';
       }
-
       let filesHtml = (e.files || []).map((f, i) => {
         const isImg = isImageName(f.fileName, f.fileUrl);
         const preview = isImg && f.fileUrl
-          ? `<div class="af-preview"><img src="${esc(f.fileUrl)}" alt=""></div>`
-          : (isPdfName(f.fileName, f.fileUrl) ? `<div class="af-name">PDF — prints as pages</div>` : "");
-        return `<div class="attached-file">
-          <div class="af-name">📎 ${esc(f.fileName)}</div>
-          ${preview}
-          <div class="af-actions"><button class="danger small" onclick="removeFile('${b}','${day}',${i})">Remove</button></div>
-        </div>`;
+          ? '<div class="af-preview"><img src="' + esc(f.fileUrl) + '" alt=""></div>'
+          : (isPdfName(f.fileName, f.fileUrl) ? '<div class="af-name">PDF — prints as pages</div>' : "");
+        return '<div class="attached-file"><div class="af-name">📎 ' + esc(f.fileName) + "</div>" + preview +
+          '<div class="af-actions"><button type="button" class="danger small" data-rmfile="' + b + "|" + day + "|" + i + '">Remove</button></div></div>';
       }).join("");
-
       const canAdd = (e.files || []).length < MAX_FILES;
-      const drop = canAdd ? `<div class="drop-zone" onclick="this.querySelector('input').click()"
-          ondragover="event.preventDefault();this.classList.add('dragover')"
-          ondragleave="this.classList.remove('dragover')"
-          ondrop="event.preventDefault();this.classList.remove('dragover');handleFile('${b}','${day}',event.dataTransfer.files)">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple
-            onchange="handleFile('${b}','${day}',this.files)" />
-          📄 Add image/PDF (${(e.files||[]).length}/${MAX_FILES})</div>` : `<div class="files-cap">File limit reached (${MAX_FILES})</div>`;
+      const drop = canAdd
+        ? '<div class="drop-zone" data-drop="' + b + "|" + day + '">' +
+          '<input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple />' +
+          "📄 Add image/PDF (" + (e.files||[]).length + "/" + MAX_FILES + ")</div>"
+        : '<div class="files-cap">File limit reached (' + MAX_FILES + ")</div>";
 
-      return `<div class="day-card" data-day="${day}">
-        <div class="day-card-header"><span>${day}</span>
-          <button class="day-close" onclick="toggleNoSchool('${b}','${day}')">✕</button></div>
-        <div class="day-card-body">
-          <div class="field">
-            <div class="field-header"><label>Lesson / Activity Title</label>
-              <div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div>
-            </div>
-            <input type="text" data-field="title" value="${esc(e.title)}" oninput="safeSave()">
-          </div>
-          <div class="field">
-            <div class="field-header"><label>Objective / Focus</label>
-              <div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div>
-            </div>
-            <input type="text" data-field="objective" value="${esc(e.objective)}" oninput="safeSave()">
-          </div>
-          <div class="field">
-            <div class="field-header"><label>Activities / Content</label>
-              <div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div>
-            </div>
-            <textarea data-field="activities" oninput="safeSave()">${esc(e.activities)}</textarea>
-          </div>
-          <div class="field">
-            <div class="field-header"><label>Notes / Materials</label>
-              <div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div>
-            </div>
-            <textarea data-field="notes" rows="2" oninput="safeSave()">${esc(e.notes)}</textarea>
-          </div>
-          ${filesHtml}
-          ${drop}
-        </div></div>`;
+      return '<div class="day-card" data-day="' + day + '">' +
+        '<div class="day-card-header"><span>' + day + '</span>' +
+        '<button type="button" class="day-close" data-noschool="' + b + "|" + day + '">✕</button></div>' +
+        '<div class="day-card-body">' +
+        '<div class="field"><div class="field-header"><label>Lesson / Activity Title</label>' +
+        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<input type="text" data-field="title" value="' + esc(e.title) + '"></div>' +
+        '<div class="field"><div class="field-header"><label>Objective / Focus</label>' +
+        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<input type="text" data-field="objective" value="' + esc(e.objective) + '"></div>' +
+        '<div class="field"><div class="field-header"><label>Activities / Content</label>' +
+        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<textarea data-field="activities">' + esc(e.activities) + "</textarea></div>" +
+        '<div class="field"><div class="field-header"><label>Notes / Materials</label>' +
+        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<textarea data-field="notes" rows="2">' + esc(e.notes) + "</textarea></div>" +
+        filesHtml + drop + "</div></div>";
     }
 
     function renderAllDayGrids() {
@@ -1293,20 +1246,10 @@
           const e = bd[d];
           if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||(e.files&&e.files.length))) filled++;
         });
-        return `<div class="dash-card" data-goto="${k}">
-          <h3>${info.name}</h3><div class="time">${info.time}</div>
-          <div class="status ${filled?"filled":""}">${filled?filled+" of 5 days planned":"No lessons yet"}</div>
-        </div>`;
+        return '<div class="dash-card" data-goto="' + k + '"><h3>' + info.name + "</h3>" +
+          '<div class="time">' + info.time + '</div><div class="status ' + (filled?"filled":"") + '">' +
+          (filled ? filled + " of 5 days planned" : "No lessons yet") + "</div></div>";
       }).join("");
-      grid.querySelectorAll(".dash-card").forEach(c => c.onclick = () => switchPage(c.dataset.goto));
-    }
-    function switchPage(id) {
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-      document.getElementById("page-"+id)?.classList.add("active");
-      document.querySelector(`.nav-item[data-page="${id}"]`)?.classList.add("active");
-      if (id === "preview") renderPreviewPage();
-      if (id === "templates") renderTemplates();
     }
 
     function printAttachmentHtml(e) {
@@ -1314,19 +1257,16 @@
       if (!files.length) return "";
       let html = "";
       files.forEach(f => {
-        html += `<div class="print-attachment"><strong>Worksheet: ${esc(f.fileName || "Document")}</strong><div class="print-doc-preview">`;
+        html += '<div class="print-attachment"><strong>Worksheet: ' + esc(f.fileName || "Document") + '</strong><div class="print-doc-preview">';
         const url = f.fileUrl || "";
         const pid = f.publicId || publicIdFromUrl(url);
-        if (isImageName(f.fileName, url) && url) {
-          html += `<img src="${esc(url)}" alt="">`;
-        } else if (isPdfName(f.fileName, url) && pid) {
+        if (isImageName(f.fileName, url) && url) html += '<img src="' + esc(url) + '" alt="">';
+        else if (isPdfName(f.fileName, url) && pid) {
           for (let p = 1; p <= 3; p++) {
-            html += `<div class="page-label">Page ${p}</div><img src="${pdfPageUrl(pid,p)}" alt="Page ${p}" onerror="this.style.display='none';this.previousElementSibling&&(this.previousElementSibling.style.display='none')">`;
+            html += '<div class="page-label">Page ' + p + '</div><img src="' + pdfPageUrl(pid,p) + '" alt="Page ' + p + '" onerror="this.style.display=\'none\'">';
           }
-        } else if (url) {
-          html += `<em>${esc(f.fileName)}</em>`;
-        }
-        html += `</div></div>`;
+        } else if (url) html += "<em>" + esc(f.fileName) + "</em>";
+        html += "</div></div>";
       });
       return html;
     }
@@ -1334,44 +1274,40 @@
     function buildPrintHtml() {
       collectFromDOM();
       const week = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
-      let html = `<h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>
-        <div class="meta"><strong>Week of:</strong> ${esc(week)}<br>
-        <strong>Save File:</strong> ${saveSystem.activeSlot}<br>
-        <strong>School:</strong> La Viña Middle School · 8th Grade<br>
-        <strong>Generated:</strong> ${new Date().toLocaleString()}</div>
-        <div class="can-focus"><strong>C.A.N. Standards Focus:</strong><br>${esc(data.canFocus||"—").replace(/\n/g,"<br>")}</div>`;
+      let html = "<h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>" +
+        '<div class="meta"><strong>Week of:</strong> ' + esc(week) + "<br>" +
+        "<strong>Save File:</strong> " + saveSystem.activeSlot + "<br>" +
+        "<strong>School:</strong> La Viña Middle School · 8th Grade<br>" +
+        "<strong>Generated:</strong> " + new Date().toLocaleString() + "</div>" +
+        '<div class="can-focus"><strong>C.A.N. Standards Focus:</strong><br>' + esc(data.canFocus||"—").replace(/\n/g,"<br>") + "</div>";
       if ((data.weekNotes || "").trim()) {
-        html += `<div class="week-notes"><strong>Week Notes / Reminders:</strong><br>${esc(data.weekNotes).replace(/\n/g,"<br>")}</div>`;
+        html += '<div class="week-notes"><strong>Week Notes / Reminders:</strong><br>' + esc(data.weekNotes).replace(/\n/g,"<br>") + "</div>";
       }
-
       DAYS.forEach(day => {
         let no = true;
         Object.keys(BLOCKS).forEach(k => { if (!(data.blocks[k]?.[day]?.noSchool)) no = false; });
-        html += `<div class="print-day"><div class="print-day-header ${no?"no-school":""}">${day}${no?" — NO SCHOOL":""}</div>`;
+        html += '<div class="print-day"><div class="print-day-header' + (no?" no-school":"") + '">' + day + (no?" — NO SCHOOL":"") + "</div>";
         if (no) {
-          html += `<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>`;
+          html += '<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>';
         } else {
           Object.entries(BLOCKS).forEach(([k,info]) => {
             const e = migrateDay(data.blocks[k]?.[day] || emptyDay());
             if (e.noSchool) {
-              html += `<div class="print-block"><div class="print-block-title">${info.name}</div>
-                <div class="print-block-time">${info.time}</div>
-                <div class="print-no-school-note" style="margin:0;padding:0.5rem;">There was no session this day due to a holiday or event.</div></div>`;
+              html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time +
+                '</div><div class="print-no-school-note" style="margin:0;padding:0.5rem;">There was no session this day due to a holiday or event.</div></div>';
             } else {
-              html += `<div class="print-block"><div class="print-block-title">${info.name}</div>
-                <div class="print-block-time">${info.time}</div>
-                <div class="print-field"><strong>Title:</strong> ${esc(e.title)||"—"}</div>
-                <div class="print-field"><strong>Objective:</strong> ${esc(e.objective)||"—"}</div>
-                <div class="print-field"><strong>Activities:</strong> ${esc(e.activities).replace(/\n/g,"<br>")||"—"}</div>
-                <div class="print-field"><strong>Notes:</strong> ${esc(e.notes).replace(/\n/g,"<br>")||"—"}</div>
-                ${printAttachmentHtml(e)}
-              </div>`;
+              html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time + "</div>" +
+                '<div class="print-field"><strong>Title:</strong> ' + (esc(e.title)||"—") + "</div>" +
+                '<div class="print-field"><strong>Objective:</strong> ' + (esc(e.objective)||"—") + "</div>" +
+                '<div class="print-field"><strong>Activities:</strong> ' + (esc(e.activities).replace(/\n/g,"<br>")||"—") + "</div>" +
+                '<div class="print-field"><strong>Notes:</strong> ' + (esc(e.notes).replace(/\n/g,"<br>")||"—") + "</div>" +
+                printAttachmentHtml(e) + "</div>";
             }
           });
         }
-        html += `</div>`;
+        html += "</div>";
       });
-      html += `<div class="print-footer">Mr. Enciso’s Scholastic Batch · Save File ${saveSystem.activeSlot} · La Viña Middle School</div>`;
+      html += '<div class="print-footer">Mr. Enciso’s Scholastic Batch · Save File ' + saveSystem.activeSlot + " · La Viña Middle School</div>";
       return html;
     }
 
@@ -1383,7 +1319,6 @@
       setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 2000); }, 900);
     }
 
-    // ===== #10 PDF download =====
     async function downloadPdf() {
       if (!sessionOpen) return;
       if (typeof html2pdf === "undefined") {
@@ -1394,16 +1329,15 @@
       r.innerHTML = buildPrintHtml();
       r.style.display = "block";
       const week = (document.getElementById("weekOf").value.trim() || currentWeek || "week").replace(/[^\w\-]+/g, "_");
-      const opt = {
-        margin: 0.4,
-        filename: `Scholastic-Batch-${week}.pdf`,
-        image: { type: "jpeg", quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] }
-      };
       try {
-        await html2pdf().set(opt).from(r).save();
+        await html2pdf().set({
+          margin: 0.4,
+          filename: "Scholastic-Batch-" + week + ".pdf",
+          image: { type: "jpeg", quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+        }).from(r).save();
         showToast("PDF downloaded");
       } catch (e) {
         showToast("PDF failed — try Print", true);
@@ -1412,7 +1346,156 @@
       }
     }
 
-    document.querySelectorAll(".nav-item").forEach(i => i.onclick = () => switchPage(i.dataset.page));
+    // ===== ONE delegated click handler (fixes dead buttons) =====
+    document.addEventListener("click", async function (ev) {
+      const t = ev.target;
+
+      // Sidebar nav
+      const nav = t.closest(".nav-item");
+      if (nav && nav.dataset.page) {
+        switchPage(nav.dataset.page);
+        return;
+      }
+
+      // Title save slots
+      const enter = t.closest("[data-enter]");
+      if (enter) { enterSlot(enter.getAttribute("data-enter")); return; }
+      const wipe = t.closest("[data-wipe]");
+      if (wipe) { wipeSlot(wipe.getAttribute("data-wipe")); return; }
+
+      // Templates Use / Delete
+      const tplUse = t.closest(".tpl-use");
+      if (tplUse) {
+        const item = tplUse.closest("[data-template-name]");
+        if (item) applyTemplate(unescAttr(item.getAttribute("data-template-name")));
+        return;
+      }
+      const tplDel = t.closest(".tpl-del");
+      if (tplDel) {
+        const item = tplDel.closest("[data-template-name]");
+        if (item) deleteTemplate(unescAttr(item.getAttribute("data-template-name")));
+        return;
+      }
+
+      // Archives
+      const archLoad = t.closest(".arch-load");
+      if (archLoad) {
+        const item = archLoad.closest("[data-arch-name]");
+        if (item) loadFromArchive(unescAttr(item.getAttribute("data-arch-name")));
+        return;
+      }
+      const archDel = t.closest(".arch-del");
+      if (archDel) {
+        const item = archDel.closest("[data-arch-name]");
+        if (item) deleteFromArchive(unescAttr(item.getAttribute("data-arch-name")));
+        return;
+      }
+
+      // Duplicate day buttons
+      const dupB = t.closest("[data-dup-block]");
+      if (dupB) { duplicateDayInBlock(dupB.getAttribute("data-dup-block")); return; }
+      const dupA = t.closest("[data-dup-all]");
+      if (dupA) { copyDayToAllInBlock(dupA.getAttribute("data-dup-all")); return; }
+
+      // Dashboard cards
+      const dash = t.closest("[data-goto]");
+      if (dash) { switchPage(dash.getAttribute("data-goto")); return; }
+
+      // Preview source
+      const psrc = t.closest("[data-preview-src]");
+      if (psrc) {
+        previewSource = Number(psrc.getAttribute("data-preview-src"));
+        renderPreviewPage();
+        return;
+      }
+      if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) {
+        transferPreviewToCurrent();
+        return;
+      }
+
+      // No school / remove file
+      const ns = t.closest("[data-noschool]");
+      if (ns) {
+        const [b, d] = ns.getAttribute("data-noschool").split("|");
+        toggleNoSchool(b, d);
+        return;
+      }
+      const rf = t.closest("[data-rmfile]");
+      if (rf) {
+        const [b, d, i] = rf.getAttribute("data-rmfile").split("|");
+        removeFile(b, d, Number(i));
+        return;
+      }
+
+      // Drop zone click
+      const drop = t.closest("[data-drop]");
+      if (drop && !t.matches("input")) {
+        const input = drop.querySelector('input[type="file"]');
+        if (input) input.click();
+        return;
+      }
+
+      // Copy / Paste
+      const copyBtn = t.closest(".copy-btn");
+      const pasteBtn = t.closest(".paste-btn");
+      if (copyBtn) {
+        let text = "";
+        if (copyBtn.dataset.copyTarget === "canFocus") text = document.getElementById("canFocus").value;
+        else if (copyBtn.dataset.copyTarget === "weekNotes") text = document.getElementById("weekNotes").value;
+        else {
+          const field = copyBtn.closest(".field");
+          const input = field && field.querySelector("input, textarea");
+          if (input) text = input.value;
+        }
+        await copyText(text, copyBtn);
+        return;
+      }
+      if (pasteBtn) {
+        let input = null;
+        if (pasteBtn.dataset.pasteTarget === "canFocus") input = document.getElementById("canFocus");
+        else if (pasteBtn.dataset.pasteTarget === "weekNotes") input = document.getElementById("weekNotes");
+        else {
+          const field = pasteBtn.closest(".field");
+          input = field && field.querySelector("input, textarea");
+        }
+        await pasteIntoField(input, pasteBtn);
+      }
+    });
+
+    document.addEventListener("change", function (ev) {
+      const input = ev.target;
+      if (input && input.type === "file") {
+        const drop = input.closest("[data-drop]");
+        if (drop) {
+          const [b, d] = drop.getAttribute("data-drop").split("|");
+          handleFile(b, d, input.files);
+          input.value = "";
+        }
+      }
+    });
+
+    document.addEventListener("input", function (ev) {
+      if (!sessionOpen) return;
+      if (ev.target.matches("input, textarea")) safeSave();
+    });
+
+    document.addEventListener("dragover", function (ev) {
+      const drop = ev.target.closest("[data-drop]");
+      if (drop) { ev.preventDefault(); drop.classList.add("dragover"); }
+    });
+    document.addEventListener("dragleave", function (ev) {
+      const drop = ev.target.closest("[data-drop]");
+      if (drop) drop.classList.remove("dragover");
+    });
+    document.addEventListener("drop", function (ev) {
+      const drop = ev.target.closest("[data-drop]");
+      if (!drop) return;
+      ev.preventDefault();
+      drop.classList.remove("dragover");
+      const [b, d] = drop.getAttribute("data-drop").split("|");
+      handleFile(b, d, ev.dataTransfer.files);
+    });
+
     document.getElementById("btnSave").onclick = () => safeSave();
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
     document.getElementById("btnNewWeek").onclick = startNewWeek;
@@ -1425,11 +1508,9 @@
       if (!sessionOpen) return;
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
-      document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: "+w : "Current week";
+      document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: " + w : "Current week";
       safeSave();
     };
-    document.getElementById("canFocus").oninput = () => { if (sessionOpen) safeSave(); };
-    document.getElementById("weekNotes").oninput = () => { if (sessionOpen) safeSave(); };
 
     setInterval(() => { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
     window.addEventListener("beforeunload", () => {
@@ -1444,6 +1525,7 @@
     document.getElementById("main-app").style.display = "none";
     renderTitleSlots();
     setTimeout(maybePullCloud, 1200);
+  })();
   </script>
 </body>
 </html>
