@@ -14,7 +14,6 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
-
     #title-screen {
       min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 2rem; background: radial-gradient(ellipse at center, #1e293b 0%, #0f172a 70%);
@@ -34,7 +33,6 @@
     .save-slot .slot-actions { display: flex; flex-direction: column; gap: 0.4rem; }
     .save-slot .slot-actions button { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
     .title-footer { margin-top: 2.5rem; font-size: 0.8rem; color: var(--text-muted); text-align: center; }
-
     #main-app { display: none; }
     .header {
       background: linear-gradient(135deg, var(--navy-dark), var(--navy)); border-bottom: 3px solid var(--gold);
@@ -54,7 +52,6 @@
     button.small { font-size: 0.75rem; padding: 0.3rem 0.55rem; }
     .cloud-status { font-size: 0.75rem; color: var(--gold-light); margin-left: 0.5rem; }
     .save-meta { font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.15rem; }
-
     .app { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 70px); }
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 1rem 0.75rem; overflow-y: auto; }
     .sidebar h2 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 0 0.5rem 0.75rem; }
@@ -69,7 +66,6 @@
     .nav-item.active .block-time { color: var(--gold-light); }
     .content { padding: 1.25rem 1.5rem; overflow-y: auto; }
     .page { display: none; } .page.active { display: block; }
-
     .week-bar {
       display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 1rem;
       padding: 0.85rem 1rem; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);
@@ -101,15 +97,11 @@
     .copy-btn:hover, .paste-btn:hover { border-color: var(--gold); background: var(--navy); }
     .copy-btn.copied, .paste-btn.pasted { border-color: var(--success); color: #86efac; }
     .notice { margin-top: 0.75rem; font-size: 0.8rem; color: var(--gold-light); font-style: italic; }
-
-    .block-tools {
-      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; align-items: center;
-    }
+    .block-tools { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; align-items: center; }
     .block-tools select {
       background: var(--bg); border: 1px solid var(--border); color: var(--text);
       border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.8rem;
     }
-
     .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
     .day-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     .day-card.no-school { background: #1a1f2e; border-color: #4b5563; opacity: 0.75; }
@@ -127,7 +119,6 @@
       border-radius: 5px; padding: 0.45rem 0.6rem; font-size: 0.85rem; font-family: inherit;
     }
     .field textarea { min-height: 70px; }
-
     .drop-zone {
       border: 2px dashed var(--border); border-radius: 8px; padding: 0.75rem; text-align: center;
       font-size: 0.8rem; color: var(--text-muted); cursor: pointer; background: rgba(0,0,0,0.15);
@@ -142,9 +133,7 @@
     .attached-file .af-preview img {
       max-width: 100%; max-height: 140px; border-radius: 4px; border: 1px solid var(--border); display: block; margin-bottom: 0.35rem;
     }
-    .attached-file .af-actions { display: flex; gap: 0.35rem; }
     .files-cap { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; }
-
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
     .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; cursor: pointer; }
     .dash-card:hover { border-color: var(--gold); }
@@ -152,7 +141,6 @@
     .dash-card .time { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; }
     .dash-card .status { font-size: 0.8rem; color: var(--text-muted); }
     .dash-card .status.filled { color: var(--success); }
-
     .history-list { display: flex; flex-direction: column; gap: 0.75rem; }
     .history-item {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem;
@@ -164,22 +152,25 @@
     .history-item .can-preview { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem; max-height: 2.4em; overflow: hidden; }
     .history-actions { display: flex; gap: 0.5rem; }
     .empty-history { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
-
     .template-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; }
     .template-item {
       display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
-      background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 0.85rem;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 0.9rem;
     }
-    .template-item span { font-size: 0.9rem; word-break: break-word; }
+    .template-item .t-info { flex: 1; min-width: 0; }
+    .template-item .t-name { font-size: 0.95rem; font-weight: 600; color: var(--gold-light); }
+    .template-item .t-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
     .template-item .t-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
-
+    .tpl-help {
+      background: rgba(212,175,55,0.1); border: 1px solid var(--gold); border-radius: 8px;
+      padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--gold-light); line-height: 1.45;
+    }
     .toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--success); color: white;
       padding: 0.7rem 1.2rem; border-radius: 8px; font-weight: 600; opacity: 0; transition: all 0.25s; z-index: 200; max-width: 320px;
     }
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
-
     .preview-banner {
       background: rgba(212,175,55,0.12); border: 1px solid var(--gold); border-radius: 8px;
       padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--gold-light);
@@ -192,12 +183,7 @@
     }
     .preview-card h3 { color: var(--gold-light); margin-bottom: 0.5rem; }
     .preview-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; }
-    .preview-card .can-snippet {
-      margin-top: 0.6rem; padding: 0.6rem 0.75rem; background: var(--bg); border-radius: 6px;
-      font-size: 0.85rem; white-space: pre-wrap; max-height: 120px; overflow-y: auto;
-    }
     .preview-actions { margin-top: 1.25rem; }
-
     .print-report { display: none; background: white; color: #111; padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
     .print-report h1 { font-size: 1.5rem; color: #1F4E79; border-bottom: 3px solid #D4AF37; padding-bottom: 0.4rem; margin-bottom: 0.5rem; }
     .print-report .meta { font-size: 0.95rem; margin-bottom: 1.25rem; color: #333; }
@@ -223,7 +209,6 @@
     .print-doc-preview .page-label { font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; }
     .print-no-school-note { background: #fef2f2; color: #991b1b; padding: 0.75rem 1rem; font-size: 0.9rem; font-style: italic; }
     .print-footer { margin-top: 2rem; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; }
-
     @media print {
       body * { visibility: hidden; }
       .print-report, .print-report * { visibility: visible; }
@@ -239,13 +224,12 @@
   </style>
 </head>
 <body>
-
   <div id="title-screen">
     <img class="title-logo" src="assets/xe-logo.jpg" alt="XE Logo" />
     <div class="title-welcome">Welcome, X</div>
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
-    <div class="title-footer">Open a Save File first. Templates are shared across all Save Files on this device.</div>
+    <div class="title-footer">Open a Save File first. Templates apply to the entire current week.</div>
   </div>
 
   <div id="main-app">
@@ -270,7 +254,7 @@
     </header>
 
     <div class="app no-print">
-      <nav class="sidebar" id="sidebarNav">
+      <nav class="sidebar">
         <h2>Time Blocks</h2>
         <div class="nav-item active" data-page="dashboard"><span class="block-name">📊 Dashboard</span><span class="block-time">Week overview</span></div>
         <div class="nav-item" data-page="sel"><span class="block-name">SEL / CHECK-IN</span><span class="block-time">2:52 – 3:00</span></div>
@@ -278,7 +262,7 @@
         <div class="nav-item" data-page="enrichment"><span class="block-name">ENRICHMENT</span><span class="block-time">3:49 – 4:15</span></div>
         <div class="nav-item" data-page="spark"><span class="block-name">SPARK</span><span class="block-time">4:19 – 5:00</span></div>
         <div class="nav-item" data-page="history" style="margin-top:1.25rem;"><span class="block-name">📁 Archives</span><span class="block-time">Permanent</span></div>
-        <div class="nav-item" data-page="templates"><span class="block-name">📋 Templates</span><span class="block-time">Week starters</span></div>
+        <div class="nav-item" data-page="templates"><span class="block-name">📋 Templates</span><span class="block-time">Apply to week</span></div>
         <div class="nav-item" data-page="preview"><span class="block-name">🔁 Preview / Transfer</span><span class="block-time">Save → Save</span></div>
       </nav>
 
@@ -300,7 +284,7 @@
             </div>
           </div>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-          <p class="notice">Times are subject to change. Up to 3 image/PDF worksheets per day.</p>
+          <p class="notice">Times are subject to change. Templates fill every day block for this week.</p>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -312,7 +296,7 @@
                 <button type="button" class="paste-btn" data-paste-target="weekNotes">Paste</button>
               </div>
             </div>
-            <textarea id="weekNotes" placeholder="Assemblies, early dismissal, sub notes, special events…"></textarea>
+            <textarea id="weekNotes" placeholder="Assemblies, early dismissal, sub notes…"></textarea>
           </div>
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Week Overview</h2>
           <div class="dashboard-grid" id="dashboardGrid"></div>
@@ -322,9 +306,7 @@
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">SEL / CHECK-IN <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">2:52 – 3:00</span></h2>
           <div class="block-tools">
             <label style="font-size:0.8rem;color:var(--text-muted);">Copy day →</label>
-            <select id="dupFrom-sel"></select>
-            <span style="color:var(--text-muted);">to</span>
-            <select id="dupTo-sel"></select>
+            <select id="dupFrom-sel"></select><span style="color:var(--text-muted);">to</span><select id="dupTo-sel"></select>
             <button type="button" class="small primary" data-dup-block="sel">Duplicate day</button>
             <button type="button" class="small" data-dup-all="sel">Apply source to all days</button>
           </div>
@@ -334,9 +316,7 @@
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">INTERVENTION <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">3:00 – 3:45</span></h2>
           <div class="block-tools">
             <label style="font-size:0.8rem;color:var(--text-muted);">Copy day →</label>
-            <select id="dupFrom-intervention"></select>
-            <span style="color:var(--text-muted);">to</span>
-            <select id="dupTo-intervention"></select>
+            <select id="dupFrom-intervention"></select><span style="color:var(--text-muted);">to</span><select id="dupTo-intervention"></select>
             <button type="button" class="small primary" data-dup-block="intervention">Duplicate day</button>
             <button type="button" class="small" data-dup-all="intervention">Apply source to all days</button>
           </div>
@@ -346,9 +326,7 @@
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">ENRICHMENT <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">3:49 – 4:15</span></h2>
           <div class="block-tools">
             <label style="font-size:0.8rem;color:var(--text-muted);">Copy day →</label>
-            <select id="dupFrom-enrichment"></select>
-            <span style="color:var(--text-muted);">to</span>
-            <select id="dupTo-enrichment"></select>
+            <select id="dupFrom-enrichment"></select><span style="color:var(--text-muted);">to</span><select id="dupTo-enrichment"></select>
             <button type="button" class="small primary" data-dup-block="enrichment">Duplicate day</button>
             <button type="button" class="small" data-dup-all="enrichment">Apply source to all days</button>
           </div>
@@ -358,9 +336,7 @@
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">SPARK <span style="font-size:0.9rem;color:var(--text-muted);font-weight:400;">4:19 – 5:00</span></h2>
           <div class="block-tools">
             <label style="font-size:0.8rem;color:var(--text-muted);">Copy day →</label>
-            <select id="dupFrom-spark"></select>
-            <span style="color:var(--text-muted);">to</span>
-            <select id="dupTo-spark"></select>
+            <select id="dupFrom-spark"></select><span style="color:var(--text-muted);">to</span><select id="dupTo-spark"></select>
             <button type="button" class="small primary" data-dup-block="spark">Duplicate day</button>
             <button type="button" class="small" data-dup-all="spark">Apply source to all days</button>
           </div>
@@ -372,14 +348,16 @@
           <div class="history-list" id="historyList"></div>
         </section>
 
-        <!-- TEMPLATES PAGE -->
         <section id="page-templates" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Week Templates</h2>
-          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">
-            Save the current week (C.A.N., notes, and day plans) as a reusable starter. Templates are stored on this device and work in every Save File.
-          </p>
+          <div class="tpl-help">
+            <strong>How this works:</strong><br>
+            1) Fill out a week the way you want it (all blocks / days).<br>
+            2) Save it as a template below.<br>
+            3) Later, open any week and click <strong>Use on this week</strong> — it replaces C.A.N., notes, and every SEL / Intervention / Enrichment / SPARK plan Mon–Fri. Your week name stays the same.
+          </div>
           <div class="toolbar-row">
-            <input type="text" id="templateName" placeholder="Template name…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:200px;" />
+            <input type="text" id="templateName" placeholder="Template name (e.g. Standard SEL week)…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.45rem 0.75rem;border-radius:6px;min-width:220px;flex:1;" />
             <button type="button" class="primary" id="btnSaveTemplate">Save current week as template</button>
           </div>
           <div class="template-list" id="templateList"></div>
@@ -402,14 +380,13 @@
   (function () {
     const BIN_ID = "6a6cfe28f5f4af5e29db8208";
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
-    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    const API_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
     const CLOUD_NAME = "udjs1xr5";
     const UPLOAD_PRESET = "scholastic-batch";
-    const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload";
     const LOCAL_KEY = "XE_SCHOLASTIC_SAVES_V3";
     const TEMPLATE_KEY = "XE_SCHOLASTIC_TEMPLATES_V1";
     const MAX_FILES = 3;
-
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
       sel: { name: "SEL / CHECK-IN", time: "2:52 – 3:00" },
@@ -427,15 +404,9 @@
     let sessionOpen = false;
     let lastCloudOk = null;
 
-    function emptyData() {
-      return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true };
-    }
-    function emptySlot() {
-      return { currentWeek: "default", data: emptyData(), archive: {}, lastSaved: null };
-    }
-    function emptyDay() {
-      return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] };
-    }
+    function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
+    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, lastSaved: null }; }
+    function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
     function emptyBlock() {
       const d = {};
       DAYS.forEach(day => d[day] = emptyDay());
@@ -445,9 +416,7 @@
       if (!d) return emptyDay();
       if (!Array.isArray(d.files)) {
         d.files = [];
-        if (d.fileName || d.fileUrl) {
-          d.files.push({ fileName: d.fileName || "", fileUrl: d.fileUrl || "", publicId: d.publicId || "" });
-        }
+        if (d.fileName || d.fileUrl) d.files.push({ fileName: d.fileName||"", fileUrl: d.fileUrl||"", publicId: d.publicId||"" });
       }
       if (d.files.length > MAX_FILES) d.files = d.files.slice(0, MAX_FILES);
       return d;
@@ -463,13 +432,14 @@
       });
       return d;
     }
+    function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
 
     function snapshotCurrentWeek() {
       collectFromDOM();
       return {
         canFocus: (data.canFocus || "").toString(),
         weekNotes: (data.weekNotes || "").toString(),
-        blocks: JSON.parse(JSON.stringify(data.blocks || {})),
+        blocks: deepClone(data.blocks || {}),
         showAttachments: true,
         savedAt: new Date().toLocaleString()
       };
@@ -495,10 +465,10 @@
           slot.data = {
             canFocus: (data.canFocus || "").toString(),
             weekNotes: (data.weekNotes || "").toString(),
-            blocks: JSON.parse(JSON.stringify(data.blocks || {})),
+            blocks: deepClone(data.blocks || {}),
             showAttachments: true
           };
-          slot.archive = JSON.parse(JSON.stringify(archive));
+          slot.archive = deepClone(archive);
           slot.lastSaved = new Date().toISOString();
         }
         localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots }));
@@ -554,23 +524,17 @@
       } catch (e) {
         lastCloudOk = false;
         setStatus("• Saved on this device");
-      } finally {
-        cloudBusy = false;
-        updateSaveMeta();
-      }
+      } finally { cloudBusy = false; updateSaveMeta(); }
     }
 
     async function maybePullCloud() {
-      const anyLocal = [1,2,3].some(n => hasContent(saveSystem.slots[n]));
-      if (anyLocal) return;
+      if ([1,2,3].some(n => hasContent(saveSystem.slots[n]))) return;
       try {
         const res = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": MASTER_KEY } });
         if (!res.ok) return;
         const json = await res.json();
         const record = json.record || json;
-        if (record && record.slots) {
-          const cloudHas = [1,2,3].some(n => hasContent(record.slots[n]));
-          if (!cloudHas) return;
+        if (record && record.slots && [1,2,3].some(n => hasContent(record.slots[n]))) {
           saveSystem.slots = record.slots;
           [1,2,3].forEach(n => {
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
@@ -587,8 +551,7 @@
       if (!slot) return false;
       if (Object.keys(slot.archive || {}).length > 0) return true;
       const d = slot.data || {};
-      if (d.canFocus && String(d.canFocus).trim()) return true;
-      if (d.weekNotes && String(d.weekNotes).trim()) return true;
+      if ((d.canFocus||"").trim() || (d.weekNotes||"").trim()) return true;
       for (const b of Object.values(d.blocks || {})) {
         for (const day of Object.values(b)) {
           if (day.title || day.objective || day.activities || day.notes || (day.files && day.files.length)) return true;
@@ -597,8 +560,7 @@
       return false;
     }
     function hasCurrentWork() {
-      if (data.canFocus && String(data.canFocus).trim()) return true;
-      if (data.weekNotes && String(data.weekNotes).trim()) return true;
+      if ((data.canFocus||"").trim() || (data.weekNotes||"").trim()) return true;
       for (const b of Object.values(data.blocks || {})) {
         for (const day of Object.values(b)) {
           if (day.title || day.objective || day.activities || day.notes || (day.files && day.files.length)) return true;
@@ -616,16 +578,13 @@
       });
       return n;
     }
-    function setStatus(msg) {
-      const el = document.getElementById("cloudStatus");
-      if (el) el.textContent = msg;
-    }
+    function setStatus(msg) { const el = document.getElementById("cloudStatus"); if (el) el.textContent = msg; }
     function showToast(msg, err) {
       const t = document.getElementById("toast");
       t.textContent = msg;
       t.classList.toggle("error", !!err);
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2200);
+      setTimeout(() => t.classList.remove("show"), 2500);
     }
 
     function safeSave() {
@@ -638,27 +597,162 @@
       renderHistory();
     }
 
+    function esc(s) {
+      return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // ===== TEMPLATES — apply to ENTIRE current week =====
+    function countTemplateFields(t) {
+      let n = 0;
+      if ((t.canFocus||"").trim()) n++;
+      if ((t.weekNotes||"").trim()) n++;
+      Object.values(t.blocks || {}).forEach(block => {
+        DAYS.forEach(day => {
+          const e = block[day] || {};
+          if (e.title || e.objective || e.activities || e.notes || (e.files && e.files.length)) n++;
+        });
+      });
+      return n;
+    }
+
+    function renderTemplates() {
+      const list = document.getElementById("templateList");
+      if (!list) return;
+      const keys = Object.keys(templates || {}).sort();
+      if (!keys.length) {
+        list.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No templates yet. Plan a full week, enter a name above, then click <strong>Save current week as template</strong>.</p>';
+        return;
+      }
+      list.innerHTML = keys.map(function (name) {
+        const t = templates[name] || {};
+        const fields = countTemplateFields(t);
+        const when = t.savedAt || "—";
+        return (
+          '<div class="template-item">' +
+            '<div class="t-info">' +
+              '<div class="t-name">' + esc(name) + '</div>' +
+              '<div class="t-meta">' + fields + ' filled field(s) · Saved ' + esc(when) + '</div>' +
+            '</div>' +
+            '<div class="t-actions">' +
+              '<button type="button" class="primary small" data-tpl-apply="' + encodeURIComponent(name) + '">Use on this week</button>' +
+              '<button type="button" class="danger small" data-tpl-delete="' + encodeURIComponent(name) + '">Delete</button>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join("");
+    }
+
+    function saveCurrentAsTemplate() {
+      if (!sessionOpen) {
+        alert("Open a Save File first, then open Templates.");
+        return;
+      }
+      collectFromDOM();
+      const name = (document.getElementById("templateName").value || "").trim();
+      if (!name) {
+        alert("Type a template name first.");
+        document.getElementById("templateName").focus();
+        return;
+      }
+      if (!hasCurrentWork()) {
+        if (!confirm("This week looks empty. Save it as a blank template anyway?")) return;
+      }
+      if (templates[name] && !confirm('Overwrite template "' + name + '"?')) return;
+
+      // Deep copy of entire week plan
+      templates[name] = {
+        canFocus: (data.canFocus || "").toString(),
+        weekNotes: (data.weekNotes || "").toString(),
+        blocks: deepClone(ensureBlocks(data).blocks),
+        savedAt: new Date().toLocaleString()
+      };
+      saveTemplatesStore();
+      document.getElementById("templateName").value = "";
+      renderTemplates();
+      showToast('Template saved: "' + name + '"');
+    }
+
+    function applyTemplateToCurrentWeek(name) {
+      if (!sessionOpen) {
+        alert("Open a Save File first.");
+        return;
+      }
+      if (!templates[name]) {
+        alert('Template "' + name + '" was not found. Try saving it again.');
+        renderTemplates();
+        return;
+      }
+
+      const t = templates[name];
+      const fields = countTemplateFields(t);
+      const weekLabel = (document.getElementById("weekOf").value.trim() || currentWeek || "this week");
+      const msg =
+        'Apply template "' + name + '" to the entire current week?\n\n' +
+        'Week: ' + weekLabel + '\n' +
+        'This will replace:\n' +
+        '• C.A.N. Standards Focus\n' +
+        '• Week Notes\n' +
+        '• All SEL, Intervention, Enrichment, and SPARK plans (Mon–Fri)\n\n' +
+        'Template has ' + fields + ' filled field(s).\n' +
+        'Your week name will stay the same.';
+
+      if (!confirm(msg)) return;
+
+      // Optional: archive current before overwrite if it has content
+      collectFromDOM();
+      if (hasCurrentWork()) {
+        const keep = confirm("Archive your current week content first so you don’t lose it?\n\nOK = archive then apply\nCancel = apply without archiving (current plans will be replaced)");
+        if (keep) {
+          let archName = (document.getElementById("weekOf").value.trim() || currentWeek || "").trim();
+          if (!archName || archName === "default") {
+            archName = prompt("Name for the archive of your current week:", thisWeekLabel());
+            if (archName === null) return;
+            archName = archName.trim();
+            if (!archName) { alert("Cancelled — no archive name."); return; }
+          }
+          archive[archName] = snapshotCurrentWeek();
+          if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = deepClone(archive);
+        }
+      }
+
+      // APPLY FULL WEEK from template
+      data.canFocus = (t.canFocus || "").toString();
+      data.weekNotes = (t.weekNotes || "").toString();
+      data.blocks = deepClone(t.blocks || {});
+      data.showAttachments = true;
+      ensureBlocks(data);
+
+      // Keep week name — do not reset currentWeek
+      document.getElementById("canFocus").value = data.canFocus;
+      document.getElementById("weekNotes").value = data.weekNotes;
+      renderAllDayGrids();
+      updateDashboard();
+      safeSave();
+      switchPage("dashboard");
+      showToast('Template applied to entire week');
+    }
+
+    function deleteTemplate(name) {
+      if (!templates[name]) return;
+      if (!confirm('Delete template "' + name + '"?')) return;
+      delete templates[name];
+      saveTemplatesStore();
+      renderTemplates();
+      showToast("Template deleted", true);
+    }
+
     async function copyText(text, btn) {
       text = (text || "").toString();
       if (!text) return;
       let ok = false;
       try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-          ok = true;
-        }
+        if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; }
       } catch (e) {}
       if (!ok) {
         try {
           const ta = document.createElement("textarea");
-          ta.value = text;
-          ta.setAttribute("readonly", "");
-          ta.style.position = "fixed";
-          ta.style.left = "-9999px";
-          document.body.appendChild(ta);
-          ta.select();
-          ok = document.execCommand("copy");
-          document.body.removeChild(ta);
+          ta.value = text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.left="-9999px";
+          document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); document.body.removeChild(ta);
         } catch (e) { ok = false; }
       }
       if (btn) {
@@ -669,9 +763,7 @@
       }
     }
     async function readClipboardText() {
-      try {
-        if (navigator.clipboard && window.isSecureContext) return await navigator.clipboard.readText();
-      } catch (e) {}
+      try { if (navigator.clipboard && window.isSecureContext) return await navigator.clipboard.readText(); } catch (e) {}
       const t = prompt("Paste is blocked by the browser. Paste here, then OK:");
       return t === null ? "" : t;
     }
@@ -691,20 +783,12 @@
     }
 
     function mondayOf(d) {
-      const x = new Date(d);
-      const day = x.getDay();
-      const diff = day === 0 ? -6 : 1 - day;
-      x.setDate(x.getDate() + diff);
-      x.setHours(12,0,0,0);
-      return x;
+      const x = new Date(d); const day = x.getDay(); const diff = day === 0 ? -6 : 1 - day;
+      x.setDate(x.getDate() + diff); x.setHours(12,0,0,0); return x;
     }
-    function formatShort(d) {
-      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-    }
+    function formatShort(d) { return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
     function thisWeekLabel() {
-      const mon = mondayOf(new Date());
-      const fri = new Date(mon);
-      fri.setDate(mon.getDate() + 4);
+      const mon = mondayOf(new Date()); const fri = new Date(mon); fri.setDate(mon.getDate() + 4);
       return formatShort(mon) + " – " + formatShort(fri);
     }
     function setThisWeekName() {
@@ -722,14 +806,10 @@
         const to = document.getElementById("dupTo-" + b);
         if (!from || !to) return;
         const opts = DAYS.map(d => '<option value="' + d + '">' + d + "</option>").join("");
-        from.innerHTML = opts;
-        to.innerHTML = opts;
-        if (DAYS[1]) to.value = DAYS[1];
+        from.innerHTML = opts; to.innerHTML = opts; if (DAYS[1]) to.value = DAYS[1];
       });
     }
-    function cloneDay(src) {
-      return JSON.parse(JSON.stringify(migrateDay(src || emptyDay())));
-    }
+    function cloneDay(src) { return deepClone(migrateDay(src || emptyDay())); }
     function duplicateDayInBlock(block) {
       if (!sessionOpen) return;
       collectFromDOM();
@@ -738,9 +818,7 @@
       if (from === to) { alert("Pick two different days."); return; }
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
       data.blocks[block][to] = cloneDay(data.blocks[block][from]);
-      renderAllDayGrids();
-      safeSave();
-      showToast(from + " → " + to);
+      renderAllDayGrids(); safeSave(); showToast(from + " → " + to);
     }
     function copyDayToAllInBlock(block) {
       if (!sessionOpen) return;
@@ -749,92 +827,7 @@
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
       const src = cloneDay(data.blocks[block][from]);
       DAYS.forEach(d => { if (d !== from) data.blocks[block][d] = cloneDay(src); });
-      renderAllDayGrids();
-      safeSave();
-      showToast(from + " applied to all days");
-    }
-
-    // ===== TEMPLATES (fixed) =====
-    function renderTemplates() {
-      const list = document.getElementById("templateList");
-      if (!list) return;
-      const keys = Object.keys(templates || {}).sort();
-      if (!keys.length) {
-        list.innerHTML = '<p style="color:var(--text-muted);">No templates yet. Fill a week, type a name above, then click <strong>Save current week as template</strong>.</p>';
-        return;
-      }
-      list.innerHTML = keys.map(name => {
-        const safe = esc(name);
-        return '<div class="template-item" data-template-name="' + safe + '">' +
-          "<span>" + safe + "</span>" +
-          '<div class="t-actions">' +
-          '<button type="button" class="primary small tpl-use">Use</button>' +
-          '<button type="button" class="danger small tpl-del">Delete</button>' +
-          "</div></div>";
-      }).join("");
-    }
-
-    function saveCurrentAsTemplate() {
-      if (!sessionOpen) {
-        alert("Open a Save File first, then come back to Templates.");
-        return;
-      }
-      collectFromDOM();
-      const name = (document.getElementById("templateName").value || "").trim();
-      if (!name) {
-        alert("Enter a template name first.");
-        return;
-      }
-      if (templates[name] && !confirm('Overwrite template "' + name + '"?')) return;
-      templates[name] = {
-        canFocus: data.canFocus || "",
-        weekNotes: data.weekNotes || "",
-        blocks: JSON.parse(JSON.stringify(data.blocks || {})),
-        savedAt: new Date().toLocaleString()
-      };
-      saveTemplatesStore();
-      document.getElementById("templateName").value = "";
-      renderTemplates();
-      showToast("Template saved: " + name);
-    }
-
-    function applyTemplate(name) {
-      if (!sessionOpen) {
-        alert("Open a Save File first.");
-        return;
-      }
-      if (!templates[name]) {
-        alert("Template not found.");
-        return;
-      }
-      if (!preserveCurrentWorkBeforeSwitch(null)) return;
-      if (!confirm('Start from template "' + name + '"?\n(Current work will be archived if it has content.)')) return;
-      const t = templates[name];
-      data = {
-        canFocus: t.canFocus || "",
-        weekNotes: t.weekNotes || "",
-        blocks: JSON.parse(JSON.stringify(t.blocks || {})),
-        showAttachments: true
-      };
-      ensureBlocks(data);
-      currentWeek = "default";
-      document.getElementById("weekOf").value = "";
-      document.getElementById("currentWeekLabel").textContent = "From template: " + name;
-      document.getElementById("canFocus").value = data.canFocus;
-      document.getElementById("weekNotes").value = data.weekNotes;
-      renderAllDayGrids();
-      updateDashboard();
-      safeSave();
-      switchPage("dashboard");
-      showToast("Template applied");
-    }
-
-    function deleteTemplate(name) {
-      if (!confirm('Delete template "' + name + '"?')) return;
-      delete templates[name];
-      saveTemplatesStore();
-      renderTemplates();
-      showToast("Template deleted", true);
+      renderAllDayGrids(); safeSave(); showToast(from + " applied to all days");
     }
 
     function preserveCurrentWorkBeforeSwitch(nextName) {
@@ -852,7 +845,7 @@
         if (!confirm('Archive "' + name + '" exists. Update it with current work?')) return false;
       }
       archive[name] = snapshotCurrentWeek();
-      if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = JSON.parse(JSON.stringify(archive));
+      if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = deepClone(archive);
       persistLocal();
       return true;
     }
@@ -865,14 +858,12 @@
         const archives = Object.keys(slot.archive || {}).length;
         const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
         const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
-        return '<div class="save-slot">' +
-          '<div class="slot-main" data-enter="' + n + '"><div class="slot-info">' +
+        return '<div class="save-slot"><div class="slot-main" data-enter="' + n + '"><div class="slot-info">' +
           "<h3>Save File " + n + "</h3><p>" + (has ? esc(week) : "New Game") + "</p>" +
           '<p style="font-size:0.75rem;margin-top:0.15rem;">Archives: ' + archives + " · Last saved: " + when + "</p>" +
           '</div></div><div class="slot-actions">' +
           '<button type="button" class="primary" data-enter="' + n + '">' + (has ? "Continue" : "Start") + "</button>" +
-          '<button type="button" class="danger" data-wipe="' + n + '">Wipe</button>' +
-          "</div></div>";
+          '<button type="button" class="danger" data-wipe="' + n + '">Wipe</button></div></div>';
       }).join("");
     }
 
@@ -888,11 +879,11 @@
       data = {
         canFocus: (slot.data.canFocus || "").toString(),
         weekNotes: (slot.data.weekNotes || "").toString(),
-        blocks: JSON.parse(JSON.stringify(slot.data.blocks || {})),
+        blocks: deepClone(slot.data.blocks || {}),
         showAttachments: true
       };
       ensureBlocks(data);
-      archive = JSON.parse(JSON.stringify(slot.archive));
+      archive = deepClone(slot.archive);
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -907,15 +898,9 @@
       if (!confirm("Wipe Save File " + n + " completely?")) return;
       saveSystem.slots[n] = emptySlot();
       if (sessionOpen && saveSystem.activeSlot === n) {
-        currentWeek = "default";
-        data = emptyData();
-        archive = {};
-        ensureBlocks(data);
-        applyUI();
+        currentWeek = "default"; data = emptyData(); archive = {}; ensureBlocks(data); applyUI();
       }
-      persistLocal();
-      pushCloud();
-      renderTitleSlots();
+      persistLocal(); pushCloud(); renderTitleSlots();
       showToast("Save File " + n + " wiped", true);
     }
 
@@ -971,17 +956,14 @@
         slot = { currentWeek, data, archive, lastSaved: saveSystem.slots[previewSource].lastSaved };
       } else slot = saveSystem.slots[previewSource];
       const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
-      const can = (slot.data?.canFocus || "").toString().trim();
       const same = previewSource === saveSystem.activeSlot;
       panel.innerHTML =
         '<div class="preview-card"><h3>Save File ' + previewSource + " — Preview only</h3>" +
         '<p class="meta"><strong>Week:</strong> ' + esc(week) + "</p>" +
         '<p class="meta"><strong>Days with content:</strong> ' + countFilledDays(slot) + "</p>" +
-        '<p class="meta"><strong>Archives:</strong> ' + Object.keys(slot.archive||{}).length + "</p>" +
-        (can ? '<div class="can-snippet"><strong>C.A.N.:</strong><br>' + esc(can) + "</div>" : "") +
-        '</div><div class="preview-actions">' +
-        (same
-          ? '<p style="color:var(--text-muted);font-size:0.9rem;">Current Save File.</p>'
+        '<p class="meta"><strong>Archives:</strong> ' + Object.keys(slot.archive||{}).length + "</p></div>" +
+        '<div class="preview-actions">' +
+        (same ? '<p style="color:var(--text-muted);font-size:0.9rem;">Current Save File.</p>'
           : '<button type="button" class="primary" id="btnTransferPreview">Transfer data → replace Save File ' + target + "</button>") +
         "</div>";
     }
@@ -991,7 +973,7 @@
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
       if (!confirm("Transfer Save File " + previewSource + " into Save File " + saveSystem.activeSlot + "?")) return;
       const source = saveSystem.slots[previewSource];
-      const copy = JSON.parse(JSON.stringify(source));
+      const copy = deepClone(source);
       if (!copy.archive) copy.archive = {};
       copy.archive = Object.assign({}, archive, copy.archive);
       copy.data = ensureBlocks(copy.data || emptyData());
@@ -1000,14 +982,12 @@
       data = {
         canFocus: (copy.data.canFocus || "").toString(),
         weekNotes: (copy.data.weekNotes || "").toString(),
-        blocks: JSON.parse(JSON.stringify(copy.data.blocks || {})),
+        blocks: deepClone(copy.data.blocks || {}),
         showAttachments: true
       };
       ensureBlocks(data);
-      archive = JSON.parse(JSON.stringify(copy.archive));
-      applyUI();
-      persistLocal();
-      pushCloud();
+      archive = deepClone(copy.archive);
+      applyUI(); persistLocal(); pushCloud();
       showToast("Transferred into Save File " + saveSystem.activeSlot);
       switchPage("dashboard");
     }
@@ -1022,8 +1002,7 @@
       currentWeek = name;
       document.getElementById("weekOf").value = name;
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
-      safeSave();
-      renderHistory();
+      safeSave(); renderHistory();
     }
 
     function startNewWeek() {
@@ -1037,19 +1016,13 @@
       document.getElementById("currentWeekLabel").textContent = "New blank week";
       document.getElementById("canFocus").value = "";
       document.getElementById("weekNotes").value = "";
-      renderAllDayGrids();
-      updateDashboard();
-      renderHistory();
-      safeSave();
+      renderAllDayGrids(); updateDashboard(); renderHistory(); safeSave();
     }
 
     function loadFromArchive(name) {
       if (!archive[name]) return;
       if (currentWeek === name) {
-        collectFromDOM();
-        archive[name] = snapshotCurrentWeek();
-        safeSave();
-        return;
+        collectFromDOM(); archive[name] = snapshotCurrentWeek(); safeSave(); return;
       }
       if (!preserveCurrentWorkBeforeSwitch(name)) return;
       if (!confirm('Load archived week "' + name + '"?')) return;
@@ -1058,7 +1031,7 @@
       data = {
         canFocus: (entry.canFocus || "").toString(),
         weekNotes: (entry.weekNotes || "").toString(),
-        blocks: JSON.parse(JSON.stringify(entry.blocks || {})),
+        blocks: deepClone(entry.blocks || {}),
         showAttachments: true
       };
       ensureBlocks(data);
@@ -1066,19 +1039,13 @@
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
       document.getElementById("canFocus").value = data.canFocus;
       document.getElementById("weekNotes").value = data.weekNotes;
-      renderAllDayGrids();
-      updateDashboard();
-      renderHistory();
-      safeSave();
+      renderAllDayGrids(); updateDashboard(); renderHistory(); safeSave();
       switchPage("dashboard");
     }
 
     function deleteFromArchive(name) {
       if (!confirm('Delete "' + name + '" from Archives?')) return;
-      delete archive[name];
-      safeSave();
-      renderHistory();
-      showToast("Deleted from archive", true);
+      delete archive[name]; safeSave(); renderHistory(); showToast("Deleted from archive", true);
     }
 
     function renderHistory() {
@@ -1093,11 +1060,11 @@
         const canLine = can
           ? '<div class="can-preview"><strong>C.A.N.:</strong> ' + esc(can.length > 120 ? can.slice(0,120)+"…" : can) + "</div>"
           : '<div class="can-preview">No C.A.N. Focus stored</div>';
-        return '<div class="history-item" data-arch-name="' + esc(name) + '">' +
+        return '<div class="history-item">' +
           "<div><h3>" + esc(name) + "</h3><div class=\"meta\">Saved: " + (archive[name].savedAt || "Unknown") + "</div>" + canLine + "</div>" +
           '<div class="history-actions">' +
-          '<button type="button" class="primary arch-load">Load</button>' +
-          '<button type="button" class="danger arch-del">Delete</button>' +
+          '<button type="button" class="primary" data-arch-load="' + encodeURIComponent(name) + '">Load</button>' +
+          '<button type="button" class="danger" data-arch-del="' + encodeURIComponent(name) + '">Delete</button>' +
           "</div></div>";
       }).join("");
     }
@@ -1124,20 +1091,11 @@
         });
       });
     }
-    function esc(s) {
-      return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-    }
-    function unescAttr(s) {
-      const t = document.createElement("textarea");
-      t.innerHTML = s;
-      return t.value;
-    }
 
     function toggleNoSchool(b, d) {
       if (!data.blocks[b]) data.blocks[b] = emptyBlock();
       data.blocks[b][d].noSchool = !data.blocks[b][d].noSchool;
-      renderAllDayGrids();
-      safeSave();
+      renderAllDayGrids(); safeSave();
     }
 
     function isImageName(n,u){ return /\.(jpe?g|png|gif|webp)$/i.test(n||"") || /\.(jpe?g|png|gif|webp)(\?|$)/i.test(u||""); }
@@ -1180,14 +1138,12 @@
           });
         } catch (e) { showToast("Upload failed", true); }
       }
-      renderAllDayGrids();
-      safeSave();
+      renderAllDayGrids(); safeSave();
     }
     function removeFile(b, d, idx) {
       if (!data.blocks[b]?.[d]?.files) return;
       data.blocks[b][d].files.splice(idx, 1);
-      renderAllDayGrids();
-      safeSave();
+      renderAllDayGrids(); safeSave();
     }
 
     function renderDayCard(b, day) {
@@ -1208,26 +1164,20 @@
       }).join("");
       const canAdd = (e.files || []).length < MAX_FILES;
       const drop = canAdd
-        ? '<div class="drop-zone" data-drop="' + b + "|" + day + '">' +
-          '<input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple />' +
-          "📄 Add image/PDF (" + (e.files||[]).length + "/" + MAX_FILES + ")</div>"
+        ? '<div class="drop-zone" data-drop="' + b + "|" + day + '"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple />📄 Add image/PDF (' + (e.files||[]).length + "/" + MAX_FILES + ")</div>"
         : '<div class="files-cap">File limit reached (' + MAX_FILES + ")</div>";
 
       return '<div class="day-card" data-day="' + day + '">' +
         '<div class="day-card-header"><span>' + day + '</span>' +
         '<button type="button" class="day-close" data-noschool="' + b + "|" + day + '">✕</button></div>' +
         '<div class="day-card-body">' +
-        '<div class="field"><div class="field-header"><label>Lesson / Activity Title</label>' +
-        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<div class="field"><div class="field-header"><label>Lesson / Activity Title</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
         '<input type="text" data-field="title" value="' + esc(e.title) + '"></div>' +
-        '<div class="field"><div class="field-header"><label>Objective / Focus</label>' +
-        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<div class="field"><div class="field-header"><label>Objective / Focus</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
         '<input type="text" data-field="objective" value="' + esc(e.objective) + '"></div>' +
-        '<div class="field"><div class="field-header"><label>Activities / Content</label>' +
-        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<div class="field"><div class="field-header"><label>Activities / Content</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
         '<textarea data-field="activities">' + esc(e.activities) + "</textarea></div>" +
-        '<div class="field"><div class="field-header"><label>Notes / Materials</label>' +
-        '<div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<div class="field"><div class="field-header"><label>Notes / Materials</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
         '<textarea data-field="notes" rows="2">' + esc(e.notes) + "</textarea></div>" +
         filesHtml + drop + "</div></div>";
     }
@@ -1262,9 +1212,7 @@
         const pid = f.publicId || publicIdFromUrl(url);
         if (isImageName(f.fileName, url) && url) html += '<img src="' + esc(url) + '" alt="">';
         else if (isPdfName(f.fileName, url) && pid) {
-          for (let p = 1; p <= 3; p++) {
-            html += '<div class="page-label">Page ' + p + '</div><img src="' + pdfPageUrl(pid,p) + '" alt="Page ' + p + '" onerror="this.style.display=\'none\'">';
-          }
+          for (let p = 1; p <= 3; p++) html += '<div class="page-label">Page ' + p + '</div><img src="' + pdfPageUrl(pid,p) + '" alt="" onerror="this.style.display=\'none\'">';
         } else if (url) html += "<em>" + esc(f.fileName) + "</em>";
         html += "</div></div>";
       });
@@ -1275,10 +1223,8 @@
       collectFromDOM();
       const week = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
       let html = "<h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>" +
-        '<div class="meta"><strong>Week of:</strong> ' + esc(week) + "<br>" +
-        "<strong>Save File:</strong> " + saveSystem.activeSlot + "<br>" +
-        "<strong>School:</strong> La Viña Middle School · 8th Grade<br>" +
-        "<strong>Generated:</strong> " + new Date().toLocaleString() + "</div>" +
+        '<div class="meta"><strong>Week of:</strong> ' + esc(week) + "<br><strong>Save File:</strong> " + saveSystem.activeSlot +
+        "<br><strong>School:</strong> La Viña Middle School · 8th Grade<br><strong>Generated:</strong> " + new Date().toLocaleString() + "</div>" +
         '<div class="can-focus"><strong>C.A.N. Standards Focus:</strong><br>' + esc(data.canFocus||"—").replace(/\n/g,"<br>") + "</div>";
       if ((data.weekNotes || "").trim()) {
         html += '<div class="week-notes"><strong>Week Notes / Reminders:</strong><br>' + esc(data.weekNotes).replace(/\n/g,"<br>") + "</div>";
@@ -1321,143 +1267,89 @@
 
     async function downloadPdf() {
       if (!sessionOpen) return;
-      if (typeof html2pdf === "undefined") {
-        showToast("PDF library not loaded — use Print instead", true);
-        return;
-      }
+      if (typeof html2pdf === "undefined") { showToast("PDF library not loaded — use Print", true); return; }
       const r = document.getElementById("printReport");
       r.innerHTML = buildPrintHtml();
       r.style.display = "block";
       const week = (document.getElementById("weekOf").value.trim() || currentWeek || "week").replace(/[^\w\-]+/g, "_");
       try {
         await html2pdf().set({
-          margin: 0.4,
-          filename: "Scholastic-Batch-" + week + ".pdf",
+          margin: 0.4, filename: "Scholastic-Batch-" + week + ".pdf",
           image: { type: "jpeg", quality: 0.95 },
           html2canvas: { scale: 2, useCORS: true, logging: false },
           jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
           pagebreak: { mode: ["avoid-all", "css", "legacy"] }
         }).from(r).save();
         showToast("PDF downloaded");
-      } catch (e) {
-        showToast("PDF failed — try Print", true);
-      } finally {
-        setTimeout(() => { r.style.display = "none"; }, 500);
-      }
+      } catch (e) { showToast("PDF failed — try Print", true); }
+      finally { setTimeout(() => { r.style.display = "none"; }, 500); }
     }
 
-    // ===== ONE delegated click handler (fixes dead buttons) =====
+    // Single click handler
     document.addEventListener("click", async function (ev) {
       const t = ev.target;
 
-      // Sidebar nav
       const nav = t.closest(".nav-item");
-      if (nav && nav.dataset.page) {
-        switchPage(nav.dataset.page);
-        return;
-      }
+      if (nav && nav.dataset.page) { switchPage(nav.dataset.page); return; }
 
-      // Title save slots
       const enter = t.closest("[data-enter]");
       if (enter) { enterSlot(enter.getAttribute("data-enter")); return; }
       const wipe = t.closest("[data-wipe]");
       if (wipe) { wipeSlot(wipe.getAttribute("data-wipe")); return; }
 
-      // Templates Use / Delete
-      const tplUse = t.closest(".tpl-use");
-      if (tplUse) {
-        const item = tplUse.closest("[data-template-name]");
-        if (item) applyTemplate(unescAttr(item.getAttribute("data-template-name")));
+      // TEMPLATE APPLY / DELETE
+      const tplApply = t.closest("[data-tpl-apply]");
+      if (tplApply) {
+        const name = decodeURIComponent(tplApply.getAttribute("data-tpl-apply"));
+        applyTemplateToCurrentWeek(name);
         return;
       }
-      const tplDel = t.closest(".tpl-del");
+      const tplDel = t.closest("[data-tpl-delete]");
       if (tplDel) {
-        const item = tplDel.closest("[data-template-name]");
-        if (item) deleteTemplate(unescAttr(item.getAttribute("data-template-name")));
+        const name = decodeURIComponent(tplDel.getAttribute("data-tpl-delete"));
+        deleteTemplate(name);
         return;
       }
 
-      // Archives
-      const archLoad = t.closest(".arch-load");
-      if (archLoad) {
-        const item = archLoad.closest("[data-arch-name]");
-        if (item) loadFromArchive(unescAttr(item.getAttribute("data-arch-name")));
-        return;
-      }
-      const archDel = t.closest(".arch-del");
-      if (archDel) {
-        const item = archDel.closest("[data-arch-name]");
-        if (item) deleteFromArchive(unescAttr(item.getAttribute("data-arch-name")));
-        return;
-      }
+      const archLoad = t.closest("[data-arch-load]");
+      if (archLoad) { loadFromArchive(decodeURIComponent(archLoad.getAttribute("data-arch-load"))); return; }
+      const archDel = t.closest("[data-arch-del]");
+      if (archDel) { deleteFromArchive(decodeURIComponent(archDel.getAttribute("data-arch-del"))); return; }
 
-      // Duplicate day buttons
       const dupB = t.closest("[data-dup-block]");
       if (dupB) { duplicateDayInBlock(dupB.getAttribute("data-dup-block")); return; }
       const dupA = t.closest("[data-dup-all]");
       if (dupA) { copyDayToAllInBlock(dupA.getAttribute("data-dup-all")); return; }
 
-      // Dashboard cards
       const dash = t.closest("[data-goto]");
       if (dash) { switchPage(dash.getAttribute("data-goto")); return; }
 
-      // Preview source
       const psrc = t.closest("[data-preview-src]");
-      if (psrc) {
-        previewSource = Number(psrc.getAttribute("data-preview-src"));
-        renderPreviewPage();
-        return;
-      }
-      if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) {
-        transferPreviewToCurrent();
-        return;
-      }
+      if (psrc) { previewSource = Number(psrc.getAttribute("data-preview-src")); renderPreviewPage(); return; }
+      if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) { transferPreviewToCurrent(); return; }
 
-      // No school / remove file
       const ns = t.closest("[data-noschool]");
-      if (ns) {
-        const [b, d] = ns.getAttribute("data-noschool").split("|");
-        toggleNoSchool(b, d);
-        return;
-      }
+      if (ns) { const p = ns.getAttribute("data-noschool").split("|"); toggleNoSchool(p[0], p[1]); return; }
       const rf = t.closest("[data-rmfile]");
-      if (rf) {
-        const [b, d, i] = rf.getAttribute("data-rmfile").split("|");
-        removeFile(b, d, Number(i));
-        return;
-      }
+      if (rf) { const p = rf.getAttribute("data-rmfile").split("|"); removeFile(p[0], p[1], Number(p[2])); return; }
 
-      // Drop zone click
       const drop = t.closest("[data-drop]");
-      if (drop && !t.matches("input")) {
-        const input = drop.querySelector('input[type="file"]');
-        if (input) input.click();
-        return;
-      }
+      if (drop && !t.matches("input")) { const input = drop.querySelector('input[type="file"]'); if (input) input.click(); return; }
 
-      // Copy / Paste
       const copyBtn = t.closest(".copy-btn");
       const pasteBtn = t.closest(".paste-btn");
       if (copyBtn) {
         let text = "";
         if (copyBtn.dataset.copyTarget === "canFocus") text = document.getElementById("canFocus").value;
         else if (copyBtn.dataset.copyTarget === "weekNotes") text = document.getElementById("weekNotes").value;
-        else {
-          const field = copyBtn.closest(".field");
-          const input = field && field.querySelector("input, textarea");
-          if (input) text = input.value;
-        }
-        await copyText(text, copyBtn);
-        return;
+        else { const field = copyBtn.closest(".field"); const input = field && field.querySelector("input, textarea"); if (input) text = input.value; }
+        await copyText(text, copyBtn); return;
       }
       if (pasteBtn) {
         let input = null;
         if (pasteBtn.dataset.pasteTarget === "canFocus") input = document.getElementById("canFocus");
         else if (pasteBtn.dataset.pasteTarget === "weekNotes") input = document.getElementById("weekNotes");
-        else {
-          const field = pasteBtn.closest(".field");
-          input = field && field.querySelector("input, textarea");
-        }
+        else { const field = pasteBtn.closest(".field"); input = field && field.querySelector("input, textarea"); }
         await pasteIntoField(input, pasteBtn);
       }
     });
@@ -1467,18 +1359,16 @@
       if (input && input.type === "file") {
         const drop = input.closest("[data-drop]");
         if (drop) {
-          const [b, d] = drop.getAttribute("data-drop").split("|");
-          handleFile(b, d, input.files);
+          const p = drop.getAttribute("data-drop").split("|");
+          handleFile(p[0], p[1], input.files);
           input.value = "";
         }
       }
     });
-
     document.addEventListener("input", function (ev) {
       if (!sessionOpen) return;
       if (ev.target.matches("input, textarea")) safeSave();
     });
-
     document.addEventListener("dragover", function (ev) {
       const drop = ev.target.closest("[data-drop]");
       if (drop) { ev.preventDefault(); drop.classList.add("dragover"); }
@@ -1492,8 +1382,8 @@
       if (!drop) return;
       ev.preventDefault();
       drop.classList.remove("dragover");
-      const [b, d] = drop.getAttribute("data-drop").split("|");
-      handleFile(b, d, ev.dataTransfer.files);
+      const p = drop.getAttribute("data-drop").split("|");
+      handleFile(p[0], p[1], ev.dataTransfer.files);
     });
 
     document.getElementById("btnSave").onclick = () => safeSave();
