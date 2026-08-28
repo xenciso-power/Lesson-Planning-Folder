@@ -209,6 +209,22 @@
     .print-doc-preview .page-label { font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; }
     .print-no-school-note { background: #fef2f2; color: #991b1b; padding: 0.75rem 1rem; font-size: 0.9rem; font-style: italic; }
     .print-footer { margin-top: 2rem; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; }
+    .roster-stats { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:1rem; }
+    .roster-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:0.65rem 0.9rem; min-width:120px; }
+    .roster-stat .n { font-size:1.25rem; font-weight:700; color:var(--gold-light); }
+    .roster-stat .l { font-size:0.75rem; color:var(--text-muted); }
+    .roster-table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:10px; }
+    .roster-table { width:100%; border-collapse:collapse; min-width:820px; background:var(--surface); }
+    .roster-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold-light); padding:0.6rem 0.55rem; border-bottom:2px solid var(--gold); background:var(--navy-dark); }
+    .roster-table td { padding:0.4rem 0.45rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .roster-table tr:hover td { background:rgba(31,78,121,0.25); }
+    .roster-table input, .roster-table select, .roster-table textarea {
+      width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
+      border-radius:5px; padding:0.35rem 0.45rem; font-size:0.82rem; font-family:inherit;
+    }
+    .roster-table textarea { min-height:38px; resize:vertical; }
+    .bucks-cell { display:flex; align-items:center; gap:0.25rem; }
+    .bucks-cell input { width:64px; text-align:center; }
     @media print {
       body * { visibility: hidden; }
       .print-report, .print-report * { visibility: visible; }
@@ -261,6 +277,7 @@
         <div class="nav-item" data-page="intervention"><span class="block-name">INTERVENTION</span><span class="block-time">3:00 – 3:45</span></div>
         <div class="nav-item" data-page="enrichment"><span class="block-name">ENRICHMENT</span><span class="block-time">3:49 – 4:15</span></div>
         <div class="nav-item" data-page="spark"><span class="block-name">SPARK</span><span class="block-time">4:19 – 5:00</span></div>
+        <div class="nav-item" data-page="roster"><span class="block-name">👥 Roster</span><span class="block-time">Students · DIY · Bucks</span></div>
         <div class="nav-item" data-page="history" style="margin-top:1.25rem;"><span class="block-name">📁 Archives</span><span class="block-time">Permanent</span></div>
         <div class="nav-item" data-page="templates"><span class="block-name">📋 Templates</span><span class="block-time">Apply to week</span></div>
         <div class="nav-item" data-page="preview"><span class="block-name">🔁 Preview / Transfer</span><span class="block-time">Save → Save</span></div>
@@ -343,6 +360,40 @@
           <div class="days-grid" data-block="spark"></div>
         </section>
 
+        <section id="page-roster" class="page">
+          <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">POWER Program Roster</h2>
+          <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
+            Student list stays with this Save File year-round. It does not reset when you start a new week.
+          </p>
+          <div class="roster-stats" id="rosterStats"></div>
+          <div class="toolbar-row">
+            <input type="text" id="rosterSearch" placeholder="Search name, computer #, notes…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:220px;flex:1;" />
+            <select id="rosterFilterDiy" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+              <option value="all">All students</option>
+              <option value="Yes">DIY enrolled</option>
+              <option value="No">Not in DIY</option>
+              <option value="Pending">DIY pending</option>
+            </select>
+            <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
+          </div>
+          <div class="roster-table-wrap">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th style="width:18%">Name</th>
+                  <th style="width:10%">Computer #</th>
+                  <th style="width:12%">DIY Program</th>
+                  <th style="width:14%">POWER Bucks</th>
+                  <th style="width:8%">Grade</th>
+                  <th>Notes</th>
+                  <th style="width:70px"></th>
+                </tr>
+              </thead>
+              <tbody id="rosterBody"></tbody>
+            </table>
+          </div>
+        </section>
+
         <section id="page-history" class="page">
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <div class="history-list" id="historyList"></div>
@@ -386,6 +437,7 @@
     const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload";
     const LOCAL_KEY = "XE_SCHOLASTIC_SAVES_V3";
     const TEMPLATE_KEY = "XE_SCHOLASTIC_TEMPLATES_V1";
+    const ROSTER_KEY = "XE_SCHOLASTIC_ROSTER_V1";
     const MAX_FILES = 3;
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
@@ -400,12 +452,14 @@
     let data = emptyData();
     let archive = {};
     let templates = {};
+    let roster = [];
     let previewSource = null;
     let sessionOpen = false;
     let lastCloudOk = null;
 
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
-    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, lastSaved: null }; }
+    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], lastSaved: null }; }
+    function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", diy:"No", bucks:0, grade:"8", notes:"" }; }
     function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
     function emptyBlock() {
       const d = {};
@@ -469,9 +523,11 @@
             showAttachments: true
           };
           slot.archive = deepClone(archive);
+          slot.roster = deepClone(roster);
           slot.lastSaved = new Date().toISOString();
         }
         localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots }));
+        try { localStorage.setItem(ROSTER_KEY + "_" + (saveSystem.activeSlot||0), JSON.stringify(roster)); } catch (e) {}
         updateSaveMeta();
         return true;
       } catch (e) { return false; }
@@ -489,6 +545,7 @@
         [1,2,3].forEach(n => {
           if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
           if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
+          if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
           saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || emptyData());
         });
         return true;
@@ -539,6 +596,7 @@
           [1,2,3].forEach(n => {
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
             if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
+            if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
             saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || emptyData());
           });
           persistLocal();
@@ -550,6 +608,7 @@
     function hasContent(slot) {
       if (!slot) return false;
       if (Object.keys(slot.archive || {}).length > 0) return true;
+      if ((slot.roster || []).length > 0) return true;
       const d = slot.data || {};
       if ((d.canFocus||"").trim() || (d.weekNotes||"").trim()) return true;
       for (const b of Object.values(d.blocks || {})) {
@@ -601,7 +660,6 @@
       return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
 
-    // ===== TEMPLATES — apply to ENTIRE current week =====
     function countTemplateFields(t) {
       let n = 0;
       if ((t.canFocus||"").trim()) n++;
@@ -613,6 +671,76 @@
         });
       });
       return n;
+    }
+
+    function renderRoster() {
+      const body = document.getElementById("rosterBody");
+      const stats = document.getElementById("rosterStats");
+      if (!body || !stats) return;
+      if (!Array.isArray(roster)) roster = [];
+      const q = ((document.getElementById("rosterSearch") || {}).value || "").toLowerCase().trim();
+      const fDiy = (document.getElementById("rosterFilterDiy") || {}).value || "all";
+      const diyYes = roster.filter(s => s.diy === "Yes").length;
+      const bucks = roster.reduce((a,s) => a + (Number(s.bucks)||0), 0);
+      stats.innerHTML =
+        '<div class="roster-stat"><div class="n">' + roster.length + '</div><div class="l">Students</div></div>' +
+        '<div class="roster-stat"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
+        '<div class="roster-stat"><div class="n">' + bucks + '</div><div class="l">POWER Bucks total</div></div>';
+      const rows = roster.filter(s => {
+        if (fDiy !== "all" && s.diy !== fDiy) return false;
+        if (!q) return true;
+        return [s.name, s.computer, s.notes, s.grade, s.diy].join(" ").toLowerCase().indexOf(q) !== -1;
+      });
+      if (!roster.length) {
+        body.innerHTML = '<tr><td colspan="7" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students yet. Click <strong>+ Add student</strong>.</td></tr>';
+        return;
+      }
+      if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="7" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr>';
+        return;
+      }
+      body.innerHTML = rows.map(s => {
+        return '<tr data-sid="' + esc(s.id) + '">' +
+          '<td><input data-rf="name" value="' + esc(s.name) + '" placeholder="Student name"></td>' +
+          '<td><input data-rf="computer" value="' + esc(s.computer) + '" placeholder="#"></td>' +
+          '<td><select data-rf="diy">' +
+            '<option value="No"' + (s.diy==="No"?" selected":"") + '>No</option>' +
+            '<option value="Yes"' + (s.diy==="Yes"?" selected":"") + '>Yes</option>' +
+            '<option value="Pending"' + (s.diy==="Pending"?" selected":"") + '>Pending</option>' +
+          '</select></td>' +
+          '<td><div class="bucks-cell">' +
+            '<button type="button" class="small" data-bucks="-1">−</button>' +
+            '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(s.bucks)||0) + '">' +
+            '<button type="button" class="small" data-bucks="1">+</button>' +
+          '</div></td>' +
+          '<td><input data-rf="grade" value="' + esc(s.grade || "8") + '" placeholder="8"></td>' +
+          '<td><textarea data-rf="notes" rows="1" placeholder="Allergies, pickup, etc.">' + esc(s.notes||"") + '</textarea></td>' +
+          '<td><button type="button" class="danger small" data-del-student>Remove</button></td>' +
+        '</tr>';
+      }).join("");
+    }
+    function findStudent(id) { return roster.find(s => s.id === id); }
+    function addStudent() {
+      if (!sessionOpen) return;
+      roster.push(emptyStudent());
+      renderRoster();
+      safeSave();
+    }
+    function updateStudentField(id, field, value) {
+      const s = findStudent(id);
+      if (!s) return;
+      if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
+      else s[field] = value;
+      renderRoster();
+      safeSave();
+    }
+    function removeStudent(id) {
+      const s = findStudent(id);
+      if (!s) return;
+      if (!confirm('Remove ' + (s.name || "this student") + ' from the roster?')) return;
+      roster = roster.filter(x => x.id !== id);
+      renderRoster();
+      safeSave();
     }
 
     function renderTemplates() {
@@ -643,23 +771,12 @@
     }
 
     function saveCurrentAsTemplate() {
-      if (!sessionOpen) {
-        alert("Open a Save File first, then open Templates.");
-        return;
-      }
+      if (!sessionOpen) { alert("Open a Save File first, then open Templates."); return; }
       collectFromDOM();
       const name = (document.getElementById("templateName").value || "").trim();
-      if (!name) {
-        alert("Type a template name first.");
-        document.getElementById("templateName").focus();
-        return;
-      }
-      if (!hasCurrentWork()) {
-        if (!confirm("This week looks empty. Save it as a blank template anyway?")) return;
-      }
+      if (!name) { alert("Type a template name first."); document.getElementById("templateName").focus(); return; }
+      if (!hasCurrentWork()) { if (!confirm("This week looks empty. Save it as a blank template anyway?")) return; }
       if (templates[name] && !confirm('Overwrite template "' + name + '"?')) return;
-
-      // Deep copy of entire week plan
       templates[name] = {
         canFocus: (data.canFocus || "").toString(),
         weekNotes: (data.weekNotes || "").toString(),
@@ -673,16 +790,8 @@
     }
 
     function applyTemplateToCurrentWeek(name) {
-      if (!sessionOpen) {
-        alert("Open a Save File first.");
-        return;
-      }
-      if (!templates[name]) {
-        alert('Template "' + name + '" was not found. Try saving it again.');
-        renderTemplates();
-        return;
-      }
-
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      if (!templates[name]) { alert('Template "' + name + '" was not found. Try saving it again.'); renderTemplates(); return; }
       const t = templates[name];
       const fields = countTemplateFields(t);
       const weekLabel = (document.getElementById("weekOf").value.trim() || currentWeek || "this week");
@@ -695,10 +804,7 @@
         '• All SEL, Intervention, Enrichment, and SPARK plans (Mon–Fri)\n\n' +
         'Template has ' + fields + ' filled field(s).\n' +
         'Your week name will stay the same.';
-
       if (!confirm(msg)) return;
-
-      // Optional: archive current before overwrite if it has content
       collectFromDOM();
       if (hasCurrentWork()) {
         const keep = confirm("Archive your current week content first so you don’t lose it?\n\nOK = archive then apply\nCancel = apply without archiving (current plans will be replaced)");
@@ -714,15 +820,11 @@
           if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = deepClone(archive);
         }
       }
-
-      // APPLY FULL WEEK from template
       data.canFocus = (t.canFocus || "").toString();
       data.weekNotes = (t.weekNotes || "").toString();
       data.blocks = deepClone(t.blocks || {});
       data.showAttachments = true;
       ensureBlocks(data);
-
-      // Keep week name — do not reset currentWeek
       document.getElementById("canFocus").value = data.canFocus;
       document.getElementById("weekNotes").value = data.weekNotes;
       renderAllDayGrids();
@@ -875,6 +977,7 @@
       const slot = saveSystem.slots[n];
       slot.data = ensureBlocks(slot.data || emptyData());
       if (!slot.archive) slot.archive = {};
+      if (!Array.isArray(slot.roster)) slot.roster = [];
       currentWeek = slot.currentWeek || "default";
       data = {
         canFocus: (slot.data.canFocus || "").toString(),
@@ -884,6 +987,7 @@
       };
       ensureBlocks(data);
       archive = deepClone(slot.archive);
+      roster = deepClone(slot.roster || []);
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -898,7 +1002,7 @@
       if (!confirm("Wipe Save File " + n + " completely?")) return;
       saveSystem.slots[n] = emptySlot();
       if (sessionOpen && saveSystem.activeSlot === n) {
-        currentWeek = "default"; data = emptyData(); archive = {}; ensureBlocks(data); applyUI();
+        currentWeek = "default"; data = emptyData(); archive = {}; roster = []; ensureBlocks(data); applyUI();
       }
       persistLocal(); pushCloud(); renderTitleSlots();
       showToast("Save File " + n + " wiped", true);
@@ -923,6 +1027,7 @@
       updateDashboard();
       renderHistory();
       renderTemplates();
+      renderRoster();
       if (document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
       updateSaveMeta();
     }
@@ -937,6 +1042,7 @@
       if (nav) nav.classList.add("active");
       if (id === "preview") renderPreviewPage();
       if (id === "templates") renderTemplates();
+      if (id === "roster") renderRoster();
     }
 
     function renderPreviewPage() {
@@ -987,6 +1093,7 @@
       };
       ensureBlocks(data);
       archive = deepClone(copy.archive);
+      roster = deepClone(copy.roster || []);
       applyUI(); persistLocal(); pushCloud();
       showToast("Transferred into Save File " + saveSystem.activeSlot);
       switchPage("dashboard");
@@ -1285,57 +1392,57 @@
       finally { setTimeout(() => { r.style.display = "none"; }, 500); }
     }
 
-    // Single click handler
     document.addEventListener("click", async function (ev) {
       const t = ev.target;
-
       const nav = t.closest(".nav-item");
       if (nav && nav.dataset.page) { switchPage(nav.dataset.page); return; }
-
       const enter = t.closest("[data-enter]");
       if (enter) { enterSlot(enter.getAttribute("data-enter")); return; }
       const wipe = t.closest("[data-wipe]");
       if (wipe) { wipeSlot(wipe.getAttribute("data-wipe")); return; }
-
-      // TEMPLATE APPLY / DELETE
+      if (t.id === "btnAddStudent" || t.closest("#btnAddStudent")) { addStudent(); return; }
+      const delS = t.closest("[data-del-student]");
+      if (delS) {
+        const tr = delS.closest("[data-sid]");
+        if (tr) removeStudent(tr.getAttribute("data-sid"));
+        return;
+      }
+      const bucksBtn = t.closest("[data-bucks]");
+      if (bucksBtn) {
+        const tr = bucksBtn.closest("[data-sid]");
+        if (tr) {
+          const s = findStudent(tr.getAttribute("data-sid"));
+          if (s) {
+            s.bucks = Math.max(0, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks")));
+            renderRoster();
+            safeSave();
+          }
+        }
+        return;
+      }
       const tplApply = t.closest("[data-tpl-apply]");
-      if (tplApply) {
-        const name = decodeURIComponent(tplApply.getAttribute("data-tpl-apply"));
-        applyTemplateToCurrentWeek(name);
-        return;
-      }
+      if (tplApply) { applyTemplateToCurrentWeek(decodeURIComponent(tplApply.getAttribute("data-tpl-apply"))); return; }
       const tplDel = t.closest("[data-tpl-delete]");
-      if (tplDel) {
-        const name = decodeURIComponent(tplDel.getAttribute("data-tpl-delete"));
-        deleteTemplate(name);
-        return;
-      }
-
+      if (tplDel) { deleteTemplate(decodeURIComponent(tplDel.getAttribute("data-tpl-delete"))); return; }
       const archLoad = t.closest("[data-arch-load]");
       if (archLoad) { loadFromArchive(decodeURIComponent(archLoad.getAttribute("data-arch-load"))); return; }
       const archDel = t.closest("[data-arch-del]");
       if (archDel) { deleteFromArchive(decodeURIComponent(archDel.getAttribute("data-arch-del"))); return; }
-
       const dupB = t.closest("[data-dup-block]");
       if (dupB) { duplicateDayInBlock(dupB.getAttribute("data-dup-block")); return; }
       const dupA = t.closest("[data-dup-all]");
       if (dupA) { copyDayToAllInBlock(dupA.getAttribute("data-dup-all")); return; }
-
       const dash = t.closest("[data-goto]");
       if (dash) { switchPage(dash.getAttribute("data-goto")); return; }
-
       const psrc = t.closest("[data-preview-src]");
       if (psrc) { previewSource = Number(psrc.getAttribute("data-preview-src")); renderPreviewPage(); return; }
       if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) { transferPreviewToCurrent(); return; }
-
       const ns = t.closest("[data-noschool]");
       if (ns) { const p = ns.getAttribute("data-noschool").split("|"); toggleNoSchool(p[0], p[1]); return; }
       const rf = t.closest("[data-rmfile]");
       if (rf) { const p = rf.getAttribute("data-rmfile").split("|"); removeFile(p[0], p[1], Number(p[2])); return; }
-
       const drop = t.closest("[data-drop]");
       if (drop && !t.matches("input")) { const input = drop.querySelector('input[type="file"]'); if (input) input.click(); return; }
-
       const copyBtn = t.closest(".copy-btn");
       const pasteBtn = t.closest(".paste-btn");
       if (copyBtn) {
@@ -1356,6 +1463,11 @@
 
     document.addEventListener("change", function (ev) {
       const input = ev.target;
+      const tr = input.closest && input.closest("[data-sid]");
+      if (tr && input.getAttribute("data-rf")) {
+        updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value);
+        return;
+      }
       if (input && input.type === "file") {
         const drop = input.closest("[data-drop]");
         if (drop) {
@@ -1367,7 +1479,7 @@
     });
     document.addEventListener("input", function (ev) {
       if (!sessionOpen) return;
-      if (ev.target.matches("input, textarea")) safeSave();
+      if (ev.target.matches("input, textarea") && !ev.target.closest("[data-sid]")) safeSave();
     });
     document.addEventListener("dragover", function (ev) {
       const drop = ev.target.closest("[data-drop]");
@@ -1394,6 +1506,10 @@
     document.getElementById("btnTitleScreen").onclick = returnToTitle;
     document.getElementById("btnThisWeek").onclick = setThisWeekName;
     document.getElementById("btnSaveTemplate").onclick = saveCurrentAsTemplate;
+    const rs = document.getElementById("rosterSearch");
+    const rf = document.getElementById("rosterFilterDiy");
+    if (rs) rs.addEventListener("input", renderRoster);
+    if (rf) rf.addEventListener("change", renderRoster);
     document.getElementById("btnLoadWeek").onclick = () => {
       if (!sessionOpen) return;
       const w = document.getElementById("weekOf").value.trim() || "default";
