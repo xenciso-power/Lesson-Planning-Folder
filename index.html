@@ -293,7 +293,8 @@
         <div class="nav-item" data-page="intervention"><span class="block-name">INTERVENTION</span><span class="block-time">3:00 – 3:45</span></div>
         <div class="nav-item" data-page="enrichment"><span class="block-name">ENRICHMENT</span><span class="block-time">3:49 – 4:15</span></div>
         <div class="nav-item" data-page="spark"><span class="block-name">SPARK</span><span class="block-time">4:19 – 5:00</span></div>
-        <div class="nav-item" data-page="roster"><span class="block-name">👥 Roster</span><span class="block-time">Students · DIY · Bucks</span></div>
+        <div class="nav-item" data-page="roster"><span class="block-name">👥 Roster</span><span class="block-time">Year-round list</span></div>
+        <div class="nav-item" data-page="diy"><span class="block-name">🛠️ DIY Projects</span><span class="block-time">EHDW Builders</span></div>
         <div class="nav-item" data-page="history" style="margin-top:1.25rem;"><span class="block-name">📁 Archives</span><span class="block-time">Permanent</span></div>
         <div class="nav-item" data-page="templates"><span class="block-name">📋 Templates</span><span class="block-time">Apply to week</span></div>
         <div class="nav-item" data-page="preview"><span class="block-name">🔁 Preview / Transfer</span><span class="block-time">Save → Save</span></div>
@@ -379,7 +380,7 @@
         <section id="page-roster" class="page">
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">POWER Program Roster</h2>
           <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
-            Student list stays with this Save File year-round. It does not reset when you start a new week.
+            This roster belongs to the Save File, not the week. New weeks, archives, and templates never change it unless you edit it or wipe the Save File.
           </p>
           <div class="roster-stats" id="rosterStats"></div>
           <div class="toolbar-row">
@@ -415,6 +416,52 @@
                 </tr>
               </thead>
               <tbody id="rosterBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="page-diy" class="page">
+          <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">DIY Builders™ Projects</h2>
+          <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
+            Catalog from <a href="https://www.ehdw.com/diy-woodworking-and-electrical-projects" target="_blank" rel="noopener" style="color:var(--gold-light);">Elemental Hardware Enrichment (ehdw.com)</a>.
+            Project list and dates stay with this Save File across every week.
+          </p>
+          <div class="roster-stats" id="diyStats"></div>
+          <div class="bulk-box">
+            <h3>Add a project</h3>
+            <p>Pick a catalog kit or type your own name. Set the dates you will run it in POWER.</p>
+            <div class="toolbar-row" style="margin:0;">
+              <select id="diyCatalog" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;min-width:220px;flex:1;"></select>
+              <input type="text" id="diyCustomName" placeholder="Or type a custom project name" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:180px;flex:1;" />
+            </div>
+            <div class="toolbar-row" style="margin:0.6rem 0 0;">
+              <label style="font-size:0.8rem;color:var(--text-muted);">Start</label>
+              <input type="date" id="diyStart" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;" />
+              <label style="font-size:0.8rem;color:var(--text-muted);">End</label>
+              <input type="date" id="diyEnd" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;" />
+              <select id="diyLevel" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced" selected>Advanced (6–8)</option>
+                <option value="Custom">Custom</option>
+              </select>
+              <button type="button" class="primary" id="btnAddDiy">Add project</button>
+            </div>
+          </div>
+          <div class="roster-table-wrap">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th style="width:22%">Project</th>
+                  <th style="width:12%">Level</th>
+                  <th style="width:14%">Start date</th>
+                  <th style="width:14%">End date</th>
+                  <th style="width:14%">Status</th>
+                  <th>Notes</th>
+                  <th style="width:80px"></th>
+                </tr>
+              </thead>
+              <tbody id="diyBody"></tbody>
             </table>
           </div>
         </section>
@@ -478,12 +525,13 @@
     let archive = {};
     let templates = {};
     let roster = [];
+    let diyProjects = [];
     let previewSource = null;
     let sessionOpen = false;
     let lastCloudOk = null;
 
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
-    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], lastSaved: null }; }
+    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], diyProjects: [], lastSaved: null }; }
     function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", diy:"No", bucks:0, grade:"8", notes:"" }; }
     function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
     function emptyBlock() {
@@ -549,6 +597,7 @@
           };
           slot.archive = deepClone(archive);
           slot.roster = deepClone(roster);
+          slot.diyProjects = deepClone(diyProjects);
           slot.lastSaved = new Date().toISOString();
         }
         localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots }));
@@ -571,6 +620,7 @@
           if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
           if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
           if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
+          if (!Array.isArray(saveSystem.slots[n].diyProjects)) saveSystem.slots[n].diyProjects = [];
           saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || emptyData());
         });
         return true;
@@ -622,6 +672,7 @@
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
             if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
             if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
+            if (!Array.isArray(saveSystem.slots[n].diyProjects)) saveSystem.slots[n].diyProjects = [];
             saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || emptyData());
           });
           persistLocal();
@@ -634,6 +685,7 @@
       if (!slot) return false;
       if (Object.keys(slot.archive || {}).length > 0) return true;
       if ((slot.roster || []).length > 0) return true;
+      if ((slot.diyProjects || []).length > 0) return true;
       const d = slot.data || {};
       if ((d.canFocus||"").trim() || (d.weekNotes||"").trim()) return true;
       for (const b of Object.values(d.blocks || {})) {
@@ -749,6 +801,126 @@
       if (!sessionOpen) return;
       roster.push(emptyStudent());
       renderRoster();
+      safeSave();
+    }
+    const EHDW_CATALOG = [
+      { name: "Candy Dispenser", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Derby Car + Ramp", level: "Beginner", url: "https://www.ehdw.com/diy-derby-car-and-ramp" },
+      { name: "Fairy Light Bottle", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "LED Tea Light Candle Holder", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Name Sign", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Pin Art Board", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Spin Top", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Step Stool", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Tic-Tac-Toe", level: "Beginner", url: "https://www.ehdw.com/tic-tac-toe" },
+      { name: "Wall Clock", level: "Beginner", url: "https://www.ehdw.com/diy-wall-clock" },
+      { name: "Battle Sling", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Birdhouse", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Bookshelf", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Catapult", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Finger Basketball", level: "Intermediate", url: "https://www.ehdw.com/diy-finger-basketball" },
+      { name: "Hooked!", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Large Cajón Drum", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Lap Desk", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Planter Box", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Small Cajón Drum", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Toolbox", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Treasure Box", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Winter Snowman", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Projector", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Balance Board", level: "Intermediate", url: "https://www.ehdw.com/diy-balance-board" },
+      { name: "Wooden Bluetooth Speaker", level: "Advanced", url: "https://www.ehdw.com/diy-wooden-bluetooth-speaker" },
+      { name: "Collapsible Organizer", level: "Advanced", url: "https://www.ehdw.com/collapsible-organizer" },
+      { name: "LED Light Frame", level: "Advanced", url: "https://www.ehdw.com/diy-led-light-frame" },
+      { name: "Lockbox", level: "Advanced", url: "https://www.ehdw.com/diy-lockbox" },
+      { name: "Black Iron Desk Lamp", level: "Advanced", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Wooden Desk Lamp", level: "Advanced", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Portable Stool", level: "Advanced", url: "https://www.ehdw.com/diy-portable-stool" }
+    ];
+    function emptyDiy() {
+      return { id: "d"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", level:"Advanced", startDate:"", endDate:"", status:"Planned", notes:"", url:"https://www.ehdw.com/diy-builders" };
+    }
+    function fillDiyCatalog() {
+      const sel = document.getElementById("diyCatalog");
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Choose an EHDW project…</option>' +
+        EHDW_CATALOG.map(function (pr) {
+          return '<option value="' + esc(pr.name) + '" data-level="' + esc(pr.level) + '" data-url="' + esc(pr.url) + '">' +
+            esc(pr.level) + " · " + esc(pr.name) + "</option>";
+        }).join("");
+    }
+    function renderDiy() {
+      fillDiyCatalog();
+      const body = document.getElementById("diyBody");
+      const stats = document.getElementById("diyStats");
+      if (!body || !stats) return;
+      if (!Array.isArray(diyProjects)) diyProjects = [];
+      const planned = diyProjects.filter(function (pr) { return pr.status === "Planned"; }).length;
+      const active = diyProjects.filter(function (pr) { return pr.status === "In progress"; }).length;
+      const done = diyProjects.filter(function (pr) { return pr.status === "Done"; }).length;
+      stats.innerHTML =
+        '<div class="roster-stat"><div class="n">' + diyProjects.length + '</div><div class="l">Projects</div></div>' +
+        '<div class="roster-stat"><div class="n">' + planned + '</div><div class="l">Planned</div></div>' +
+        '<div class="roster-stat"><div class="n">' + active + '</div><div class="l">In progress</div></div>' +
+        '<div class="roster-stat"><div class="n">' + done + '</div><div class="l">Done</div></div>';
+      if (!diyProjects.length) {
+        body.innerHTML = '<tr><td colspan="7" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No projects yet. Choose one from the EHDW catalog or type a custom name.</td></tr>';
+        return;
+      }
+      body.innerHTML = diyProjects.map(function (pr) {
+        const link = pr.url ? '<div style="font-size:0.72rem;margin-top:0.2rem;"><a href="' + esc(pr.url) + '" target="_blank" rel="noopener" style="color:var(--gold-light);">ehdw.com</a></div>' : "";
+        return '<tr data-did="' + esc(pr.id) + '">' +
+          '<td><input data-df="name" value="' + esc(pr.name) + '">' + link + "</td>" +
+          '<td><select data-df="level">' +
+            ["Beginner","Intermediate","Advanced","Custom"].map(function (lv) {
+              return '<option value="' + lv + '"' + (pr.level===lv?" selected":"") + ">" + lv + "</option>";
+            }).join("") +
+          "</select></td>" +
+          '<td><input data-df="startDate" type="date" value="' + esc(pr.startDate || "") + '"></td>' +
+          '<td><input data-df="endDate" type="date" value="' + esc(pr.endDate || "") + '"></td>' +
+          '<td><select data-df="status">' +
+            ["Planned","In progress","Done"].map(function (st) {
+              return '<option value="' + st + '"' + (pr.status===st?" selected":"") + ">" + st + "</option>";
+            }).join("") +
+          "</select></td>" +
+          '<td><textarea data-df="notes" rows="1">' + esc(pr.notes||"") + "</textarea></td>" +
+          '<td><button type="button" class="danger small" data-del-diy>Remove</button></td>' +
+        "</tr>";
+      }).join("");
+    }
+    function addDiyProject() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const sel = document.getElementById("diyCatalog");
+      const custom = (document.getElementById("diyCustomName").value || "").trim();
+      const picked = (sel && sel.value) ? sel.value : "";
+      const name = custom || picked;
+      if (!name) { alert("Choose a catalog project or type a name."); return; }
+      const item = emptyDiy();
+      item.name = name;
+      item.level = document.getElementById("diyLevel").value || "Advanced";
+      item.startDate = document.getElementById("diyStart").value || "";
+      item.endDate = document.getElementById("diyEnd").value || "";
+      const cat = EHDW_CATALOG.filter(function (c) { return c.name === picked; })[0];
+      if (cat && !custom) { item.level = cat.level; item.url = cat.url; }
+      diyProjects.push(item);
+      document.getElementById("diyCustomName").value = "";
+      if (sel) sel.value = "";
+      renderDiy();
+      safeSave();
+    }
+    function findDiy(id) { return diyProjects.find(function (pr) { return pr.id === id; }); }
+    function updateDiyField(id, field, value) {
+      const pr = findDiy(id);
+      if (!pr) return;
+      pr[field] = value;
+      safeSave();
+    }
+    function removeDiy(id) {
+      const pr = findDiy(id);
+      if (!pr) return;
+      if (!confirm('Remove project "' + (pr.name || "") + '"?')) return;
+      diyProjects = diyProjects.filter(function (x) { return x.id !== id; });
+      renderDiy();
       safeSave();
     }
     function parseDiy(v) {
@@ -889,7 +1061,6 @@
       if (!s) return;
       if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
       else s[field] = value;
-      renderRoster();
       safeSave();
     }
     function removeStudent(id) {
@@ -953,7 +1124,7 @@
       const t = templates[name];
       const fields = countTemplateFields(t);
       const weekLabel = (document.getElementById("weekOf").value.trim() || currentWeek || "this week");
-      if (!confirm('Apply template "' + name + '" to the entire current week?\n\nWeek: ' + weekLabel + '\nThis replaces C.A.N., notes, and all four blocks Mon–Fri.\nTemplate fields: ' + fields + '\nWeek name stays the same.')) return;
+      if (!confirm('Apply template "' + name + '" to the entire current week?\n\nWeek: ' + weekLabel + '\nThis replaces C.A.N., notes, and all four blocks Mon–Fri.\nTemplate fields: ' + fields + '\nWeek name stays the same.\nRoster and DIY projects are not changed.')) return;
       collectFromDOM();
       if (hasCurrentWork()) {
         const keep = confirm("Archive your current week content first?\nOK = archive then apply\nCancel = apply without archiving");
@@ -1127,6 +1298,7 @@
       slot.data = ensureBlocks(slot.data || emptyData());
       if (!slot.archive) slot.archive = {};
       if (!Array.isArray(slot.roster)) slot.roster = [];
+      if (!Array.isArray(slot.diyProjects)) slot.diyProjects = [];
       currentWeek = slot.currentWeek || "default";
       data = {
         canFocus: (slot.data.canFocus || "").toString(),
@@ -1137,6 +1309,7 @@
       ensureBlocks(data);
       archive = deepClone(slot.archive);
       roster = deepClone(slot.roster || []);
+      diyProjects = deepClone(slot.diyProjects || []);
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -1151,7 +1324,7 @@
       if (!confirm("Wipe Save File " + n + " completely?")) return;
       saveSystem.slots[n] = emptySlot();
       if (sessionOpen && saveSystem.activeSlot === n) {
-        currentWeek = "default"; data = emptyData(); archive = {}; roster = []; ensureBlocks(data); applyUI();
+        currentWeek = "default"; data = emptyData(); archive = {}; roster = []; diyProjects = []; ensureBlocks(data); applyUI();
       }
       persistLocal(); pushCloud(); renderTitleSlots();
       showToast("Save File " + n + " wiped", true);
@@ -1177,6 +1350,7 @@
       renderHistory();
       renderTemplates();
       renderRoster();
+      renderDiy();
       if (document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
       updateSaveMeta();
     }
@@ -1192,6 +1366,7 @@
       if (id === "preview") renderPreviewPage();
       if (id === "templates") renderTemplates();
       if (id === "roster") renderRoster();
+      if (id === "diy") renderDiy();
     }
 
     function renderPreviewPage() {
@@ -1243,6 +1418,7 @@
       ensureBlocks(data);
       archive = deepClone(copy.archive);
       roster = deepClone(copy.roster || []);
+      diyProjects = deepClone(copy.diyProjects || []);
       applyUI(); persistLocal(); pushCloud();
       showToast("Transferred into Save File " + saveSystem.activeSlot);
       switchPage("dashboard");
@@ -1552,6 +1728,13 @@
       if (t.id === "btnAddStudent" || t.closest("#btnAddStudent")) { addStudent(); return; }
       if (t.id === "btnBulkAdd" || t.closest("#btnBulkAdd")) { addBulkStudents(); return; }
       if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster")) { printRoster(); return; }
+      if (t.id === "btnAddDiy" || t.closest("#btnAddDiy")) { addDiyProject(); return; }
+      const delD = t.closest("[data-del-diy]");
+      if (delD) {
+        const tr = delD.closest("[data-did]");
+        if (tr) removeDiy(tr.getAttribute("data-did"));
+        return;
+      }
       const delS = t.closest("[data-del-student]");
       if (delS) {
         const tr = delS.closest("[data-sid]");
@@ -1619,6 +1802,11 @@
         updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value);
         return;
       }
+      const dtr = input.closest && input.closest("[data-did]");
+      if (dtr && input.getAttribute("data-df")) {
+        updateDiyField(dtr.getAttribute("data-did"), input.getAttribute("data-df"), input.value);
+        return;
+      }
       if (input && input.type === "file") {
         const drop = input.closest("[data-drop]");
         if (drop) {
@@ -1630,7 +1818,7 @@
     });
     document.addEventListener("input", function (ev) {
       if (!sessionOpen) return;
-      if (ev.target.matches("input, textarea") && !ev.target.closest("[data-sid]") && ev.target.id !== "bulkStudents" && ev.target.id !== "rosterSearch") safeSave();
+      if (ev.target.matches("input, textarea") && !ev.target.closest("[data-sid]") && !ev.target.closest("[data-did]") && ev.target.id !== "bulkStudents" && ev.target.id !== "rosterSearch" && ev.target.id !== "diyCustomName") safeSave();
     });
     document.addEventListener("dragover", function (ev) {
       const drop = ev.target.closest("[data-drop]");
@@ -1661,6 +1849,11 @@
     const rf = document.getElementById("rosterFilterDiy");
     if (rs) rs.addEventListener("input", renderRoster);
     if (rf) rf.addEventListener("change", renderRoster);
+    const diyCat = document.getElementById("diyCatalog");
+    if (diyCat) diyCat.addEventListener("change", function () {
+      const opt = diyCat.options[diyCat.selectedIndex];
+      if (opt && opt.getAttribute("data-level")) document.getElementById("diyLevel").value = opt.getAttribute("data-level");
+    });
     document.getElementById("btnLoadWeek").onclick = () => {
       if (!sessionOpen) return;
       const w = document.getElementById("weekOf").value.trim() || "default";
