@@ -378,48 +378,91 @@
         </section>
 
         <section id="page-roster" class="page">
-          <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">POWER Program Roster</h2>
+          <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">Rosters</h2>
           <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
-            This roster belongs to the Save File, not the week. New weeks, archives, and templates never change it unless you edit it or wipe the Save File.
+            Three distinct year-round tools on this Save File: your 8th grade class, the full POWER program, and sessions you staff by picking students.
           </p>
-          <div class="roster-stats" id="rosterStats"></div>
-          <div class="toolbar-row">
-            <input type="text" id="rosterSearch" placeholder="Search name, computer #, notes…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:220px;flex:1;" />
-            <select id="rosterFilterDiy" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
-              <option value="all">All students</option>
-              <option value="Yes">DIY enrolled</option>
-              <option value="No">Not in DIY</option>
-              <option value="Pending">DIY pending</option>
-            </select>
-            <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
-            <button type="button" id="btnPrintRoster">🖨 Print roster</button>
+          <div class="toolbar-row" style="margin-bottom:0.85rem;">
+            <button type="button" class="primary" id="tabRosterClass" data-roster-view="class">My 8th Grade Class</button>
+            <button type="button" id="tabRosterPower" data-roster-view="power">POWER Program</button>
+            <button type="button" id="tabRosterSessions" data-roster-view="sessions">Sessions</button>
           </div>
-          <div class="bulk-box">
-            <h3>Add many students at once</h3>
-            <p>Paste any list — one person per line. The roster will pull the <strong>name</strong> first, then fill computer #, DIY, bucks, grade, and notes if those are on the same line. Works with commas, tabs, numbered lists, and Last, First.</p>
-            <textarea id="bulkStudents" placeholder="Maria Lopez, C12, Yes, 15, 8&#10;Jose Ramirez, C07, No, 0, 8&#10;A. Chen, Lab-3, Pending"></textarea>
-            <div class="toolbar-row" style="margin:0.6rem 0 0;">
-              <button type="button" class="primary" id="btnBulkAdd">Add list to roster</button>
+          <p id="rosterViewNote" style="color:var(--gold-light); font-size:0.85rem; margin-bottom:0.85rem;"></p>
+
+          <div id="rosterPeopleWrap">
+            <div class="roster-stats" id="rosterStats"></div>
+            <div class="toolbar-row">
+              <input type="text" id="rosterSearch" placeholder="Search name, teacher, grade…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:220px;flex:1;" />
+              <select id="rosterFilterDiy" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                <option value="all">All DIY</option>
+                <option value="Yes">DIY enrolled</option>
+                <option value="No">Not in DIY</option>
+                <option value="Pending">DIY pending</option>
+              </select>
+              <select id="rosterFilterSlip" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                <option value="all">All slips</option>
+                <option value="Yes">Slip in</option>
+                <option value="No">Slip missing</option>
+                <option value="Pending">Slip pending</option>
+              </select>
+              <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
+              <button type="button" id="btnPrintRoster">🖨 Print this list</button>
+            </div>
+            <div class="bulk-box">
+              <h3>Add many students at once</h3>
+              <p>One person per line. Name first, then teacher, grade, DIY, slip, computer #, bucks, notes. Commas, tabs, numbered lists, and Last, First all work.</p>
+              <textarea id="bulkStudents" placeholder="Lopez, Maria, Mr. Enciso, 8, Yes, Yes&#10;Ramirez, Jose, Ms. Garcia, 7, No, Pending"></textarea>
+              <div class="toolbar-row" style="margin:0.6rem 0 0;">
+                <button type="button" class="primary" id="btnBulkAdd">Add list to this roster</button>
+              </div>
+            </div>
+            <div class="roster-table-wrap">
+              <table class="roster-table">
+                <thead>
+                  <tr>
+                    <th style="width:16%">Name</th>
+                    <th style="width:12%">Teacher</th>
+                    <th style="width:7%">Grade</th>
+                    <th style="width:11%">DIY</th>
+                    <th style="width:11%">Permission slip</th>
+                    <th style="width:10%">Computer #</th>
+                    <th style="width:12%">POWER Bucks</th>
+                    <th>Notes</th>
+                    <th style="width:70px"></th>
+                  </tr>
+                </thead>
+                <tbody id="rosterBody"></tbody>
+              </table>
             </div>
           </div>
-          <div class="roster-table-wrap">
-            <table class="roster-table">
-              <thead>
-                <tr>
-                  <th style="width:18%">Name</th>
-                  <th style="width:10%">Computer #</th>
-                  <th style="width:12%">DIY Program</th>
-                  <th style="width:14%">POWER Bucks</th>
-                  <th style="width:8%">Grade</th>
-                  <th>Notes</th>
-                  <th style="width:70px"></th>
-                </tr>
-              </thead>
-              <tbody id="rosterBody"></tbody>
-            </table>
+
+          <div id="rosterSessionsWrap" style="display:none;">
+            <div class="roster-stats" id="sessionStats"></div>
+            <div class="bulk-box">
+              <h3>New session</h3>
+              <p>Give it a name, a class block, and a time frame. Then pick students from either roster.</p>
+              <div class="toolbar-row" style="margin:0;">
+                <input type="text" id="sessName" placeholder="Session name (e.g. Tuesday DIY Build)" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:200px;flex:1;" />
+                <select id="sessClass" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                  <option value="SEL / CHECK-IN">SEL / CHECK-IN</option>
+                  <option value="INTERVENTION">INTERVENTION</option>
+                  <option value="ENRICHMENT">ENRICHMENT</option>
+                  <option value="SPARK">SPARK</option>
+                  <option value="DIY">DIY</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="toolbar-row" style="margin:0.6rem 0 0;">
+                <input type="text" id="sessDays" placeholder="Days (e.g. Tue / Thu)" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:140px;" />
+                <input type="time" id="sessStart" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;" />
+                <span style="color:var(--text-muted);">to</span>
+                <input type="time" id="sessEnd" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;" />
+                <button type="button" class="primary" id="btnAddSession">Create session</button>
+              </div>
+            </div>
+            <div id="sessionList"></div>
           </div>
         </section>
-
         <section id="page-diy" class="page">
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">DIY Builders™ Projects</h2>
           <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
@@ -465,7 +508,6 @@
             </table>
           </div>
         </section>
-
         <section id="page-history" class="page">
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <div class="history-list" id="historyList"></div>
@@ -525,14 +567,18 @@
     let archive = {};
     let templates = {};
     let roster = [];
+    let powerRoster = [];
+    let sessions = [];
+    let rosterView = "class";
     let diyProjects = [];
     let previewSource = null;
     let sessionOpen = false;
     let lastCloudOk = null;
 
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
-    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], diyProjects: [], lastSaved: null }; }
-    function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", diy:"No", bucks:0, grade:"8", notes:"" }; }
+    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], sessions: [], diyProjects: [], lastSaved: null }; }
+    function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", teacher:"", diy:"No", slip:"No", bucks:0, grade:"8", notes:"", source:"" }; }
+    function emptySession() { return { id: "ss"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", className:"DIY", days:"", startTime:"", endTime:"", notes:"", studentIds: [] }; }
     function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
     function emptyBlock() {
       const d = {};
@@ -597,6 +643,8 @@
           };
           slot.archive = deepClone(archive);
           slot.roster = deepClone(roster);
+          slot.powerRoster = deepClone(powerRoster);
+          slot.sessions = deepClone(sessions);
           slot.diyProjects = deepClone(diyProjects);
           slot.lastSaved = new Date().toISOString();
         }
@@ -620,6 +668,8 @@
           if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
           if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
           if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
+          if (!Array.isArray(saveSystem.slots[n].powerRoster)) saveSystem.slots[n].powerRoster = [];
+          if (!Array.isArray(saveSystem.slots[n].sessions)) saveSystem.slots[n].sessions = [];
           if (!Array.isArray(saveSystem.slots[n].diyProjects)) saveSystem.slots[n].diyProjects = [];
           saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || emptyData());
         });
@@ -672,6 +722,8 @@
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
             if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
             if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
+            if (!Array.isArray(saveSystem.slots[n].powerRoster)) saveSystem.slots[n].powerRoster = [];
+            if (!Array.isArray(saveSystem.slots[n].sessions)) saveSystem.slots[n].sessions = [];
             if (!Array.isArray(saveSystem.slots[n].diyProjects)) saveSystem.slots[n].diyProjects = [];
             saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || emptyData());
           });
@@ -685,6 +737,8 @@
       if (!slot) return false;
       if (Object.keys(slot.archive || {}).length > 0) return true;
       if ((slot.roster || []).length > 0) return true;
+      if ((slot.powerRoster || []).length > 0) return true;
+      if ((slot.sessions || []).length > 0) return true;
       if ((slot.diyProjects || []).length > 0) return true;
       const d = slot.data || {};
       if ((d.canFocus||"").trim() || (d.weekNotes||"").trim()) return true;
@@ -750,56 +804,118 @@
       return n;
     }
 
+    function allStudents() {
+      return (Array.isArray(roster) ? roster : []).concat(Array.isArray(powerRoster) ? powerRoster : []);
+    }
+    function findAnyStudent(id) {
+      return allStudents().find(function (st) { return st.id === id; });
+    }
+    function migrateStudent(st) {
+      if (!st) return emptyStudent();
+      if (!st.teacher) st.teacher = "";
+      if (!st.slip) st.slip = "No";
+      if (!st.source) st.source = "";
+      return st;
+    }
+    function activeRosterList() {
+      if (rosterView === "power") {
+        if (!Array.isArray(powerRoster)) powerRoster = [];
+        powerRoster.forEach(migrateStudent);
+        return powerRoster;
+      }
+      if (!Array.isArray(roster)) roster = [];
+      roster.forEach(migrateStudent);
+      return roster;
+    }
+    function setActiveRosterList(next) {
+      if (rosterView === "power") powerRoster = next;
+      else roster = next;
+    }
+    function updateRosterTabs() {
+      const c = document.getElementById("tabRosterClass");
+      const pw = document.getElementById("tabRosterPower");
+      const ss = document.getElementById("tabRosterSessions");
+      const note = document.getElementById("rosterViewNote");
+      const people = document.getElementById("rosterPeopleWrap");
+      const sess = document.getElementById("rosterSessionsWrap");
+      if (c) c.className = rosterView === "class" ? "primary" : "";
+      if (pw) pw.className = rosterView === "power" ? "primary" : "";
+      if (ss) ss.className = rosterView === "sessions" ? "primary" : "";
+      if (people) people.style.display = rosterView === "sessions" ? "none" : "block";
+      if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
+      if (note) {
+        note.textContent = rosterView === "power"
+          ? "POWER Program — entire program, separate from your 24. Teacher + grade distinguish homerooms. Track DIY and permission slips here."
+          : rosterView === "sessions"
+          ? "Sessions — each one has its own class block and time frame. Pick students from either roster."
+          : "My 8th Grade Class — your own 24. Separate from the full POWER program list.";
+      }
+    }
+    function optSel(val, opts) {
+      return opts.map(function (o) {
+        return '<option value="' + o + '"' + (val === o ? " selected" : "") + ">" + o + "</option>";
+      }).join("");
+    }
     function renderRoster() {
+      updateRosterTabs();
+      if (rosterView === "sessions") { renderSessions(); return; }
       const body = document.getElementById("rosterBody");
       const stats = document.getElementById("rosterStats");
       if (!body || !stats) return;
-      if (!Array.isArray(roster)) roster = [];
+      const list = activeRosterList();
       const q = ((document.getElementById("rosterSearch") || {}).value || "").toLowerCase().trim();
       const fDiy = (document.getElementById("rosterFilterDiy") || {}).value || "all";
-      const diyYes = roster.filter(s => s.diy === "Yes").length;
-      const bucks = roster.reduce((a,s) => a + (Number(s.bucks)||0), 0);
+      const fSlip = (document.getElementById("rosterFilterSlip") || {}).value || "all";
+      const diyYes = list.filter(function (st) { return st.diy === "Yes"; }).length;
+      const slipYes = list.filter(function (st) { return st.slip === "Yes"; }).length;
+      const slipNo = list.filter(function (st) { return st.slip !== "Yes"; }).length;
       stats.innerHTML =
-        '<div class="roster-stat"><div class="n">' + roster.length + '</div><div class="l">Students</div></div>' +
+        '<div class="roster-stat"><div class="n">' + list.length + '</div><div class="l">Students</div></div>' +
         '<div class="roster-stat"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
-        '<div class="roster-stat"><div class="n">' + bucks + '</div><div class="l">POWER Bucks total</div></div>';
-      const rows = roster.filter(s => {
-        if (fDiy !== "all" && s.diy !== fDiy) return false;
+        '<div class="roster-stat"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
+        '<div class="roster-stat"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
+      const rows = list.filter(function (st) {
+        if (fDiy !== "all" && st.diy !== fDiy) return false;
+        if (fSlip !== "all" && st.slip !== fSlip) return false;
         if (!q) return true;
-        return [s.name, s.computer, s.notes, s.grade, s.diy].join(" ").toLowerCase().indexOf(q) !== -1;
+        return [st.name, st.teacher, st.computer, st.notes, st.grade, st.diy, st.slip].join(" ").toLowerCase().indexOf(q) !== -1;
       });
-      if (!roster.length) {
-        body.innerHTML = '<tr><td colspan="7" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students yet. Click <strong>+ Add student</strong>.</td></tr>';
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="9" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Click <strong>+ Add student</strong> or paste a bulk list.</td></tr>';
         return;
       }
       if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="7" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr>';
+        body.innerHTML = '<tr><td colspan="9" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr>';
         return;
       }
-      body.innerHTML = rows.map(s => {
-        return '<tr data-sid="' + esc(s.id) + '">' +
-          '<td><input data-rf="name" value="' + esc(s.name) + '" placeholder="Student name"></td>' +
-          '<td><input data-rf="computer" value="' + esc(s.computer) + '" placeholder="#"></td>' +
-          '<td><select data-rf="diy">' +
-            '<option value="No"' + (s.diy==="No"?" selected":"") + '>No</option>' +
-            '<option value="Yes"' + (s.diy==="Yes"?" selected":"") + '>Yes</option>' +
-            '<option value="Pending"' + (s.diy==="Pending"?" selected":"") + '>Pending</option>' +
-          '</select></td>' +
+      body.innerHTML = rows.map(function (st) {
+        return '<tr data-sid="' + esc(st.id) + '">' +
+          '<td><input data-rf="name" value="' + esc(st.name) + '" placeholder="Student name"></td>' +
+          '<td><input data-rf="teacher" value="' + esc(st.teacher || "") + '" placeholder="Teacher"></td>' +
+          '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '" placeholder="8"></td>' +
+          '<td><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></td>' +
+          '<td><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></td>' +
+          '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' +
           '<td><div class="bucks-cell">' +
             '<button type="button" class="small" data-bucks="-1">−</button>' +
-            '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(s.bucks)||0) + '">' +
+            '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
             '<button type="button" class="small" data-bucks="1">+</button>' +
           '</div></td>' +
-          '<td><input data-rf="grade" value="' + esc(s.grade || "8") + '" placeholder="8"></td>' +
-          '<td><textarea data-rf="notes" rows="1" placeholder="Allergies, pickup, etc.">' + esc(s.notes||"") + '</textarea></td>' +
+          '<td><textarea data-rf="notes" rows="1" placeholder="Notes">' + esc(st.notes||"") + '</textarea></td>' +
           '<td><button type="button" class="danger small" data-del-student>Remove</button></td>' +
         '</tr>';
       }).join("");
     }
-    function findStudent(id) { return roster.find(s => s.id === id); }
+    function findStudent(id) { return activeRosterList().find(function (st) { return st.id === id; }) || findAnyStudent(id); }
     function addStudent() {
       if (!sessionOpen) return;
-      roster.push(emptyStudent());
+      if (rosterView === "sessions") { rosterView = "power"; }
+      const list = activeRosterList();
+      const st = emptyStudent();
+      if (rosterView === "class") { st.grade = "8"; st.teacher = "Mr. Enciso"; st.source = "class"; }
+      else st.source = "power";
+      list.push(st);
+      setActiveRosterList(list);
       renderRoster();
       safeSave();
     }
@@ -950,7 +1066,9 @@
       v = (v || "").trim();
       if (!v || v.length < 2) return false;
       if (parseDiy(v)) return false;
+      if (typeof parseSlip === "function" && parseSlip(v)) return false;
       if (looksLikeComputer(v) || looksLikeGrade(v) || looksLikeBucks(v)) return false;
+      if (/^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v)) return false;
       return /[a-záéíóúñü]/i.test(v);
     }
     function cleanName(v) {
@@ -977,6 +1095,19 @@
       }
       return { name: tokens[0], rest: tokens.slice(1) };
     }
+    function parseSlip(v) {
+      v = (v || "").trim().toLowerCase();
+      if (["slip yes","permission yes","signed","turned in","in","returned","complete"].indexOf(v) !== -1) return "Yes";
+      if (["slip pending","permission pending","waiting slip"].indexOf(v) !== -1) return "Pending";
+      if (["slip no","permission no","missing","not signed","unsigned"].indexOf(v) !== -1) return "No";
+      if (v === "slip") return "Pending";
+      return null;
+    }
+    function looksLikeTeacher(v) {
+      v = (v || "").trim();
+      if (!v) return false;
+      return /^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v);
+    }
     function parseBulkLine(line) {
       line = cleanName(line);
       if (!line) return null;
@@ -989,18 +1120,25 @@
       const s = emptyStudent();
       s.name = cleanName(identified.name);
       if (!s.name) return null;
+      s.source = rosterView === "power" ? "power" : "class";
+      if (rosterView === "class" && !s.teacher) s.teacher = "Mr. Enciso";
       identified.rest.forEach(function (piece) {
         const diy = parseDiy(piece);
         if (diy && s.diy === "No") { s.diy = diy; return; }
+        const slip = parseSlip(piece);
+        if (slip && s.slip === "No") { s.slip = slip; return; }
+        if (looksLikeTeacher(piece) && !s.teacher) { s.teacher = piece; return; }
         if (looksLikeComputer(piece) && !s.computer) { s.computer = piece.replace(/^(computer|comp|pc|#)\s*[:#-]?\s*/i, ""); return; }
         if (looksLikeGrade(piece)) { s.grade = piece.replace(/th$/i, ""); return; }
         if (looksLikeBucks(piece) && !s.bucks) { s.bucks = Math.max(0, parseInt(piece.replace(/[^\d]/g, ""), 10) || 0); return; }
+        if (!s.teacher && looksLikeNameToken(piece) && /[a-záéíóúñü]/i.test(piece)) { s.teacher = piece; return; }
         s.notes = (s.notes ? s.notes + "; " : "") + piece;
       });
       return s;
     }
     function addBulkStudents() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
+      if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
       const raw = (document.getElementById("bulkStudents").value || "");
       const lines = raw.split(/\r?\n/);
       const added = [];
@@ -1012,34 +1150,37 @@
         alert("No valid students found. Put one name per line.");
         return;
       }
-      roster = roster.concat(added);
+      setActiveRosterList(activeRosterList().concat(added));
       document.getElementById("bulkStudents").value = "";
       renderRoster();
       safeSave();
       showToast("Added " + added.length + " student" + (added.length === 1 ? "" : "s"));
     }
     function buildRosterPrintHtml() {
-      const list = Array.isArray(roster) ? roster.slice() : [];
+      const list = activeRosterList().slice();
       list.sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); });
       const diyYes = list.filter(function (s) { return s.diy === "Yes"; }).length;
-      const bucks = list.reduce(function (a, s) { return a + (Number(s.bucks) || 0); }, 0);
-      let html = "<h1>Mr. Enciso’s Scholastic Batch – POWER Roster</h1>" +
-        '<div class="meta"><strong>School:</strong> La Viña Middle School · 8th Grade<br>' +
+      const listTitle = rosterView === "power" ? "POWER Program" : "My 8th Grade Class";
+      const slipYes = list.filter(function (s) { return s.slip === "Yes"; }).length;
+      let html = "<h1>Mr. Enciso’s Scholastic Batch – " + listTitle + "</h1>" +
+        '<div class="meta"><strong>School:</strong> La Viña Middle School<br>' +
+        "<strong>List:</strong> " + listTitle + "<br>" +
         "<strong>Save File:</strong> " + (saveSystem.activeSlot || "—") +
         "<br><strong>Printed:</strong> " + new Date().toLocaleString() +
         "<br><strong>Students:</strong> " + list.length +
         " · <strong>DIY enrolled:</strong> " + diyYes +
-        " · <strong>POWER Bucks total:</strong> " + bucks + "</div>";
+        " · <strong>Slips in:</strong> " + slipYes + "</div>";
       html += '<table class="print-roster-table"><thead><tr>' +
-        "<th>#</th><th>Name</th><th>Computer #</th><th>DIY Program</th><th>POWER Bucks</th><th>Grade</th><th>Notes</th>" +
+        "<th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th><th>Computer #</th><th>Notes</th>" +
         "</tr></thead><tbody>";
       if (!list.length) {
-        html += '<tr><td colspan="7">No students on this roster.</td></tr>';
+        html += '<tr><td colspan="8">No students on this roster.</td></tr>';
       } else {
         list.forEach(function (s, i) {
-          html += "<tr><td>" + (i + 1) + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.computer || "—") +
-            "</td><td>" + esc(s.diy || "No") + "</td><td>" + (Number(s.bucks) || 0) +
-            "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.notes || "") + "</td></tr>";
+          html += "<tr><td>" + (i + 1) + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
+            "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
+            "</td><td>" + esc(s.slip || "No") + "</td><td>" + esc(s.computer || "—") +
+            "</td><td>" + esc(s.notes || "") + "</td></tr>";
         });
       }
       html += "</tbody></table>";
@@ -1048,6 +1189,7 @@
     }
     function printRoster() {
       if (!sessionOpen) return;
+      if (rosterView === "sessions") { alert("Open a session and use Print session."); return; }
       const r = document.getElementById("printReport");
       r.innerHTML = buildRosterPrintHtml();
       r.style.display = "block";
@@ -1061,15 +1203,150 @@
       if (!s) return;
       if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
       else s[field] = value;
+      renderRoster();
       safeSave();
     }
     function removeStudent(id) {
       const s = findStudent(id);
       if (!s) return;
       if (!confirm('Remove ' + (s.name || "this student") + ' from the roster?')) return;
-      roster = roster.filter(x => x.id !== id);
+      setActiveRosterList(activeRosterList().filter(x => x.id !== id));
+      sessions.forEach(function (sess) {
+        if (Array.isArray(sess.studentIds)) sess.studentIds = sess.studentIds.filter(function (sid) { return sid !== id; });
+      });
       renderRoster();
       safeSave();
+    }
+
+    function formatSessTime(sess) {
+      const days = sess.days || "";
+      const a = sess.startTime || "";
+      const b = sess.endTime || "";
+      const span = (a && b) ? (a + " – " + b) : (a || b || "");
+      return [days, span].filter(Boolean).join(" · ") || "No time set";
+    }
+    function renderSessions() {
+      if (!Array.isArray(sessions)) sessions = [];
+      const stats = document.getElementById("sessionStats");
+      const box = document.getElementById("sessionList");
+      if (!box) return;
+      const enrolled = sessions.reduce(function (n, sess) { return n + (sess.studentIds || []).length; }, 0);
+      if (stats) {
+        stats.innerHTML =
+          '<div class="roster-stat"><div class="n">' + sessions.length + '</div><div class="l">Sessions</div></div>' +
+          '<div class="roster-stat"><div class="n">' + enrolled + '</div><div class="l">Seat assignments</div></div>' +
+          '<div class="roster-stat"><div class="n">' + allStudents().length + '</div><div class="l">Students you can pick</div></div>';
+      }
+      if (!sessions.length) {
+        box.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No sessions yet. Create one above, then pick students from either roster.</p>';
+        return;
+      }
+      box.innerHTML = sessions.map(function (sess) {
+        const kids = (sess.studentIds || []).map(findAnyStudent).filter(Boolean);
+        const slipsIn = kids.filter(function (st) { return st.slip === "Yes"; }).length;
+        const picker = allStudents().slice().sort(function (a,b) { return (a.name||"").localeCompare(b.name||""); }).map(function (st) {
+          const on = (sess.studentIds || []).indexOf(st.id) !== -1;
+          const tag = (roster.some(function (x) { return x.id === st.id; }) ? "Class" : "POWER");
+          return '<label style="display:flex;gap:0.45rem;align-items:flex-start;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;">' +
+            '<input type="checkbox" data-pick-sess="' + esc(sess.id) + '" data-pick-stu="' + esc(st.id) + '"' + (on ? " checked" : "") + '>' +
+            '<span><strong>' + esc(st.name || "Unnamed") + '</strong> · ' + tag +
+            ' · Gr ' + esc(st.grade || "—") +
+            ' · ' + esc(st.teacher || "No teacher") +
+            ' · DIY ' + esc(st.diy || "No") +
+            ' · Slip ' + esc(st.slip || "No") + '</span></label>';
+        }).join("") || '<p style="color:var(--text-muted);">Add students to a roster first.</p>';
+        const rosterRows = kids.map(function (st) {
+          return '<tr><td>' + esc(st.name || "—") + '</td><td>' + esc(st.teacher || "—") + '</td><td>' + esc(st.grade || "—") +
+            '</td><td>' + esc(st.diy || "No") + '</td><td>' + esc(st.slip || "No") + '</td></tr>';
+        }).join("") || '<tr><td colspan="5" style="color:var(--text-muted);">Nobody picked yet.</td></tr>';
+        return '<div class="bulk-box" data-sess-card="' + esc(sess.id) + '">' +
+          '<div class="toolbar-row" style="margin:0 0 0.5rem;">' +
+            '<input data-sf="name" data-sess="' + esc(sess.id) + '" value="' + esc(sess.name) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.55rem;border-radius:6px;min-width:180px;flex:1;">' +
+            '<select data-sf="className" data-sess="' + esc(sess.id) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">' +
+              optSel(sess.className || "DIY", ["SEL / CHECK-IN","INTERVENTION","ENRICHMENT","SPARK","DIY","Other"]) +
+            '</select>' +
+            '<button type="button" class="small" data-print-sess="' + esc(sess.id) + '">Print session</button>' +
+            '<button type="button" class="danger small" data-del-sess="' + esc(sess.id) + '">Remove</button>' +
+          '</div>' +
+          '<div class="toolbar-row" style="margin:0 0 0.6rem;">' +
+            '<input data-sf="days" data-sess="' + esc(sess.id) + '" placeholder="Days" value="' + esc(sess.days || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.55rem;border-radius:6px;width:140px;">' +
+            '<input type="time" data-sf="startTime" data-sess="' + esc(sess.id) + '" value="' + esc(sess.startTime || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.4rem;border-radius:6px;">' +
+            '<span style="color:var(--text-muted);">to</span>' +
+            '<input type="time" data-sf="endTime" data-sess="' + esc(sess.id) + '" value="' + esc(sess.endTime || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.4rem;border-radius:6px;">' +
+            '<span style="font-size:0.8rem;color:var(--gold-light);">' + kids.length + ' students · ' + slipsIn + ' slips in</span>' +
+          '</div>' +
+          '<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Pick from My Class and POWER Program. Check a name to add them to this session.</p>' +
+          '<div style="max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;background:var(--bg);">' + picker + '</div>' +
+          '<div class="roster-table-wrap"><table class="roster-table" style="min-width:520px;"><thead><tr><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Slip</th></tr></thead><tbody>' + rosterRows + '</tbody></table></div>' +
+        '</div>';
+      }).join("");
+    }
+    function addSession() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const name = ((document.getElementById("sessName") || {}).value || "").trim();
+      if (!name) { alert("Name the session first."); return; }
+      const sess = emptySession();
+      sess.name = name;
+      sess.className = (document.getElementById("sessClass") || {}).value || "DIY";
+      sess.days = (document.getElementById("sessDays") || {}).value || "";
+      sess.startTime = (document.getElementById("sessStart") || {}).value || "";
+      sess.endTime = (document.getElementById("sessEnd") || {}).value || "";
+      sessions.push(sess);
+      document.getElementById("sessName").value = "";
+      renderSessions();
+      safeSave();
+    }
+    function findSession(id) {
+      return (sessions || []).find(function (sess) { return sess.id === id; });
+    }
+    function updateSessionField(id, field, value) {
+      const sess = findSession(id);
+      if (!sess) return;
+      sess[field] = value;
+      safeSave();
+    }
+    function toggleSessionStudent(sessId, stuId, on) {
+      const sess = findSession(sessId);
+      if (!sess) return;
+      if (!Array.isArray(sess.studentIds)) sess.studentIds = [];
+      const i = sess.studentIds.indexOf(stuId);
+      if (on && i === -1) sess.studentIds.push(stuId);
+      if (!on && i !== -1) sess.studentIds.splice(i, 1);
+      renderSessions();
+      safeSave();
+    }
+    function removeSession(id) {
+      const sess = findSession(id);
+      if (!sess) return;
+      if (!confirm('Remove session "' + (sess.name || "") + '"?')) return;
+      sessions = sessions.filter(function (x) { return x.id !== id; });
+      renderSessions();
+      safeSave();
+    }
+    function printSession(id) {
+      const sess = findSession(id);
+      if (!sess) return;
+      const kids = (sess.studentIds || []).map(findAnyStudent).filter(Boolean);
+      kids.sort(function (a,b) { return (a.name||"").localeCompare(b.name||""); });
+      let html = "<h1>Mr. Enciso’s Scholastic Batch – Session</h1>" +
+        '<div class="meta"><strong>Session:</strong> ' + esc(sess.name || "—") +
+        "<br><strong>Class:</strong> " + esc(sess.className || "—") +
+        "<br><strong>Time:</strong> " + esc(formatSessTime(sess)) +
+        "<br><strong>Printed:</strong> " + new Date().toLocaleString() + "</div>";
+      html += '<table class="print-roster-table"><thead><tr><th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>List</th><th>DIY</th><th>Permission slip</th></tr></thead><tbody>';
+      if (!kids.length) html += '<tr><td colspan="7">No students picked for this session.</td></tr>';
+      else kids.forEach(function (st, i) {
+        const tag = roster.some(function (x) { return x.id === st.id; }) ? "8th Grade Class" : "POWER Program";
+        html += "<tr><td>" + (i+1) + "</td><td>" + esc(st.name||"—") + "</td><td>" + esc(st.teacher||"—") +
+          "</td><td>" + esc(st.grade||"—") + "</td><td>" + tag + "</td><td>" + esc(st.diy||"No") +
+          "</td><td>" + esc(st.slip||"No") + "</td></tr>";
+      });
+      html += "</tbody></table>";
+      html += '<div class="print-footer">Session roster · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>';
+      const r = document.getElementById("printReport");
+      r.innerHTML = html;
+      r.style.display = "block";
+      setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
     }
 
     function renderTemplates() {
@@ -1124,7 +1401,7 @@
       const t = templates[name];
       const fields = countTemplateFields(t);
       const weekLabel = (document.getElementById("weekOf").value.trim() || currentWeek || "this week");
-      if (!confirm('Apply template "' + name + '" to the entire current week?\n\nWeek: ' + weekLabel + '\nThis replaces C.A.N., notes, and all four blocks Mon–Fri.\nTemplate fields: ' + fields + '\nWeek name stays the same.\nRoster and DIY projects are not changed.')) return;
+      if (!confirm('Apply template "' + name + '" to the entire current week?\n\nWeek: ' + weekLabel + '\nThis replaces C.A.N., notes, and all four blocks Mon–Fri.\nTemplate fields: ' + fields + '\nWeek name stays the same.\nRoster, POWER list, and sessions are not changed.')) return;
       collectFromDOM();
       if (hasCurrentWork()) {
         const keep = confirm("Archive your current week content first?\nOK = archive then apply\nCancel = apply without archiving");
@@ -1298,6 +1575,8 @@
       slot.data = ensureBlocks(slot.data || emptyData());
       if (!slot.archive) slot.archive = {};
       if (!Array.isArray(slot.roster)) slot.roster = [];
+      if (!Array.isArray(slot.powerRoster)) slot.powerRoster = [];
+      if (!Array.isArray(slot.sessions)) slot.sessions = [];
       if (!Array.isArray(slot.diyProjects)) slot.diyProjects = [];
       currentWeek = slot.currentWeek || "default";
       data = {
@@ -1309,6 +1588,8 @@
       ensureBlocks(data);
       archive = deepClone(slot.archive);
       roster = deepClone(slot.roster || []);
+      powerRoster = deepClone(slot.powerRoster || []);
+      sessions = deepClone(slot.sessions || []);
       diyProjects = deepClone(slot.diyProjects || []);
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
@@ -1324,7 +1605,7 @@
       if (!confirm("Wipe Save File " + n + " completely?")) return;
       saveSystem.slots[n] = emptySlot();
       if (sessionOpen && saveSystem.activeSlot === n) {
-        currentWeek = "default"; data = emptyData(); archive = {}; roster = []; diyProjects = []; ensureBlocks(data); applyUI();
+        currentWeek = "default"; data = emptyData(); archive = {}; roster = []; powerRoster = []; sessions = []; diyProjects = []; ensureBlocks(data); applyUI();
       }
       persistLocal(); pushCloud(); renderTitleSlots();
       showToast("Save File " + n + " wiped", true);
@@ -1418,6 +1699,8 @@
       ensureBlocks(data);
       archive = deepClone(copy.archive);
       roster = deepClone(copy.roster || []);
+      powerRoster = deepClone(copy.powerRoster || []);
+      sessions = deepClone(copy.sessions || []);
       diyProjects = deepClone(copy.diyProjects || []);
       applyUI(); persistLocal(); pushCloud();
       showToast("Transferred into Save File " + saveSystem.activeSlot);
@@ -1725,7 +2008,14 @@
       if (enter) { enterSlot(enter.getAttribute("data-enter")); return; }
       const wipe = t.closest("[data-wipe]");
       if (wipe) { wipeSlot(wipe.getAttribute("data-wipe")); return; }
+      const rview = t.closest("[data-roster-view]");
+      if (rview) { rosterView = rview.getAttribute("data-roster-view") || "class"; renderRoster(); return; }
       if (t.id === "btnAddStudent" || t.closest("#btnAddStudent")) { addStudent(); return; }
+      if (t.id === "btnAddSession" || t.closest("#btnAddSession")) { addSession(); return; }
+      const delSess = t.closest("[data-del-sess]");
+      if (delSess) { removeSession(delSess.getAttribute("data-del-sess")); return; }
+      const prSess = t.closest("[data-print-sess]");
+      if (prSess) { printSession(prSess.getAttribute("data-print-sess")); return; }
       if (t.id === "btnBulkAdd" || t.closest("#btnBulkAdd")) { addBulkStudents(); return; }
       if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster")) { printRoster(); return; }
       if (t.id === "btnAddDiy" || t.closest("#btnAddDiy")) { addDiyProject(); return; }
@@ -1773,8 +2063,8 @@
       if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) { transferPreviewToCurrent(); return; }
       const ns = t.closest("[data-noschool]");
       if (ns) { const p = ns.getAttribute("data-noschool").split("|"); toggleNoSchool(p[0], p[1]); return; }
-      const rf = t.closest("[data-rmfile]");
-      if (rf) { const p = rf.getAttribute("data-rmfile").split("|"); removeFile(p[0], p[1], Number(p[2])); return; }
+      const rfrm = t.closest("[data-rmfile]");
+      if (rfrm) { const p = rfrm.getAttribute("data-rmfile").split("|"); removeFile(p[0], p[1], Number(p[2])); return; }
       const drop = t.closest("[data-drop]");
       if (drop && !t.matches("input")) { const input = drop.querySelector('input[type="file"]'); if (input) input.click(); return; }
       const copyBtn = t.closest(".copy-btn");
@@ -1807,6 +2097,14 @@
         updateDiyField(dtr.getAttribute("data-did"), input.getAttribute("data-df"), input.value);
         return;
       }
+      if (input.getAttribute("data-sf") && input.getAttribute("data-sess")) {
+        updateSessionField(input.getAttribute("data-sess"), input.getAttribute("data-sf"), input.value);
+        return;
+      }
+      if (input.getAttribute("data-pick-sess") && input.getAttribute("data-pick-stu")) {
+        toggleSessionStudent(input.getAttribute("data-pick-sess"), input.getAttribute("data-pick-stu"), input.checked);
+        return;
+      }
       if (input && input.type === "file") {
         const drop = input.closest("[data-drop]");
         if (drop) {
@@ -1818,7 +2116,7 @@
     });
     document.addEventListener("input", function (ev) {
       if (!sessionOpen) return;
-      if (ev.target.matches("input, textarea") && !ev.target.closest("[data-sid]") && !ev.target.closest("[data-did]") && ev.target.id !== "bulkStudents" && ev.target.id !== "rosterSearch" && ev.target.id !== "diyCustomName") safeSave();
+      if (ev.target.matches("input, textarea") && !ev.target.closest("[data-sid]") && !ev.target.closest("[data-did]") && ev.target.id !== "bulkStudents" && ev.target.id !== "rosterSearch" && ev.target.id !== "diyCustomName" && ev.target.id !== "sessName" && ev.target.id !== "sessDays") safeSave();
     });
     document.addEventListener("dragover", function (ev) {
       const drop = ev.target.closest("[data-drop]");
@@ -1847,8 +2145,10 @@
     document.getElementById("btnSaveTemplate").onclick = saveCurrentAsTemplate;
     const rs = document.getElementById("rosterSearch");
     const rf = document.getElementById("rosterFilterDiy");
+    const rslip = document.getElementById("rosterFilterSlip");
     if (rs) rs.addEventListener("input", renderRoster);
     if (rf) rf.addEventListener("change", renderRoster);
+    if (rslip) rslip.addEventListener("change", renderRoster);
     const diyCat = document.getElementById("diyCatalog");
     if (diyCat) diyCat.addEventListener("change", function () {
       const opt = diyCat.options[diyCat.selectedIndex];
