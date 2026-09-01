@@ -407,11 +407,12 @@
               </select>
               <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
               <button type="button" id="btnPrintRoster">🖨 Print this list</button>
+              <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
             </div>
             <div class="bulk-box">
               <h3>Add many students at once</h3>
-              <p>One person per line. Name first, then teacher, grade, DIY, slip, computer #, bucks, notes. Commas, tabs, numbered lists, and Last, First all work.</p>
-              <textarea id="bulkStudents" placeholder="Lopez, Maria, Mr. Enciso, 8, Yes, Yes&#10;Ramirez, Jose, Ms. Garcia, 7, No, Pending"></textarea>
+              <p id="bulkHelp">One name per line. POWER list format: <strong>First Name, Last Name - Grade</strong> (example: Maria, Lopez - 8).</p>
+              <textarea id="bulkStudents" placeholder="Maria, Lopez - 8&#10;Jose, Ramirez - 7"></textarea>
               <div class="toolbar-row" style="margin:0.6rem 0 0;">
                 <button type="button" class="primary" id="btnBulkAdd">Add list to this roster</button>
               </div>
@@ -419,17 +420,7 @@
             <div class="roster-table-wrap">
               <table class="roster-table">
                 <thead>
-                  <tr>
-                    <th style="width:16%">Name</th>
-                    <th style="width:12%">Teacher</th>
-                    <th style="width:7%">Grade</th>
-                    <th style="width:11%">DIY</th>
-                    <th style="width:11%">Permission slip</th>
-                    <th style="width:10%">Computer #</th>
-                    <th style="width:12%">POWER Bucks</th>
-                    <th>Notes</th>
-                    <th style="width:70px"></th>
-                  </tr>
+                  <tr id="rosterHeadRow"></tr>
                 </thead>
                 <tbody id="rosterBody"></tbody>
               </table>
@@ -541,8 +532,7 @@
   <div class="print-report" id="printReport"></div>
   <div class="toast" id="toast"></div>
 
-  <script>
-  (function () {
+  <script>  (function () {
     const BIN_ID = "6a6cfe28f5f4af5e29db8208";
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
     const API_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
@@ -845,10 +835,22 @@
       if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
       if (note) {
         note.textContent = rosterView === "power"
-          ? "POWER Program — entire program, separate from your 24. Teacher + grade distinguish homerooms. Track DIY and permission slips here."
+          ? "POWER Program — entire program, separate from your 24. Teacher + grade distinguish homerooms. Track DIY and permission slips here. No computer numbers on this list."
           : rosterView === "sessions"
           ? "Sessions — each one has its own class block and time frame. Pick students from either roster."
-          : "My 8th Grade Class — your own 24. Separate from the full POWER program list.";
+          : "My 8th Grade Class — your own 24. Computer numbers stay on this list only.";
+      }
+      const help = document.getElementById("bulkHelp");
+      const bulk = document.getElementById("bulkStudents");
+      if (help) {
+        help.innerHTML = rosterView === "power"
+          ? 'One name per line. Format: <strong>First Name, Last Name - Grade</strong> (example: Maria, Lopez - 8). Teacher / DIY / slip can follow if you have them.'
+          : 'One name per line. Format: <strong>First Name, Last Name - Grade</strong>. Computer #, DIY, slip, and notes can follow.';
+      }
+      if (bulk) {
+        bulk.placeholder = rosterView === "power"
+          ? "Maria, Lopez - 8\nJose, Ramirez - 7"
+          : "Maria, Lopez - 8, C12\nJose, Ramirez - 8, C7, Yes";
       }
     }
     function optSel(val, opts) {
@@ -880,12 +882,27 @@
         if (!q) return true;
         return [st.name, st.teacher, st.computer, st.notes, st.grade, st.diy, st.slip].join(" ").toLowerCase().indexOf(q) !== -1;
       });
+      const showComp = rosterView === "class";
+      const head = document.getElementById("rosterHeadRow");
+      const cols = showComp ? 9 : 8;
+      if (head) {
+        head.innerHTML =
+          '<th style="width:16%">Name</th>' +
+          '<th style="width:12%">Teacher</th>' +
+          '<th style="width:7%">Grade</th>' +
+          '<th style="width:11%">DIY</th>' +
+          '<th style="width:11%">Permission slip</th>' +
+          (showComp ? '<th style="width:10%">Computer #</th>' : '') +
+          '<th style="width:12%">POWER Bucks</th>' +
+          '<th>Notes</th>' +
+          '<th style="width:70px"></th>';
+      }
       if (!list.length) {
-        body.innerHTML = '<tr><td colspan="9" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Click <strong>+ Add student</strong> or paste a bulk list.</td></tr>';
+        body.innerHTML = '<tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Click <strong>+ Add student</strong> or paste a bulk list.</td></tr>';
         return;
       }
       if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="9" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr>';
+        body.innerHTML = '<tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr>';
         return;
       }
       body.innerHTML = rows.map(function (st) {
@@ -895,7 +912,7 @@
           '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '" placeholder="8"></td>' +
           '<td><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></td>' +
           '<td><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></td>' +
-          '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' +
+          (showComp ? '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' : '') +
           '<td><div class="bucks-cell">' +
             '<button type="button" class="small" data-bucks="-1">−</button>' +
             '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
@@ -1109,32 +1126,73 @@
       return /^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v);
     }
     function parseBulkLine(line) {
-      line = cleanName(line);
+      line = (line || "").replace(/^\s*[-*•]+\s*/, "").replace(/^\s*\d+[\.\)\-:]+\s*/, "").trim();
       if (!line) return null;
-      let parts = line.indexOf("\t") !== -1
-        ? line.split("\t").map(function (x) { return x.trim(); })
-        : line.split(",").map(function (x) { return x.trim(); });
-      parts = parts.filter(function (x) { return x !== ""; });
-      if (!parts.length) return null;
-      const identified = identifyName(parts);
       const s = emptyStudent();
-      s.name = cleanName(identified.name);
-      if (!s.name) return null;
       s.source = rosterView === "power" ? "power" : "class";
-      if (rosterView === "class" && !s.teacher) s.teacher = "Mr. Enciso";
-      identified.rest.forEach(function (piece) {
+      if (rosterView === "class") s.teacher = "Mr. Enciso";
+      let rest = "";
+      let m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+)\s*,\s*([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
+      if (m) {
+        s.name = cleanName(m[1] + " " + m[2]);
+        s.grade = String(m[3]).replace(/th$/i, "");
+        rest = (m[4] || "").trim();
+      } else {
+        m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
+        if (m) {
+          s.name = cleanName(m[1].replace(/,/g, " "));
+          s.grade = String(m[2]).replace(/th$/i, "");
+          rest = (m[3] || "").trim();
+        }
+      }
+      if (!s.name) {
+        let parts = line.indexOf("\t") !== -1
+          ? line.split("\t").map(function (x) { return x.trim(); })
+          : line.split(",").map(function (x) { return x.trim(); });
+        parts = parts.filter(function (x) { return x !== ""; });
+        if (!parts.length) return null;
+        const identified = identifyName(parts);
+        s.name = cleanName(identified.name);
+        rest = identified.rest.join(", ");
+      }
+      if (!s.name) return null;
+      const extras = rest
+        ? rest.split(/[,;\t]+/).map(function (x) { return x.trim(); }).filter(Boolean)
+        : [];
+      extras.forEach(function (piece) {
+        const g = piece.replace(/^grade\s*/i, "").trim();
+        if (looksLikeGrade(g)) { s.grade = g.replace(/th$/i, ""); return; }
         const diy = parseDiy(piece);
         if (diy && s.diy === "No") { s.diy = diy; return; }
         const slip = parseSlip(piece);
         if (slip && s.slip === "No") { s.slip = slip; return; }
         if (looksLikeTeacher(piece) && !s.teacher) { s.teacher = piece; return; }
-        if (looksLikeComputer(piece) && !s.computer) { s.computer = piece.replace(/^(computer|comp|pc|#)\s*[:#-]?\s*/i, ""); return; }
-        if (looksLikeGrade(piece)) { s.grade = piece.replace(/th$/i, ""); return; }
+        if (rosterView === "class" && looksLikeComputer(piece) && !s.computer) {
+          s.computer = piece.replace(/^(computer|comp|pc|#)\s*[:#-]?\s*/i, "");
+          return;
+        }
         if (looksLikeBucks(piece) && !s.bucks) { s.bucks = Math.max(0, parseInt(piece.replace(/[^\d]/g, ""), 10) || 0); return; }
         if (!s.teacher && looksLikeNameToken(piece) && /[a-záéíóúñü]/i.test(piece)) { s.teacher = piece; return; }
         s.notes = (s.notes ? s.notes + "; " : "") + piece;
       });
       return s;
+    }
+    function wipeActiveRoster() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
+      const label = rosterView === "power" ? "POWER Program roster" : "8th Grade Class roster";
+      const n = activeRosterList().length;
+      if (!n) { alert("This roster is already empty."); return; }
+      if (!confirm("Wipe the entire " + label + " (" + n + " student" + (n === 1 ? "" : "s") + ")?\nThis cannot be undone from here.")) return;
+      const gone = activeRosterList().map(function (st) { return st.id; });
+      setActiveRosterList([]);
+      sessions.forEach(function (sess) {
+        if (Array.isArray(sess.studentIds)) {
+          sess.studentIds = sess.studentIds.filter(function (id) { return gone.indexOf(id) === -1; });
+        }
+      });
+      renderRoster();
+      safeSave();
     }
     function addBulkStudents() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
@@ -1170,17 +1228,20 @@
         "<br><strong>Students:</strong> " + list.length +
         " · <strong>DIY enrolled:</strong> " + diyYes +
         " · <strong>Slips in:</strong> " + slipYes + "</div>";
+      const showComp = rosterView === "class";
       html += '<table class="print-roster-table"><thead><tr>' +
-        "<th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th><th>Computer #</th><th>Notes</th>" +
-        "</tr></thead><tbody>";
+        "<th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th>" +
+        (showComp ? "<th>Computer #</th>" : "") +
+        "<th>Notes</th></tr></thead><tbody>";
       if (!list.length) {
-        html += '<tr><td colspan="8">No students on this roster.</td></tr>';
+        html += '<tr><td colspan="' + (showComp ? 8 : 7) + '">No students on this roster.</td></tr>';
       } else {
         list.forEach(function (s, i) {
           html += "<tr><td>" + (i + 1) + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
             "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
-            "</td><td>" + esc(s.slip || "No") + "</td><td>" + esc(s.computer || "—") +
-            "</td><td>" + esc(s.notes || "") + "</td></tr>";
+            "</td><td>" + esc(s.slip || "No") + "</td>" +
+            (showComp ? "<td>" + esc(s.computer || "—") + "</td>" : "") +
+            "<td>" + esc(s.notes || "") + "</td></tr>";
         });
       }
       html += "</tbody></table>";
@@ -2018,6 +2079,7 @@
       if (prSess) { printSession(prSess.getAttribute("data-print-sess")); return; }
       if (t.id === "btnBulkAdd" || t.closest("#btnBulkAdd")) { addBulkStudents(); return; }
       if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster")) { printRoster(); return; }
+      if (t.id === "btnWipeRoster" || t.closest("#btnWipeRoster")) { wipeActiveRoster(); return; }
       if (t.id === "btnAddDiy" || t.closest("#btnAddDiy")) { addDiyProject(); return; }
       const delD = t.closest("[data-del-diy]");
       if (delD) {
@@ -2116,7 +2178,7 @@
     });
     document.addEventListener("input", function (ev) {
       if (!sessionOpen) return;
-      if (ev.target.matches("input, textarea") && !ev.target.closest("[data-sid]") && !ev.target.closest("[data-did]") && ev.target.id !== "bulkStudents" && ev.target.id !== "rosterSearch" && ev.target.id !== "diyCustomName" && ev.target.id !== "sessName" && ev.target.id !== "sessDays") safeSave();
+      if (ev.target.matches("input, textarea")) safeSave();
     });
     document.addEventListener("dragover", function (ev) {
       const drop = ev.target.closest("[data-drop]");
