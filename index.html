@@ -408,6 +408,7 @@
               <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
               <button type="button" id="btnPrintRoster">🖨 Print this list</button>
               <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
+              <button type="button" id="btnLoadOfficialPower">Load official POWER list</button>
             </div>
             <div class="bulk-box">
               <h3>Add many students at once</h3>
@@ -568,6 +569,125 @@
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
     function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], sessions: [], diyProjects: [], lastSaved: null }; }
     function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", teacher:"", diy:"No", slip:"No", bucks:0, grade:"8", notes:"", source:"" }; }
+    function officialPowerStudent(name, grade, teacher, waitlisted) {
+      const s = emptyStudent();
+      s.id = "pwr-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + grade;
+      s.name = name;
+      s.grade = String(grade);
+      s.teacher = teacher;
+      s.source = "power";
+      s.notes = waitlisted ? "Waitlist (W)" : "";
+      return s;
+    }
+    function officialPowerRoster() {
+      const esparza = "Ms. Esparza / Rm. 8";
+      const avelar = "Miss Avelar (Long-Term Sub) / Rm. 30";
+      const soto = "Miss Soto / Rm. 4";
+      const enciso = "Mr. Enciso / Rm. 1";
+      return [
+        officialPowerStudent("Stephanie Bolanos-Romo", 6, esparza, false),
+        officialPowerStudent("Ricardo Jesse Castellanos", 6, esparza, false),
+        officialPowerStudent("Aiden Jose Delgado", 6, esparza, false),
+        officialPowerStudent("Khloe Nikhole Escobar", 6, esparza, false),
+        officialPowerStudent("Chelsea Cadaoas Espinoza", 6, esparza, false),
+        officialPowerStudent("Jayden Joaquin Feliciano", 6, esparza, false),
+        officialPowerStudent("Jonathan Flores", 6, esparza, true),
+        officialPowerStudent("Brianna Nicole Jimenez", 6, esparza, false),
+        officialPowerStudent("Brianna Nicole Lopez", 6, esparza, false),
+        officialPowerStudent("Kali Rose Lopez", 6, esparza, false),
+        officialPowerStudent("Riley Alexander Lopez", 6, esparza, true),
+        officialPowerStudent("Jayden Consuelo Marmolejo", 6, esparza, true),
+        officialPowerStudent("Riley Matthew Manapul Patawaran", 6, esparza, false),
+        officialPowerStudent("Nathalie Rose Pelayo", 6, esparza, false),
+        officialPowerStudent("Hailey Ann Lachica Retamal", 6, esparza, false),
+        officialPowerStudent("Natascha Ligia Rodarte", 6, esparza, false),
+        officialPowerStudent("Alondra Adaline Ruiz", 6, esparza, false),
+        officialPowerStudent("Andrew Michaels Salazar", 6, esparza, true),
+        officialPowerStudent("Nirvana Arlette Salgado Garcia", 6, esparza, false),
+        officialPowerStudent("Khlowie Nicole Torres", 6, esparza, true),
+        officialPowerStudent("Emily Nicole Uribe Mendez", 6, esparza, false),
+        officialPowerStudent("Faith Elli Boney", 6, avelar, false),
+        officialPowerStudent("Adaline Camacho Murguia", 6, avelar, true),
+        officialPowerStudent("Joselyn Cruz", 6, avelar, true),
+        officialPowerStudent("Luke Janielle Marcos Espiritu", 6, avelar, true),
+        officialPowerStudent("Charlyne Chrystal Gastelum", 6, avelar, true),
+        officialPowerStudent("Alexa Gabrielle Lopez Hernandez", 6, avelar, true),
+        officialPowerStudent("Jancarlo Martin", 6, avelar, false),
+        officialPowerStudent("Camila Martinez", 6, avelar, false),
+        officialPowerStudent("Tristen Caiden Miller", 6, avelar, false),
+        officialPowerStudent("Phoenix Navarrette", 6, avelar, false),
+        officialPowerStudent("Princess Maricon Madarang Ochinang", 6, avelar, true),
+        officialPowerStudent("Nicolas Orozco", 6, avelar, false),
+        officialPowerStudent("Faith Martha Padilla", 6, avelar, true),
+        officialPowerStudent("Ella Gracie Pasillas", 6, avelar, true),
+        officialPowerStudent("Damyan Anthony Perez Fernandez", 6, avelar, false),
+        officialPowerStudent("Nathan Pineda Pimentel", 6, avelar, false),
+        officialPowerStudent("Karol Rodriguez Fernandez", 6, avelar, false),
+        officialPowerStudent("Emmanuel Subillaga", 6, avelar, false),
+        officialPowerStudent("Janela Marie Garo Usi", 6, avelar, false),
+        officialPowerStudent("Camila Frances Vera", 6, avelar, true),
+        officialPowerStudent("Alyssa Marie Vasquez", 6, avelar, false),
+        officialPowerStudent("Mikal Jacob Magana Aledo", 7, soto, false),
+        officialPowerStudent("Aleah Savannah Astorga", 7, soto, false),
+        officialPowerStudent("Sofia Chavez", 7, soto, false),
+        officialPowerStudent("Lorraine Farinas Dumag", 7, soto, true),
+        officialPowerStudent("Yanuel Flores", 7, soto, true),
+        officialPowerStudent("Breanna Elena Garcia", 7, soto, true),
+        officialPowerStudent("Mariana Gonzalez Rios", 7, soto, false),
+        officialPowerStudent("Natalia Marie Guevara Diaz", 7, soto, false),
+        officialPowerStudent("Valeria Lisbeth Gutierrez Silva", 7, soto, false),
+        officialPowerStudent("Evan Alexander Guzman", 7, soto, true),
+        officialPowerStudent("Michael Julian Martinez Gomez", 7, soto, false),
+        officialPowerStudent("Mason Josiah Medina", 7, soto, false),
+        officialPowerStudent("Manuel Yair Moreno", 7, soto, true),
+        officialPowerStudent("Noah Matthew Ochoa", 7, soto, false),
+        officialPowerStudent("Fernando Perez", 7, soto, false),
+        officialPowerStudent("Alexis Nicole Rodriguez", 7, soto, false),
+        officialPowerStudent("Eric Adrian Rodriguez", 7, soto, false),
+        officialPowerStudent("Miya Naide Sanchez Cardenas", 7, soto, false),
+        officialPowerStudent("Damian Villanueva", 7, soto, false),
+        officialPowerStudent("Stephanie Zamora", 7, soto, false),
+        officialPowerStudent("Noemi Felix", 8, enciso, false),
+        officialPowerStudent("Emma Gonzalez", 8, enciso, false),
+        officialPowerStudent("Camden Gutierrez", 8, enciso, true),
+        officialPowerStudent("Lopez Anthony Hernandez", 8, enciso, true),
+        officialPowerStudent("Heidi Hernandez", 8, enciso, false),
+        officialPowerStudent("Harsh Kaur", 8, enciso, false),
+        officialPowerStudent("Elizabeth Larios", 8, enciso, true),
+        officialPowerStudent("Ramon Lopez", 8, enciso, true),
+        officialPowerStudent("Aimerie Martin", 8, enciso, false),
+        officialPowerStudent("Malaya Camille Membreve", 8, enciso, false),
+        officialPowerStudent("Roman Jeremiah Mojarro Nunez", 8, enciso, false),
+        officialPowerStudent("Cyriss Navarrette", 8, enciso, false),
+        officialPowerStudent("Rayne Marley Patawaran", 8, enciso, false),
+        officialPowerStudent("Kaylee Perez", 8, enciso, false),
+        officialPowerStudent("Johnny Pineda", 8, enciso, true),
+        officialPowerStudent("Mateo Ramos", 8, enciso, false),
+        officialPowerStudent("Jeremiah Rendon", 8, enciso, true),
+        officialPowerStudent("Chloie Rhianne Retamal", 8, enciso, false),
+        officialPowerStudent("Adolfo Ruiz", 8, enciso, false),
+        officialPowerStudent("Anthony Salazar", 8, enciso, true),
+        officialPowerStudent("Gene Naydelin Salgado Corral", 8, enciso, true),
+        officialPowerStudent("Sonia Santiago", 8, enciso, false),
+        officialPowerStudent("Devin Kedar West", 8, enciso, false),
+        officialPowerStudent("Aiden Zapien", 8, enciso, false)
+      ];
+    }
+    function seedOfficialPowerIfEmpty() {
+      if (!Array.isArray(powerRoster) || powerRoster.length === 0) {
+        powerRoster = officialPowerRoster();
+      }
+    }
+    function loadOfficialPowerList() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const n = officialPowerRoster().length;
+      if (powerRoster.length && !confirm("Replace the POWER Program list with the official " + n + " students (teachers and rooms included)?")) return;
+      powerRoster = officialPowerRoster();
+      rosterView = "power";
+      renderRoster();
+      safeSave();
+      showToast("Official POWER list loaded (" + n + ")");
+    }
     function emptySession() { return { id: "ss"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", className:"DIY", days:"", startTime:"", endTime:"", notes:"", studentIds: [] }; }
     function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
     function emptyBlock() {
@@ -935,266 +1055,7 @@
       setActiveRosterList(list);
       renderRoster();
       safeSave();
-    }
-    const EHDW_CATALOG = [
-      { name: "Candy Dispenser", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Derby Car + Ramp", level: "Beginner", url: "https://www.ehdw.com/diy-derby-car-and-ramp" },
-      { name: "Fairy Light Bottle", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "LED Tea Light Candle Holder", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Name Sign", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Pin Art Board", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Spin Top", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Step Stool", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Tic-Tac-Toe", level: "Beginner", url: "https://www.ehdw.com/tic-tac-toe" },
-      { name: "Wall Clock", level: "Beginner", url: "https://www.ehdw.com/diy-wall-clock" },
-      { name: "Battle Sling", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Birdhouse", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Bookshelf", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Catapult", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Finger Basketball", level: "Intermediate", url: "https://www.ehdw.com/diy-finger-basketball" },
-      { name: "Hooked!", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Large Cajón Drum", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Lap Desk", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Planter Box", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Small Cajón Drum", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Toolbox", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Treasure Box", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Winter Snowman", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Projector", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Balance Board", level: "Intermediate", url: "https://www.ehdw.com/diy-balance-board" },
-      { name: "Wooden Bluetooth Speaker", level: "Advanced", url: "https://www.ehdw.com/diy-wooden-bluetooth-speaker" },
-      { name: "Collapsible Organizer", level: "Advanced", url: "https://www.ehdw.com/collapsible-organizer" },
-      { name: "LED Light Frame", level: "Advanced", url: "https://www.ehdw.com/diy-led-light-frame" },
-      { name: "Lockbox", level: "Advanced", url: "https://www.ehdw.com/diy-lockbox" },
-      { name: "Black Iron Desk Lamp", level: "Advanced", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Wooden Desk Lamp", level: "Advanced", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
-      { name: "Portable Stool", level: "Advanced", url: "https://www.ehdw.com/diy-portable-stool" }
-    ];
-    function emptyDiy() {
-      return { id: "d"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", level:"Advanced", startDate:"", endDate:"", status:"Planned", notes:"", url:"https://www.ehdw.com/diy-builders" };
-    }
-    function fillDiyCatalog() {
-      const sel = document.getElementById("diyCatalog");
-      if (!sel) return;
-      sel.innerHTML = '<option value="">Choose an EHDW project…</option>' +
-        EHDW_CATALOG.map(function (pr) {
-          return '<option value="' + esc(pr.name) + '" data-level="' + esc(pr.level) + '" data-url="' + esc(pr.url) + '">' +
-            esc(pr.level) + " · " + esc(pr.name) + "</option>";
-        }).join("");
-    }
-    function renderDiy() {
-      fillDiyCatalog();
-      const body = document.getElementById("diyBody");
-      const stats = document.getElementById("diyStats");
-      if (!body || !stats) return;
-      if (!Array.isArray(diyProjects)) diyProjects = [];
-      const planned = diyProjects.filter(function (pr) { return pr.status === "Planned"; }).length;
-      const active = diyProjects.filter(function (pr) { return pr.status === "In progress"; }).length;
-      const done = diyProjects.filter(function (pr) { return pr.status === "Done"; }).length;
-      stats.innerHTML =
-        '<div class="roster-stat"><div class="n">' + diyProjects.length + '</div><div class="l">Projects</div></div>' +
-        '<div class="roster-stat"><div class="n">' + planned + '</div><div class="l">Planned</div></div>' +
-        '<div class="roster-stat"><div class="n">' + active + '</div><div class="l">In progress</div></div>' +
-        '<div class="roster-stat"><div class="n">' + done + '</div><div class="l">Done</div></div>';
-      if (!diyProjects.length) {
-        body.innerHTML = '<tr><td colspan="7" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No projects yet. Choose one from the EHDW catalog or type a custom name.</td></tr>';
-        return;
-      }
-      body.innerHTML = diyProjects.map(function (pr) {
-        const link = pr.url ? '<div style="font-size:0.72rem;margin-top:0.2rem;"><a href="' + esc(pr.url) + '" target="_blank" rel="noopener" style="color:var(--gold-light);">ehdw.com</a></div>' : "";
-        return '<tr data-did="' + esc(pr.id) + '">' +
-          '<td><input data-df="name" value="' + esc(pr.name) + '">' + link + "</td>" +
-          '<td><select data-df="level">' +
-            ["Beginner","Intermediate","Advanced","Custom"].map(function (lv) {
-              return '<option value="' + lv + '"' + (pr.level===lv?" selected":"") + ">" + lv + "</option>";
-            }).join("") +
-          "</select></td>" +
-          '<td><input data-df="startDate" type="date" value="' + esc(pr.startDate || "") + '"></td>' +
-          '<td><input data-df="endDate" type="date" value="' + esc(pr.endDate || "") + '"></td>' +
-          '<td><select data-df="status">' +
-            ["Planned","In progress","Done"].map(function (st) {
-              return '<option value="' + st + '"' + (pr.status===st?" selected":"") + ">" + st + "</option>";
-            }).join("") +
-          "</select></td>" +
-          '<td><textarea data-df="notes" rows="1">' + esc(pr.notes||"") + "</textarea></td>" +
-          '<td><button type="button" class="danger small" data-del-diy>Remove</button></td>' +
-        "</tr>";
-      }).join("");
-    }
-    function addDiyProject() {
-      if (!sessionOpen) { alert("Open a Save File first."); return; }
-      const sel = document.getElementById("diyCatalog");
-      const custom = (document.getElementById("diyCustomName").value || "").trim();
-      const picked = (sel && sel.value) ? sel.value : "";
-      const name = custom || picked;
-      if (!name) { alert("Choose a catalog project or type a name."); return; }
-      const item = emptyDiy();
-      item.name = name;
-      item.level = document.getElementById("diyLevel").value || "Advanced";
-      item.startDate = document.getElementById("diyStart").value || "";
-      item.endDate = document.getElementById("diyEnd").value || "";
-      const cat = EHDW_CATALOG.filter(function (c) { return c.name === picked; })[0];
-      if (cat && !custom) { item.level = cat.level; item.url = cat.url; }
-      diyProjects.push(item);
-      document.getElementById("diyCustomName").value = "";
-      if (sel) sel.value = "";
-      renderDiy();
-      safeSave();
-    }
-    function findDiy(id) { return diyProjects.find(function (pr) { return pr.id === id; }); }
-    function updateDiyField(id, field, value) {
-      const pr = findDiy(id);
-      if (!pr) return;
-      pr[field] = value;
-      safeSave();
-    }
-    function removeDiy(id) {
-      const pr = findDiy(id);
-      if (!pr) return;
-      if (!confirm('Remove project "' + (pr.name || "") + '"?')) return;
-      diyProjects = diyProjects.filter(function (x) { return x.id !== id; });
-      renderDiy();
-      safeSave();
-    }
-    function parseDiy(v) {
-      v = (v || "").trim().toLowerCase();
-      if (["yes","y","true","enrolled","diy yes","in diy"].indexOf(v) !== -1) return "Yes";
-      if (["pending","p","wait","waiting","maybe"].indexOf(v) !== -1) return "Pending";
-      if (["no","n","false","not enrolled","none"].indexOf(v) !== -1) return "No";
-      return null;
-    }
-    function looksLikeComputer(v) {
-      v = (v || "").trim();
-      if (!v) return false;
-      if (/^(comp(uter)?|pc|laptop|chromebook|#)?\s*[:#-]?\s*[a-z]{0,4}\s*-?\s*\d{1,4}$/i.test(v)) return true;
-      if (/^(c|lab|pc|cb|lt)[- ]?\d{1,4}$/i.test(v)) return true;
-      if (/^\d{1,3}$/.test(v) && Number(v) > 8 && Number(v) < 200) return true;
-      return false;
-    }
-    function looksLikeGrade(v) {
-      v = (v || "").trim().toLowerCase();
-      return /^(6|7|8|6th|7th|8th|sixth|seventh|eighth)$/.test(v);
-    }
-    function looksLikeBucks(v) {
-      v = (v || "").trim().toLowerCase().replace(/bucks?|pts?|points?/g, "").trim();
-      return /^\d{1,4}$/.test(v);
-    }
-    function looksLikeNameToken(v) {
-      v = (v || "").trim();
-      if (!v || v.length < 2) return false;
-      if (parseDiy(v)) return false;
-      if (typeof parseSlip === "function" && parseSlip(v)) return false;
-      if (looksLikeComputer(v) || looksLikeGrade(v) || looksLikeBucks(v)) return false;
-      if (/^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v)) return false;
-      return /[a-záéíóúñü]/i.test(v);
-    }
-    function cleanName(v) {
-      return (v || "")
-        .replace(/^\s*\d+[\.\)\-:]+\s*/, "")
-        .replace(/^[-*•]+\s*/, "")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-    function identifyName(parts) {
-      const tokens = parts.filter(Boolean);
-      if (!tokens.length) return { name: "", rest: [] };
-      if (tokens.length >= 2 && looksLikeNameToken(tokens[0]) && looksLikeNameToken(tokens[1]) &&
-          tokens[0].indexOf(" ") === -1 && tokens[1].indexOf(" ") === -1) {
-        return { name: tokens[1] + " " + tokens[0], rest: tokens.slice(2) };
-      }
-      if (looksLikeNameToken(tokens[0])) {
-        return { name: tokens[0], rest: tokens.slice(1) };
-      }
-      for (let i = 0; i < tokens.length; i++) {
-        if (looksLikeNameToken(tokens[i])) {
-          return { name: tokens[i], rest: tokens.slice(0, i).concat(tokens.slice(i + 1)) };
-        }
-      }
-      return { name: tokens[0], rest: tokens.slice(1) };
-    }
-    function parseSlip(v) {
-      v = (v || "").trim().toLowerCase();
-      if (["slip yes","permission yes","signed","turned in","in","returned","complete"].indexOf(v) !== -1) return "Yes";
-      if (["slip pending","permission pending","waiting slip"].indexOf(v) !== -1) return "Pending";
-      if (["slip no","permission no","missing","not signed","unsigned"].indexOf(v) !== -1) return "No";
-      if (v === "slip") return "Pending";
-      return null;
-    }
-    function looksLikeTeacher(v) {
-      v = (v || "").trim();
-      if (!v) return false;
-      return /^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v);
-    }
-    function parseBulkLine(line) {
-      line = (line || "").replace(/^\s*[-*•]+\s*/, "").replace(/^\s*\d+[\.\)\-:]+\s*/, "").trim();
-      if (!line) return null;
-      const s = emptyStudent();
-      s.source = rosterView === "power" ? "power" : "class";
-      if (rosterView === "class") s.teacher = "Mr. Enciso";
-      let rest = "";
-      let m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+)\s*,\s*([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
-      if (m) {
-        s.name = cleanName(m[1] + " " + m[2]);
-        s.grade = String(m[3]).replace(/th$/i, "");
-        rest = (m[4] || "").trim();
-      } else {
-        m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
-        if (m) {
-          s.name = cleanName(m[1].replace(/,/g, " "));
-          s.grade = String(m[2]).replace(/th$/i, "");
-          rest = (m[3] || "").trim();
-        }
-      }
-      if (!s.name) {
-        let parts = line.indexOf("\t") !== -1
-          ? line.split("\t").map(function (x) { return x.trim(); })
-          : line.split(",").map(function (x) { return x.trim(); });
-        parts = parts.filter(function (x) { return x !== ""; });
-        if (!parts.length) return null;
-        const identified = identifyName(parts);
-        s.name = cleanName(identified.name);
-        rest = identified.rest.join(", ");
-      }
-      if (!s.name) return null;
-      const extras = rest
-        ? rest.split(/[,;\t]+/).map(function (x) { return x.trim(); }).filter(Boolean)
-        : [];
-      extras.forEach(function (piece) {
-        const g = piece.replace(/^grade\s*/i, "").trim();
-        if (looksLikeGrade(g)) { s.grade = g.replace(/th$/i, ""); return; }
-        const diy = parseDiy(piece);
-        if (diy && s.diy === "No") { s.diy = diy; return; }
-        const slip = parseSlip(piece);
-        if (slip && s.slip === "No") { s.slip = slip; return; }
-        if (looksLikeTeacher(piece) && !s.teacher) { s.teacher = piece; return; }
-        if (rosterView === "class" && looksLikeComputer(piece) && !s.computer) {
-          s.computer = piece.replace(/^(computer|comp|pc|#)\s*[:#-]?\s*/i, "");
-          return;
-        }
-        if (looksLikeBucks(piece) && !s.bucks) { s.bucks = Math.max(0, parseInt(piece.replace(/[^\d]/g, ""), 10) || 0); return; }
-        if (!s.teacher && looksLikeNameToken(piece) && /[a-záéíóúñü]/i.test(piece)) { s.teacher = piece; return; }
-        s.notes = (s.notes ? s.notes + "; " : "") + piece;
-      });
-      return s;
-    }
-    function wipeActiveRoster() {
-      if (!sessionOpen) { alert("Open a Save File first."); return; }
-      if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
-      const label = rosterView === "power" ? "POWER Program roster" : "8th Grade Class roster";
-      const n = activeRosterList().length;
-      if (!n) { alert("This roster is already empty."); return; }
-      if (!confirm("Wipe the entire " + label + " (" + n + " student" + (n === 1 ? "" : "s") + ")?\nThis cannot be undone from here.")) return;
-      const gone = activeRosterList().map(function (st) { return st.id; });
-      setActiveRosterList([]);
-      sessions.forEach(function (sess) {
-        if (Array.isArray(sess.studentIds)) {
-          sess.studentIds = sess.studentIds.filter(function (id) { return gone.indexOf(id) === -1; });
-        }
-      });
-      renderRoster();
-      safeSave();
-    }
-    function addBulkStudents() {
+    }    function addBulkStudents() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
       if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
       const raw = (document.getElementById("bulkStudents").value || "");
@@ -1204,10 +1065,7 @@
         const s = parseBulkLine(line);
         if (s) added.push(s);
       });
-      if (!added.length) {
-        alert("No valid students found. Put one name per line.");
-        return;
-      }
+      if (!added.length) { alert("No valid students found. Put one name per line."); return; }
       setActiveRosterList(activeRosterList().concat(added));
       document.getElementById("bulkStudents").value = "";
       renderRoster();
@@ -1222,8 +1080,7 @@
       const slipYes = list.filter(function (s) { return s.slip === "Yes"; }).length;
       let html = "<h1>Mr. Enciso’s Scholastic Batch – " + listTitle + "</h1>" +
         '<div class="meta"><strong>School:</strong> La Viña Middle School<br>' +
-        "<strong>List:</strong> " + listTitle + "<br>" +
-        "<strong>Save File:</strong> " + (saveSystem.activeSlot || "—") +
+        "<strong>List:</strong> " + listTitle + "<br><strong>Save File:</strong> " + (saveSystem.activeSlot || "—") +
         "<br><strong>Printed:</strong> " + new Date().toLocaleString() +
         "<br><strong>Students:</strong> " + list.length +
         " · <strong>DIY enrolled:</strong> " + diyYes +
@@ -1233,17 +1090,14 @@
         "<th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th>" +
         (showComp ? "<th>Computer #</th>" : "") +
         "<th>Notes</th></tr></thead><tbody>";
-      if (!list.length) {
-        html += '<tr><td colspan="' + (showComp ? 8 : 7) + '">No students on this roster.</td></tr>';
-      } else {
-        list.forEach(function (s, i) {
-          html += "<tr><td>" + (i + 1) + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
-            "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
-            "</td><td>" + esc(s.slip || "No") + "</td>" +
-            (showComp ? "<td>" + esc(s.computer || "—") + "</td>" : "") +
-            "<td>" + esc(s.notes || "") + "</td></tr>";
-        });
-      }
+      if (!list.length) html += '<tr><td colspan="' + (showComp ? 8 : 7) + '">No students on this roster.</td></tr>';
+      else list.forEach(function (s, i) {
+        html += "<tr><td>" + (i + 1) + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
+          "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
+          "</td><td>" + esc(s.slip || "No") + "</td>" +
+          (showComp ? "<td>" + esc(s.computer || "—") + "</td>" : "") +
+          "<td>" + esc(s.notes || "") + "</td></tr>";
+      });
       html += "</tbody></table>";
       html += '<div class="print-footer">POWER Program Roster · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>';
       return html;
@@ -1254,10 +1108,7 @@
       const r = document.getElementById("printReport");
       r.innerHTML = buildRosterPrintHtml();
       r.style.display = "block";
-      setTimeout(function () {
-        window.print();
-        setTimeout(function () { r.style.display = "none"; }, 2000);
-      }, 400);
+      setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
     }
     function updateStudentField(id, field, value) {
       const s = findStudent(id);
@@ -1271,14 +1122,13 @@
       const s = findStudent(id);
       if (!s) return;
       if (!confirm('Remove ' + (s.name || "this student") + ' from the roster?')) return;
-      setActiveRosterList(activeRosterList().filter(x => x.id !== id));
+      setActiveRosterList(activeRosterList().filter(function (x) { return x.id !== id; }));
       sessions.forEach(function (sess) {
         if (Array.isArray(sess.studentIds)) sess.studentIds = sess.studentIds.filter(function (sid) { return sid !== id; });
       });
       renderRoster();
       safeSave();
     }
-
     function formatSessTime(sess) {
       const days = sess.days || "";
       const a = sess.startTime || "";
@@ -1357,9 +1207,7 @@
       renderSessions();
       safeSave();
     }
-    function findSession(id) {
-      return (sessions || []).find(function (sess) { return sess.id === id; });
-    }
+    function findSession(id) { return (sessions || []).find(function (sess) { return sess.id === id; }); }
     function updateSessionField(id, field, value) {
       const sess = findSession(id);
       if (!sess) return;
@@ -1409,7 +1257,6 @@
       r.style.display = "block";
       setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
     }
-
     function renderTemplates() {
       const list = document.getElementById("templateList");
       if (!list) return;
@@ -1422,27 +1269,20 @@
         const t = templates[name] || {};
         const fields = countTemplateFields(t);
         const when = t.savedAt || "—";
-        return (
-          '<div class="template-item">' +
-            '<div class="t-info">' +
-              '<div class="t-name">' + esc(name) + '</div>' +
-              '<div class="t-meta">' + fields + ' filled field(s) · Saved ' + esc(when) + '</div>' +
-            '</div>' +
-            '<div class="t-actions">' +
-              '<button type="button" class="primary small" data-tpl-apply="' + encodeURIComponent(name) + '">Use on this week</button>' +
-              '<button type="button" class="danger small" data-tpl-delete="' + encodeURIComponent(name) + '">Delete</button>' +
-            '</div>' +
-          '</div>'
-        );
+        return '<div class="template-item"><div class="t-info"><div class="t-name">' + esc(name) + '</div>' +
+          '<div class="t-meta">' + fields + ' filled field(s) · Saved ' + esc(when) + '</div></div>' +
+          '<div class="t-actions">' +
+          '<button type="button" class="primary small" data-tpl-apply="' + encodeURIComponent(name) + '">Use on this week</button>' +
+          '<button type="button" class="danger small" data-tpl-delete="' + encodeURIComponent(name) + '">Delete</button>' +
+          '</div></div>';
       }).join("");
     }
-
     function saveCurrentAsTemplate() {
       if (!sessionOpen) { alert("Open a Save File first, then open Templates."); return; }
       collectFromDOM();
       const name = (document.getElementById("templateName").value || "").trim();
       if (!name) { alert("Type a template name first."); document.getElementById("templateName").focus(); return; }
-      if (!hasCurrentWork()) { if (!confirm("This week looks empty. Save it as a blank template anyway?")) return; }
+      if (!hasCurrentWork() && !confirm("This week looks empty. Save it as a blank template anyway?")) return;
       if (templates[name] && !confirm('Overwrite template "' + name + '"?')) return;
       templates[name] = {
         canFocus: (data.canFocus || "").toString(),
@@ -1455,14 +1295,13 @@
       renderTemplates();
       showToast('Template saved: "' + name + '"');
     }
-
     function applyTemplateToCurrentWeek(name) {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
-      if (!templates[name]) { alert('Template "' + name + '" was not found. Try saving it again.'); renderTemplates(); return; }
+      if (!templates[name]) { alert('Template "' + name + '" was not found.'); renderTemplates(); return; }
       const t = templates[name];
       const fields = countTemplateFields(t);
       const weekLabel = (document.getElementById("weekOf").value.trim() || currentWeek || "this week");
-      if (!confirm('Apply template "' + name + '" to the entire current week?\n\nWeek: ' + weekLabel + '\nThis replaces C.A.N., notes, and all four blocks Mon–Fri.\nTemplate fields: ' + fields + '\nWeek name stays the same.\nRoster, POWER list, and sessions are not changed.')) return;
+      if (!confirm('Apply template "' + name + '" to the entire current week?\n\nWeek: ' + weekLabel + '\nThis replaces C.A.N., notes, and all four blocks Mon–Fri.\nTemplate fields: ' + fields + '\nWeek name stays the same.\nRoster and DIY are not changed.')) return;
       collectFromDOM();
       if (hasCurrentWork()) {
         const keep = confirm("Archive your current week content first?\nOK = archive then apply\nCancel = apply without archiving");
@@ -1491,7 +1330,6 @@
       switchPage("dashboard");
       showToast("Template applied to entire week");
     }
-
     function deleteTemplate(name) {
       if (!templates[name]) return;
       if (!confirm('Delete template "' + name + '"?')) return;
@@ -1500,14 +1338,11 @@
       renderTemplates();
       showToast("Template deleted", true);
     }
-
     async function copyText(text, btn) {
       text = (text || "").toString();
       if (!text) return;
       let ok = false;
-      try {
-        if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; }
-      } catch (e) {}
+      try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; } } catch (e) {}
       if (!ok) {
         try {
           const ta = document.createElement("textarea");
@@ -1519,7 +1354,7 @@
         const prev = btn.textContent;
         btn.textContent = ok ? "Copied" : "Failed";
         btn.classList.toggle("copied", ok);
-        setTimeout(() => { btn.textContent = prev; btn.classList.remove("copied"); }, 1200);
+        setTimeout(function () { btn.textContent = prev; btn.classList.remove("copied"); }, 1200);
       }
     }
     async function readClipboardText() {
@@ -1538,10 +1373,9 @@
         const prev = btn.textContent;
         btn.textContent = "Pasted";
         btn.classList.add("pasted");
-        setTimeout(() => { btn.textContent = prev; btn.classList.remove("pasted"); }, 1200);
+        setTimeout(function () { btn.textContent = prev; btn.classList.remove("pasted"); }, 1200);
       }
     }
-
     function mondayOf(d) {
       const x = new Date(d); const day = x.getDay(); const diff = day === 0 ? -6 : 1 - day;
       x.setDate(x.getDate() + diff); x.setHours(12,0,0,0); return x;
@@ -1559,13 +1393,12 @@
       document.getElementById("currentWeekLabel").textContent = "Editing: " + label;
       safeSave();
     }
-
     function fillDupSelects() {
-      Object.keys(BLOCKS).forEach(b => {
+      Object.keys(BLOCKS).forEach(function (b) {
         const from = document.getElementById("dupFrom-" + b);
         const to = document.getElementById("dupTo-" + b);
         if (!from || !to) return;
-        const opts = DAYS.map(d => '<option value="' + d + '">' + d + "</option>").join("");
+        const opts = DAYS.map(function (d) { return '<option value="' + d + '">' + d + "</option>"; }).join("");
         from.innerHTML = opts; to.innerHTML = opts; if (DAYS[1]) to.value = DAYS[1];
       });
     }
@@ -1586,10 +1419,9 @@
       const from = document.getElementById("dupFrom-" + block).value;
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
       const src = cloneDay(data.blocks[block][from]);
-      DAYS.forEach(d => { if (d !== from) data.blocks[block][d] = cloneDay(src); });
+      DAYS.forEach(function (d) { if (d !== from) data.blocks[block][d] = cloneDay(src); });
       renderAllDayGrids(); safeSave(); showToast(from + " applied to all days");
     }
-
     function preserveCurrentWorkBeforeSwitch(nextName) {
       collectFromDOM();
       if (!hasCurrentWork()) return true;
@@ -1609,10 +1441,9 @@
       persistLocal();
       return true;
     }
-
     function renderTitleSlots() {
       const box = document.getElementById("saveSlots");
-      box.innerHTML = [1,2,3].map(n => {
+      box.innerHTML = [1,2,3].map(function (n) {
         const slot = saveSystem.slots[n];
         const has = hasContent(slot);
         const archives = Object.keys(slot.archive || {}).length;
@@ -1626,7 +1457,6 @@
           '<button type="button" class="danger" data-wipe="' + n + '">Wipe</button></div></div>';
       }).join("");
     }
-
     function enterSlot(n) {
       n = Number(n);
       if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) safeSave();
@@ -1652,6 +1482,7 @@
       powerRoster = deepClone(slot.powerRoster || []);
       sessions = deepClone(slot.sessions || []);
       diyProjects = deepClone(slot.diyProjects || []);
+      seedOfficialPowerIfEmpty();
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -1660,7 +1491,6 @@
       updateSaveMeta();
       previewSource = null;
     }
-
     function wipeSlot(n) {
       n = Number(n);
       if (!confirm("Wipe Save File " + n + " completely?")) return;
@@ -1671,7 +1501,6 @@
       persistLocal(); pushCloud(); renderTitleSlots();
       showToast("Save File " + n + " wiped", true);
     }
-
     function returnToTitle() {
       if (sessionOpen) safeSave();
       sessionOpen = false;
@@ -1680,7 +1509,6 @@
       document.getElementById("title-screen").style.display = "flex";
       renderTitleSlots();
     }
-
     function applyUI() {
       document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
       document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? "Editing: " + currentWeek : "Current week";
@@ -1696,11 +1524,10 @@
       if (document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
       updateSaveMeta();
     }
-
     function switchPage(id) {
       if (!id) return;
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
+      document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
       const page = document.getElementById("page-" + id);
       const nav = document.querySelector('.nav-item[data-page="' + id + '"]');
       if (page) page.classList.add("active");
@@ -1710,13 +1537,12 @@
       if (id === "roster") renderRoster();
       if (id === "diy") renderDiy();
     }
-
     function renderPreviewPage() {
       const target = saveSystem.activeSlot;
       document.getElementById("previewTargetLabel").textContent = target || "—";
-      document.getElementById("previewSourceButtons").innerHTML = [1,2,3].map(n =>
-        '<button type="button" class="source-btn' + (previewSource===n?" active":"") + '" data-preview-src="' + n + '">Save File ' + n + (n===target?" (current)":"") + "</button>"
-      ).join("");
+      document.getElementById("previewSourceButtons").innerHTML = [1,2,3].map(function (n) {
+        return '<button type="button" class="source-btn' + (previewSource===n?" active":"") + '" data-preview-src="' + n + '">Save File ' + n + (n===target?" (current)":"") + "</button>";
+      }).join("");
       const panel = document.getElementById("previewPanel");
       if (!previewSource) {
         panel.innerHTML = '<p style="color:var(--text-muted);">Select a Save File above to preview it.</p>';
@@ -1725,7 +1551,7 @@
       let slot;
       if (previewSource === saveSystem.activeSlot && sessionOpen) {
         collectFromDOM();
-        slot = { currentWeek, data, archive, lastSaved: saveSystem.slots[previewSource].lastSaved };
+        slot = { currentWeek: currentWeek, data: data, archive: archive, lastSaved: saveSystem.slots[previewSource].lastSaved };
       } else slot = saveSystem.slots[previewSource];
       const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
       const same = previewSource === saveSystem.activeSlot;
@@ -1739,7 +1565,6 @@
           : '<button type="button" class="primary" id="btnTransferPreview">Transfer data → replace Save File ' + target + "</button>") +
         "</div>";
     }
-
     function transferPreviewToCurrent() {
       if (!sessionOpen || !saveSystem.activeSlot || !previewSource || previewSource === saveSystem.activeSlot) return;
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
@@ -1767,7 +1592,6 @@
       showToast("Transferred into Save File " + saveSystem.activeSlot);
       switchPage("dashboard");
     }
-
     function archiveCurrentWeek() {
       if (!sessionOpen) return;
       collectFromDOM();
@@ -1780,7 +1604,6 @@
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
       safeSave(); renderHistory();
     }
-
     function startNewWeek() {
       if (!sessionOpen) return;
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
@@ -1794,12 +1617,9 @@
       document.getElementById("weekNotes").value = "";
       renderAllDayGrids(); updateDashboard(); renderHistory(); safeSave();
     }
-
     function loadFromArchive(name) {
       if (!archive[name]) return;
-      if (currentWeek === name) {
-        collectFromDOM(); archive[name] = snapshotCurrentWeek(); safeSave(); return;
-      }
+      if (currentWeek === name) { collectFromDOM(); archive[name] = snapshotCurrentWeek(); safeSave(); return; }
       if (!preserveCurrentWorkBeforeSwitch(name)) return;
       if (!confirm('Load archived week "' + name + '"?')) return;
       const entry = archive[name];
@@ -1818,62 +1638,53 @@
       renderAllDayGrids(); updateDashboard(); renderHistory(); safeSave();
       switchPage("dashboard");
     }
-
     function deleteFromArchive(name) {
       if (!confirm('Delete "' + name + '" from Archives?')) return;
       delete archive[name]; safeSave(); renderHistory(); showToast("Deleted from archive", true);
     }
-
     function renderHistory() {
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive || {}).sort().reverse();
-      if (!keys.length) {
-        list.innerHTML = '<div class="empty-history">No archived weeks yet.</div>';
-        return;
-      }
-      list.innerHTML = keys.map(name => {
+      if (!keys.length) { list.innerHTML = '<div class="empty-history">No archived weeks yet.</div>'; return; }
+      list.innerHTML = keys.map(function (name) {
         const can = (archive[name].canFocus || "").toString().trim();
         const canLine = can
           ? '<div class="can-preview"><strong>C.A.N.:</strong> ' + esc(can.length > 120 ? can.slice(0,120)+"…" : can) + "</div>"
           : '<div class="can-preview">No C.A.N. Focus stored</div>';
-        return '<div class="history-item">' +
-          "<div><h3>" + esc(name) + "</h3><div class=\"meta\">Saved: " + (archive[name].savedAt || "Unknown") + "</div>" + canLine + "</div>" +
+        return '<div class="history-item"><div><h3>' + esc(name) + '</h3><div class="meta">Saved: ' + (archive[name].savedAt || "Unknown") + "</div>" + canLine + "</div>" +
           '<div class="history-actions">' +
           '<button type="button" class="primary" data-arch-load="' + encodeURIComponent(name) + '">Load</button>' +
           '<button type="button" class="danger" data-arch-del="' + encodeURIComponent(name) + '">Delete</button>' +
           "</div></div>";
       }).join("");
     }
-
     function collectFromDOM() {
       if (!sessionOpen) return;
       data.canFocus = document.getElementById("canFocus").value || "";
       data.weekNotes = document.getElementById("weekNotes").value || "";
       data.showAttachments = true;
-      document.querySelectorAll(".days-grid").forEach(grid => {
+      document.querySelectorAll(".days-grid").forEach(function (grid) {
         const block = grid.dataset.block;
         if (!data.blocks[block]) data.blocks[block] = emptyBlock();
-        grid.querySelectorAll(".day-card").forEach(card => {
+        grid.querySelectorAll(".day-card").forEach(function (card) {
           const day = card.dataset.day;
           const existing = data.blocks[block][day] || emptyDay();
           data.blocks[block][day] = {
-            title: card.querySelector('[data-field="title"]')?.value || "",
-            objective: card.querySelector('[data-field="objective"]')?.value || "",
-            activities: card.querySelector('[data-field="activities"]')?.value || "",
-            notes: card.querySelector('[data-field="notes"]')?.value || "",
+            title: (card.querySelector('[data-field="title"]') || {}).value || "",
+            objective: (card.querySelector('[data-field="objective"]') || {}).value || "",
+            activities: (card.querySelector('[data-field="activities"]') || {}).value || "",
+            notes: (card.querySelector('[data-field="notes"]') || {}).value || "",
             noSchool: card.classList.contains("no-school"),
             files: existing.files || []
           };
         });
       });
     }
-
     function toggleNoSchool(b, d) {
       if (!data.blocks[b]) data.blocks[b] = emptyBlock();
       data.blocks[b][d].noSchool = !data.blocks[b][d].noSchool;
       renderAllDayGrids(); safeSave();
     }
-
     function isImageName(n,u){ return /\.(jpe?g|png|gif|webp)$/i.test(n||"") || /\.(jpe?g|png|gif|webp)(\?|$)/i.test(u||""); }
     function isPdfName(n,u){ return /\.pdf$/i.test(n||"") || /\.pdf(\?|$)/i.test(u||""); }
     function pdfPageUrl(publicId, page) {
@@ -1888,7 +1699,6 @@
         return m[1].replace(/\.[a-z0-9]+$/i, "");
       } catch (e) { return ""; }
     }
-
     async function handleFile(b, d, fileList) {
       const files = Array.from(fileList || []);
       if (!files.length) return;
@@ -1917,11 +1727,10 @@
       renderAllDayGrids(); safeSave();
     }
     function removeFile(b, d, idx) {
-      if (!data.blocks[b]?.[d]?.files) return;
+      if (!data.blocks[b] || !data.blocks[b][d] || !data.blocks[b][d].files) return;
       data.blocks[b][d].files.splice(idx, 1);
       renderAllDayGrids(); safeSave();
     }
-
     function renderDayCard(b, day) {
       const e = migrateDay((data.blocks[b] && data.blocks[b][day]) || emptyDay());
       if (e.noSchool) {
@@ -1930,7 +1739,7 @@
           '<button type="button" class="day-close" data-noschool="' + b + '|' + day + '">✕</button></div>' +
           '<div class="no-school-message"><strong>No School</strong>There was no session this day due to a holiday or event.</div></div>';
       }
-      let filesHtml = (e.files || []).map((f, i) => {
+      var filesHtml = (e.files || []).map(function (f, i) {
         const isImg = isImageName(f.fileName, f.fileUrl);
         const preview = isImg && f.fileUrl
           ? '<div class="af-preview"><img src="' + esc(f.fileUrl) + '" alt=""></div>'
@@ -1942,7 +1751,6 @@
       const drop = canAdd
         ? '<div class="drop-zone" data-drop="' + b + "|" + day + '"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple />📄 Add image/PDF (' + (e.files||[]).length + "/" + MAX_FILES + ")</div>"
         : '<div class="files-cap">File limit reached (' + MAX_FILES + ")</div>";
-
       return '<div class="day-card" data-day="' + day + '">' +
         '<div class="day-card-header"><span>' + day + '</span>' +
         '<button type="button" class="day-close" data-noschool="' + b + "|" + day + '">✕</button></div>' +
@@ -1957,18 +1765,18 @@
         '<textarea data-field="notes" rows="2">' + esc(e.notes) + "</textarea></div>" +
         filesHtml + drop + "</div></div>";
     }
-
     function renderAllDayGrids() {
-      document.querySelectorAll(".days-grid").forEach(g => {
-        g.innerHTML = DAYS.map(d => renderDayCard(g.dataset.block, d)).join("");
+      document.querySelectorAll(".days-grid").forEach(function (g) {
+        g.innerHTML = DAYS.map(function (d) { return renderDayCard(g.dataset.block, d); }).join("");
       });
     }
     function updateDashboard() {
       const grid = document.getElementById("dashboardGrid");
-      grid.innerHTML = Object.entries(BLOCKS).map(([k, info]) => {
+      grid.innerHTML = Object.entries(BLOCKS).map(function (pair) {
+        const k = pair[0]; const info = pair[1];
         const bd = data.blocks[k] || emptyBlock();
         let filled = 0;
-        DAYS.forEach(d => {
+        DAYS.forEach(function (d) {
           const e = bd[d];
           if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||(e.files&&e.files.length))) filled++;
         });
@@ -1977,24 +1785,22 @@
           (filled ? filled + " of 5 days planned" : "No lessons yet") + "</div></div>";
       }).join("");
     }
-
     function printAttachmentHtml(e) {
       const files = e.files || [];
       if (!files.length) return "";
       let html = "";
-      files.forEach(f => {
+      files.forEach(function (f) {
         html += '<div class="print-attachment"><strong>Worksheet: ' + esc(f.fileName || "Document") + '</strong><div class="print-doc-preview">';
         const url = f.fileUrl || "";
         const pid = f.publicId || publicIdFromUrl(url);
         if (isImageName(f.fileName, url) && url) html += '<img src="' + esc(url) + '" alt="">';
         else if (isPdfName(f.fileName, url) && pid) {
-          for (let p = 1; p <= 3; p++) html += '<div class="page-label">Page ' + p + '</div><img src="' + pdfPageUrl(pid,p) + '" alt="" onerror="this.style.display=\'none\'">';
+          for (var p = 1; p <= 3; p++) html += '<div class="page-label">Page ' + p + '</div><img src="' + pdfPageUrl(pid,p) + '" alt="" onerror="this.style.display=\'none\'">';
         } else if (url) html += "<em>" + esc(f.fileName) + "</em>";
         html += "</div></div>";
       });
       return html;
     }
-
     function buildPrintHtml() {
       collectFromDOM();
       const week = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
@@ -2005,42 +1811,38 @@
       if ((data.weekNotes || "").trim()) {
         html += '<div class="week-notes"><strong>Week Notes / Reminders:</strong><br>' + esc(data.weekNotes).replace(/\n/g,"<br>") + "</div>";
       }
-      DAYS.forEach(day => {
+      DAYS.forEach(function (day) {
         let no = true;
-        Object.keys(BLOCKS).forEach(k => { if (!(data.blocks[k]?.[day]?.noSchool)) no = false; });
+        Object.keys(BLOCKS).forEach(function (k) { if (!(data.blocks[k] && data.blocks[k][day] && data.blocks[k][day].noSchool)) no = false; });
         html += '<div class="print-day"><div class="print-day-header' + (no?" no-school":"") + '">' + day + (no?" — NO SCHOOL":"") + "</div>";
-        if (no) {
-          html += '<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>';
-        } else {
-          Object.entries(BLOCKS).forEach(([k,info]) => {
-            const e = migrateDay(data.blocks[k]?.[day] || emptyDay());
-            if (e.noSchool) {
-              html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time +
-                '</div><div class="print-no-school-note" style="margin:0;padding:0.5rem;">There was no session this day due to a holiday or event.</div></div>';
-            } else {
-              html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time + "</div>" +
-                '<div class="print-field"><strong>Title:</strong> ' + (esc(e.title)||"—") + "</div>" +
-                '<div class="print-field"><strong>Objective:</strong> ' + (esc(e.objective)||"—") + "</div>" +
-                '<div class="print-field"><strong>Activities:</strong> ' + (esc(e.activities).replace(/\n/g,"<br>")||"—") + "</div>" +
-                '<div class="print-field"><strong>Notes:</strong> ' + (esc(e.notes).replace(/\n/g,"<br>")||"—") + "</div>" +
-                printAttachmentHtml(e) + "</div>";
-            }
-          });
-        }
+        if (no) html += '<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>';
+        else Object.keys(BLOCKS).forEach(function (k) {
+          const info = BLOCKS[k];
+          const e = migrateDay((data.blocks[k] && data.blocks[k][day]) || emptyDay());
+          if (e.noSchool) {
+            html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time +
+              '</div><div class="print-no-school-note" style="margin:0;padding:0.5rem;">There was no session this day due to a holiday or event.</div></div>';
+          } else {
+            html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time + "</div>" +
+              '<div class="print-field"><strong>Title:</strong> ' + (esc(e.title)||"—") + "</div>" +
+              '<div class="print-field"><strong>Objective:</strong> ' + (esc(e.objective)||"—") + "</div>" +
+              '<div class="print-field"><strong>Activities:</strong> ' + (esc(e.activities).replace(/\n/g,"<br>")||"—") + "</div>" +
+              '<div class="print-field"><strong>Notes:</strong> ' + (esc(e.notes).replace(/\n/g,"<br>")||"—") + "</div>" +
+              printAttachmentHtml(e) + "</div>";
+          }
+        });
         html += "</div>";
       });
       html += '<div class="print-footer">Mr. Enciso’s Scholastic Batch · Save File ' + saveSystem.activeSlot + " · La Viña Middle School</div>";
       return html;
     }
-
     function generatePrintReport() {
       if (!sessionOpen) return;
       const r = document.getElementById("printReport");
       r.innerHTML = buildPrintHtml();
       r.style.display = "block";
-      setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 2000); }, 900);
+      setTimeout(function () { window.print(); setTimeout(function () { r.style.display="none"; }, 2000); }, 900);
     }
-
     async function downloadPdf() {
       if (!sessionOpen) return;
       if (typeof html2pdf === "undefined") { showToast("PDF library not loaded — use Print", true); return; }
@@ -2058,9 +1860,8 @@
         }).from(r).save();
         showToast("PDF downloaded");
       } catch (e) { showToast("PDF failed — try Print", true); }
-      finally { setTimeout(() => { r.style.display = "none"; }, 500); }
+      finally { setTimeout(function () { r.style.display = "none"; }, 500); }
     }
-
     document.addEventListener("click", async function (ev) {
       const t = ev.target;
       const nav = t.closest(".nav-item");
@@ -2080,29 +1881,18 @@
       if (t.id === "btnBulkAdd" || t.closest("#btnBulkAdd")) { addBulkStudents(); return; }
       if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster")) { printRoster(); return; }
       if (t.id === "btnWipeRoster" || t.closest("#btnWipeRoster")) { wipeActiveRoster(); return; }
+      if (t.id === "btnLoadOfficialPower" || t.closest("#btnLoadOfficialPower")) { loadOfficialPowerList(); return; }
       if (t.id === "btnAddDiy" || t.closest("#btnAddDiy")) { addDiyProject(); return; }
       const delD = t.closest("[data-del-diy]");
-      if (delD) {
-        const tr = delD.closest("[data-did]");
-        if (tr) removeDiy(tr.getAttribute("data-did"));
-        return;
-      }
+      if (delD) { const tr = delD.closest("[data-did]"); if (tr) removeDiy(tr.getAttribute("data-did")); return; }
       const delS = t.closest("[data-del-student]");
-      if (delS) {
-        const tr = delS.closest("[data-sid]");
-        if (tr) removeStudent(tr.getAttribute("data-sid"));
-        return;
-      }
+      if (delS) { const tr = delS.closest("[data-sid]"); if (tr) removeStudent(tr.getAttribute("data-sid")); return; }
       const bucksBtn = t.closest("[data-bucks]");
       if (bucksBtn) {
         const tr = bucksBtn.closest("[data-sid]");
         if (tr) {
           const s = findStudent(tr.getAttribute("data-sid"));
-          if (s) {
-            s.bucks = Math.max(0, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks")));
-            renderRoster();
-            safeSave();
-          }
+          if (s) { s.bucks = Math.max(0, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks"))); renderRoster(); safeSave(); }
         }
         return;
       }
@@ -2146,34 +1936,19 @@
         await pasteIntoField(input, pasteBtn);
       }
     });
-
     document.addEventListener("change", function (ev) {
       const input = ev.target;
       const tr = input.closest && input.closest("[data-sid]");
-      if (tr && input.getAttribute("data-rf")) {
-        updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value);
-        return;
-      }
+      if (tr && input.getAttribute("data-rf")) { updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value); return; }
       const dtr = input.closest && input.closest("[data-did]");
-      if (dtr && input.getAttribute("data-df")) {
-        updateDiyField(dtr.getAttribute("data-did"), input.getAttribute("data-df"), input.value);
-        return;
-      }
-      if (input.getAttribute("data-sf") && input.getAttribute("data-sess")) {
-        updateSessionField(input.getAttribute("data-sess"), input.getAttribute("data-sf"), input.value);
-        return;
-      }
+      if (dtr && input.getAttribute("data-df")) { updateDiyField(dtr.getAttribute("data-did"), input.getAttribute("data-df"), input.value); return; }
+      if (input.getAttribute("data-sf") && input.getAttribute("data-sess")) { updateSessionField(input.getAttribute("data-sess"), input.getAttribute("data-sf"), input.value); return; }
       if (input.getAttribute("data-pick-sess") && input.getAttribute("data-pick-stu")) {
-        toggleSessionStudent(input.getAttribute("data-pick-sess"), input.getAttribute("data-pick-stu"), input.checked);
-        return;
+        toggleSessionStudent(input.getAttribute("data-pick-sess"), input.getAttribute("data-pick-stu"), input.checked); return;
       }
       if (input && input.type === "file") {
         const drop = input.closest("[data-drop]");
-        if (drop) {
-          const p = drop.getAttribute("data-drop").split("|");
-          handleFile(p[0], p[1], input.files);
-          input.value = "";
-        }
+        if (drop) { const p = drop.getAttribute("data-drop").split("|"); handleFile(p[0], p[1], input.files); input.value = ""; }
       }
     });
     document.addEventListener("input", function (ev) {
@@ -2196,8 +1971,7 @@
       const p = drop.getAttribute("data-drop").split("|");
       handleFile(p[0], p[1], ev.dataTransfer.files);
     });
-
-    document.getElementById("btnSave").onclick = () => safeSave();
+    document.getElementById("btnSave").onclick = function () { safeSave(); };
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
     document.getElementById("btnNewWeek").onclick = startNewWeek;
     document.getElementById("btnPrintReport").onclick = generatePrintReport;
@@ -2216,19 +1990,17 @@
       const opt = diyCat.options[diyCat.selectedIndex];
       if (opt && opt.getAttribute("data-level")) document.getElementById("diyLevel").value = opt.getAttribute("data-level");
     });
-    document.getElementById("btnLoadWeek").onclick = () => {
+    document.getElementById("btnLoadWeek").onclick = function () {
       if (!sessionOpen) return;
       const w = document.getElementById("weekOf").value.trim() || "default";
       currentWeek = w;
       document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: " + w : "Current week";
       safeSave();
     };
-
-    setInterval(() => { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
-    window.addEventListener("beforeunload", () => {
+    setInterval(function () { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
+    window.addEventListener("beforeunload", function () {
       if (sessionOpen && saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
     });
-
     loadLocal();
     loadTemplates();
     sessionOpen = false;
