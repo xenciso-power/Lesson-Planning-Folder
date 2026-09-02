@@ -157,9 +157,10 @@
       display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
       background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 0.9rem;
     }
+    .template-item .t-info { flex: 1; min-width: 0; }
     .template-item .t-name { font-size: 0.95rem; font-weight: 600; color: var(--gold-light); }
     .template-item .t-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
-    .template-item .t-actions { display: flex; gap: 0.4rem; }
+    .template-item .t-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
     .tpl-help {
       background: rgba(212,175,55,0.1); border: 1px solid var(--gold); border-radius: 8px;
       padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--gold-light); line-height: 1.45;
@@ -182,6 +183,7 @@
     }
     .preview-card h3 { color: var(--gold-light); margin-bottom: 0.5rem; }
     .preview-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .preview-actions { margin-top: 1.25rem; }
     .print-report { display: none; background: white; color: #111; padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
     .print-report h1 { font-size: 1.5rem; color: #1F4E79; border-bottom: 3px solid #D4AF37; padding-bottom: 0.4rem; margin-bottom: 0.5rem; }
     .print-report .meta { font-size: 0.95rem; margin-bottom: 1.25rem; color: #333; }
@@ -193,14 +195,21 @@
     .print-day-header { background: #1F4E79; color: white; padding: 0.5rem 1rem; font-weight: 700; font-size: 1.05rem; }
     .print-day-header.no-school { background: #6b7280; }
     .print-block { padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; }
+    .print-block:last-child { border-bottom: none; }
     .print-block-title { font-weight: 700; color: #1F4E79; font-size: 0.95rem; margin-bottom: 0.25rem; }
     .print-block-time { font-size: 0.8rem; color: #64748b; margin-bottom: 0.4rem; }
     .print-field { font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .print-field strong { color: #334155; }
     .print-attachment { margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; }
     .print-attachment strong { color: #1F4E79; display: block; margin-bottom: 0.5rem; }
-    .print-doc-preview img { max-width: 100%; max-height: 480px; border: 1px solid #cbd5e1; border-radius: 4px; display: block; margin: 0.35rem 0; }
+    .print-doc-preview img {
+      max-width: 100%; max-height: 480px; border: 1px solid #cbd5e1; border-radius: 4px;
+      display: block; margin: 0.35rem 0; page-break-inside: avoid;
+    }
+    .print-doc-preview .page-label { font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; }
     .print-no-school-note { background: #fef2f2; color: #991b1b; padding: 0.75rem 1rem; font-size: 0.9rem; font-style: italic; }
     .print-footer { margin-top: 2rem; font-size: 0.8rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; }
+
     .roster-stats { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:1rem; }
     .roster-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:0.65rem 0.9rem; min-width:120px; }
     .roster-stat .n { font-size:1.25rem; font-weight:700; color:var(--gold-light); }
@@ -209,12 +218,17 @@
     .roster-table { width:100%; border-collapse:collapse; min-width:820px; background:var(--surface); }
     .roster-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold-light); padding:0.6rem 0.55rem; border-bottom:2px solid var(--gold); background:var(--navy-dark); }
     .roster-table td { padding:0.4rem 0.45rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .roster-table tr:hover td { background:rgba(31,78,121,0.25); }
     .roster-table input, .roster-table select, .roster-table textarea {
       width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
       border-radius:5px; padding:0.35rem 0.45rem; font-size:0.82rem; font-family:inherit;
     }
+    .roster-table textarea { min-height:38px; resize:vertical; }
     .bucks-cell { display:flex; align-items:center; gap:0.25rem; }
     .bucks-cell input { width:64px; text-align:center; }
+    .diy-yes { color:#86efac; font-weight:600; }
+    .diy-no { color:var(--text-muted); }
+
     .bulk-box {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 0.85rem 1rem; margin-bottom: 1rem;
@@ -226,13 +240,16 @@
       color: var(--text); border-radius: 6px; padding: 0.55rem 0.7rem; font-family: inherit; font-size: 0.85rem;
     }
     .print-roster-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
-    .print-roster-table th, .print-roster-table td { border: 1px solid #cbd5e1; padding: 0.4rem 0.5rem; font-size: 0.88rem; text-align: left; }
+    .print-roster-table th, .print-roster-table td {
+      border: 1px solid #cbd5e1; padding: 0.4rem 0.5rem; font-size: 0.88rem; text-align: left;
+    }
     .print-roster-table th { background: #1F4E79; color: white; }
+    .print-roster-table tr:nth-child(even) td { background: #f8fafc; }
     .class-group { margin: 0 0 1rem; }
     .class-group-head {
       background: var(--navy-dark); border: 1px solid var(--gold); border-bottom: none;
       color: var(--gold-light); font-weight: 700; font-size: 0.88rem;
-      padding: 0.55rem 0.75rem; display: flex; justify-content: space-between; align-items: center;
+      padding: 0.55rem 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
     }
     .class-group-head span { color: var(--text-muted); font-weight: 500; font-size: 0.78rem; }
     .class-group .roster-table-wrap { border-top-left-radius: 0; border-top-right-radius: 0; }
@@ -254,13 +271,14 @@
       .nav-item { flex-shrink: 0; min-width: 120px; margin-bottom: 0; }
     }
   </style>
-</head><body>
+</head>
+<body>
   <div id="title-screen">
     <img class="title-logo" src="assets/xe-logo.jpg" alt="XE Logo" />
     <div class="title-welcome">Welcome, X</div>
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
-    <div class="title-footer">Open a Save File first. Everything on a Save File travels together: plans, rosters, sessions, DIY builders, archives, templates.</div>
+    <div class="title-footer">Open a Save File first. Templates apply to the entire current week.</div>
   </div>
 
   <div id="main-app">
@@ -296,7 +314,7 @@
         <div class="nav-item" data-page="diy"><span class="block-name">🛠️ DIY Projects</span><span class="block-time">EHDW Builders</span></div>
         <div class="nav-item" data-page="history" style="margin-top:1.25rem;"><span class="block-name">📁 Archives</span><span class="block-time">Permanent</span></div>
         <div class="nav-item" data-page="templates"><span class="block-name">📋 Templates</span><span class="block-time">Apply to week</span></div>
-        <div class="nav-item" data-page="preview"><span class="block-name">🔁 Preview / Transfer</span><span class="block-time">Save → Save</span></div>
+        <div class="nav-item" data-page="preview"><span class="block-name">☁️ Cloud Backup</span><span class="block-time">Load if needed</span></div>
       </nav>
 
       <main class="content">
@@ -317,7 +335,7 @@
             </div>
           </div>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
-          <p class="notice">Times are subject to change. Templates fill every day block for this week. Roster and DIY stay with this Save File.</p>
+          <p class="notice">Times are subject to change. Templates fill every day block for this week.</p>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -376,10 +394,11 @@
           <div class="days-grid" data-block="spark"></div>
         </section>
 
+
         <section id="page-roster" class="page">
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">Rosters</h2>
           <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
-            Three year-round tools on this Save File: your 8th grade class, the full POWER program, and sessions. DIY projects only accept students whose permission slip is Yes.
+            Three distinct year-round tools on this Save File: your 8th grade class, the full POWER program, and sessions you staff by picking students.
           </p>
           <div class="toolbar-row" style="margin-bottom:0.85rem;">
             <button type="button" class="primary" id="tabRosterClass" data-roster-view="class">My 8th Grade Class</button>
@@ -411,14 +430,16 @@
             </div>
             <div class="bulk-box">
               <h3>Add many students at once</h3>
-              <p id="bulkHelp">One name per line. POWER list format: <strong>First Name, Last Name - Grade</strong>.</p>
+              <p id="bulkHelp">One name per line. POWER list format: <strong>First Name, Last Name - Grade</strong> (example: Maria, Lopez - 8).</p>
               <textarea id="bulkStudents" placeholder="Maria, Lopez - 8&#10;Jose, Ramirez - 7"></textarea>
               <div class="toolbar-row" style="margin:0.6rem 0 0;">
                 <button type="button" class="primary" id="btnBulkAdd">Add list to this roster</button>
               </div>
             </div>
             <div id="rosterTables"></div>
-          </div>          <div id="rosterSessionsWrap" style="display:none;">
+          </div>
+
+          <div id="rosterSessionsWrap" style="display:none;">
             <div class="roster-stats" id="sessionStats"></div>
             <div class="bulk-box">
               <h3>New session</h3>
@@ -448,8 +469,8 @@
         <section id="page-diy" class="page">
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">DIY Builders™ Projects</h2>
           <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
-            Catalog from <a href="https://www.ehdw.com/diy-woodworking-and-electrical-projects" target="_blank" rel="noopener" style="color:var(--gold-light);">ehdw.com</a>.
-            Assign students to a project for its full date range. Only students with a <strong>Yes</strong> permission slip appear in the picker. Builders stay on this Save File when you change weeks.
+            Catalog from <a href="https://www.ehdw.com/diy-woodworking-and-electrical-projects" target="_blank" rel="noopener" style="color:var(--gold-light);">Elemental Hardware Enrichment (ehdw.com)</a>.
+            Assign students to a project for its full date range. Only students with a <strong>Yes</strong> permission slip appear in the picker.
           </p>
           <div class="roster-stats" id="diyStats"></div>
           <div class="bulk-box">
@@ -479,10 +500,14 @@
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <div class="history-list" id="historyList"></div>
         </section>
+
         <section id="page-templates" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Week Templates</h2>
           <div class="tpl-help">
-            Templates live on this Save File with everything else. Applying a template fills the week only. Roster, sessions, and DIY builders stay put.
+            <strong>How this works:</strong><br>
+            1) Fill out a week the way you want it (all blocks / days).<br>
+            2) Save it as a template below.<br>
+            3) Later, open any week and click <strong>Use on this week</strong> — it replaces C.A.N., notes, and every SEL / Intervention / Enrichment / SPARK plan Mon–Fri. Your week name stays the same.
           </div>
           <div class="toolbar-row">
             <input type="text" id="templateName" placeholder="Template name (e.g. Standard SEL week)…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.45rem 0.75rem;border-radius:6px;min-width:220px;flex:1;" />
@@ -490,17 +515,24 @@
           </div>
           <div class="template-list" id="templateList"></div>
         </section>
+
         <section id="page-preview" class="page">
-          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Preview / Transfer</h2>
-          <div class="preview-banner"><strong>Preview only.</strong> Transfer replaces the entire target Save File: plans, archives, both rosters, sessions, DIY builders, and templates.</div>
+          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Cloud Backup</h2>
+          <div class="preview-banner">This page is the last full backup on JSONBin. Refresh it, preview each Save File, and load it onto this device only if you want that cloud copy.</div>
+          <div class="toolbar-row">
+            <button type="button" class="primary" id="btnRefreshCloud">Refresh cloud backup</button>
+            <span id="previewTargetLabel" style="font-size:0.85rem;color:var(--text-muted);"></span>
+          </div>
           <div class="preview-source-row" id="previewSourceButtons"></div>
           <div id="previewPanel"></div>
         </section>
       </main>
     </div>
   </div>
+
   <div class="print-report" id="printReport"></div>
   <div class="toast" id="toast"></div>
+
   <script>
   (function () {
     const BIN_ID = "6a6cfe28f5f4af5e29db8208";
@@ -520,6 +552,7 @@
       enrichment: { name: "ENRICHMENT", time: "3:49 – 4:15" },
       spark: { name: "SPARK", time: "4:19 – 5:00" }
     };
+
     let saveSystem = { activeSlot: null, slots: { 1: emptySlot(), 2: emptySlot(), 3: emptySlot() } };
     let currentWeek = "default";
     let data = emptyData();
@@ -533,6 +566,7 @@
     let previewSource = null;
     let sessionOpen = false;
     let lastCloudOk = null;
+
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
     function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], sessions: [], diyProjects: [], templates: {}, lastSaved: null }; }
     function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", teacher:"", diy:"No", slip:"No", bucks:0, grade:"8", notes:"", source:"" }; }
@@ -641,20 +675,27 @@
       ];
     }
     function seedOfficialPowerIfEmpty() {
-      if (!Array.isArray(powerRoster) || powerRoster.length === 0) powerRoster = officialPowerRoster();
+      if (!Array.isArray(powerRoster) || powerRoster.length === 0) {
+        powerRoster = officialPowerRoster();
+      }
     }
     function loadOfficialPowerList() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
       const n = officialPowerRoster().length;
-      if (powerRoster.length && !confirm("Replace the POWER Program list with the official " + n + " students?")) return;
+      if (powerRoster.length && !confirm("Replace the POWER Program list with the official " + n + " students (teachers and rooms included)?")) return;
       powerRoster = officialPowerRoster();
       rosterView = "power";
       renderRoster();
       safeSave();
+      showToast("Official POWER list loaded (" + n + ")");
     }
     function emptySession() { return { id: "ss"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", className:"DIY", days:"", startTime:"", endTime:"", notes:"", studentIds: [] }; }
     function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
-    function emptyBlock() { const d = {}; DAYS.forEach(function (day) { d[day] = emptyDay(); }); return d; }
+    function emptyBlock() {
+      const d = {};
+      DAYS.forEach(day => d[day] = emptyDay());
+      return d;
+    }
     function migrateDay(d) {
       if (!d) return emptyDay();
       if (!Array.isArray(d.files)) {
@@ -669,13 +710,15 @@
       if (typeof d.canFocus !== "string") d.canFocus = d.canFocus || "";
       if (typeof d.weekNotes !== "string") d.weekNotes = d.weekNotes || "";
       if (!d.blocks) d.blocks = {};
-      Object.keys(BLOCKS).forEach(function (k) {
+      Object.keys(BLOCKS).forEach(k => {
         if (!d.blocks[k]) d.blocks[k] = emptyBlock();
-        DAYS.forEach(function (day) { d.blocks[k][day] = migrateDay(d.blocks[k][day] || emptyDay()); });
+        DAYS.forEach(day => { d.blocks[k][day] = migrateDay(d.blocks[k][day] || emptyDay()); });
       });
       return d;
     }
-    function deepClone(o) { return JSON.parse(JSON.stringify(o)); }    function snapshotCurrentWeek() {
+    function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+
+    function snapshotCurrentWeek() {
       collectFromDOM();
       return {
         canFocus: (data.canFocus || "").toString(),
@@ -685,6 +728,7 @@
         savedAt: new Date().toLocaleString()
       };
     }
+
     function updateSaveMeta() {
       const el = document.getElementById("saveMeta");
       if (!el) return;
@@ -696,7 +740,12 @@
       const cloud = lastCloudOk === true ? "Cloud OK" : lastCloudOk === false ? "Device only" : "—";
       el.textContent = "Last saved: " + when + " · " + cloud;
     }
-    function stampSlot(slot) { if (slot) slot.lastSaved = new Date().toISOString(); return slot; }
+
+    function stampSlot(slot) {
+      if (!slot) return slot;
+      slot.lastSaved = new Date().toISOString();
+      return slot;
+    }
     function normalizeSlot(slot) {
       if (!slot || typeof slot !== "object") slot = emptySlot();
       if (!slot.archive) slot.archive = {};
@@ -708,12 +757,20 @@
       slot.data = ensureBlocks(slot.data || emptyData());
       return slot;
     }
-    function slotStamp(slot) { const t = Date.parse((slot && slot.lastSaved) || 0); return isNaN(t) ? 0 : t; }
+    function slotStamp(slot) {
+      const t = Date.parse((slot && slot.lastSaved) || 0);
+      return isNaN(t) ? 0 : t;
+    }
     function writeWorkingIntoSlot() {
       if (!sessionOpen || !saveSystem.activeSlot) return;
       const slot = saveSystem.slots[saveSystem.activeSlot];
       slot.currentWeek = currentWeek;
-      slot.data = { canFocus: (data.canFocus || "").toString(), weekNotes: (data.weekNotes || "").toString(), blocks: deepClone(data.blocks || {}), showAttachments: true };
+      slot.data = {
+        canFocus: (data.canFocus || "").toString(),
+        weekNotes: (data.weekNotes || "").toString(),
+        blocks: deepClone(data.blocks || {}),
+        showAttachments: true
+      };
       slot.archive = deepClone(archive);
       slot.roster = deepClone(roster);
       slot.powerRoster = deepClone(powerRoster);
@@ -725,12 +782,19 @@
     function persistLocal() {
       try {
         if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
-        localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, savedAt: new Date().toISOString() }));
+        localStorage.setItem(LOCAL_KEY, JSON.stringify({
+          activeSlot: null,
+          slots: saveSystem.slots,
+          templates: templates,
+          savedAt: new Date().toISOString()
+        }));
         try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
+        try { localStorage.setItem(ROSTER_KEY + "_" + (saveSystem.activeSlot||0), JSON.stringify(roster)); } catch (e) {}
         updateSaveMeta();
         return true;
       } catch (e) { return false; }
     }
+
     function loadLocal() {
       try {
         const raw = localStorage.getItem(LOCAL_KEY);
@@ -745,6 +809,7 @@
         return true;
       } catch (e) { return false; }
     }
+
     function loadTemplates() {
       try {
         const raw = localStorage.getItem(TEMPLATE_KEY);
@@ -755,39 +820,63 @@
     function saveTemplatesStore() {
       try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
     }
+
     let cloudBusy = false;
-    function cloudPayload() { return { slots: saveSystem.slots, templates: templates, savedAt: new Date().toISOString() }; }
+    let cloudAgain = false;
+    let lastCloudRecord = null;
+    function cloudPayload() {
+      if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
+      return {
+        slots: saveSystem.slots,
+        templates: templates,
+        savedAt: new Date().toISOString()
+      };
+    }
     async function pushCloud() {
-      if (cloudBusy) return;
+      if (cloudBusy) { cloudAgain = true; return; }
       cloudBusy = true;
       persistLocal();
       try {
         setStatus("Backing up…");
+        const payload = cloudPayload();
         const res = await fetch(API_URL, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-          body: JSON.stringify(cloudPayload())
+          body: JSON.stringify(payload)
         });
         if (!res.ok) throw new Error("fail");
+        lastCloudRecord = deepClone(payload);
         lastCloudOk = true;
         setStatus("• Cloud synced " + new Date().toLocaleTimeString());
       } catch (e) {
         lastCloudOk = false;
         setStatus("• Saved on this device");
-      } finally { cloudBusy = false; updateSaveMeta(); }
+      } finally {
+        cloudBusy = false;
+        updateSaveMeta();
+        if (cloudAgain) { cloudAgain = false; pushCloud(); }
+      }
     }
+
     function applySlotToWorking(n) {
       const slot = normalizeSlot(saveSystem.slots[n]);
       saveSystem.slots[n] = slot;
       currentWeek = slot.currentWeek || "default";
-      data = { canFocus: (slot.data.canFocus || "").toString(), weekNotes: (slot.data.weekNotes || "").toString(), blocks: deepClone(slot.data.blocks || {}), showAttachments: true };
+      data = {
+        canFocus: (slot.data.canFocus || "").toString(),
+        weekNotes: (slot.data.weekNotes || "").toString(),
+        blocks: deepClone(slot.data.blocks || {}),
+        showAttachments: true
+      };
       ensureBlocks(data);
       archive = deepClone(slot.archive || {});
       roster = deepClone(slot.roster || []);
       powerRoster = deepClone(slot.powerRoster || []);
       sessions = deepClone(slot.sessions || []);
       diyProjects = deepClone(slot.diyProjects || []);
-      if (slot.templates && typeof slot.templates === "object" && Object.keys(slot.templates).length) templates = deepClone(slot.templates);
+      if (slot.templates && typeof slot.templates === "object" && Object.keys(slot.templates).length) {
+        templates = deepClone(slot.templates);
+      }
     }
     function mergeCloudRecord(record) {
       if (!record || !record.slots) return false;
@@ -798,39 +887,64 @@
         const cloudHas = hasContent(cloudSlot) || slotStamp(cloudSlot) > 0;
         const localHas = hasContent(localSlot) || slotStamp(localSlot) > 0;
         if (cloudHas && (!localHas || slotStamp(cloudSlot) > slotStamp(localSlot))) {
-          saveSystem.slots[n] = cloudSlot; changed = true;
-        } else saveSystem.slots[n] = localSlot;
+          saveSystem.slots[n] = cloudSlot;
+          changed = true;
+        } else {
+          saveSystem.slots[n] = localSlot;
+        }
       });
-      if (record.templates && typeof record.templates === "object" && Object.keys(record.templates).length >= Object.keys(templates || {}).length) {
-        templates = record.templates; changed = true;
+      if (record.templates && typeof record.templates === "object") {
+        const cloudKeys = Object.keys(record.templates);
+        const localKeys = Object.keys(templates || {});
+        if (cloudKeys.length >= localKeys.length) {
+          templates = record.templates;
+          changed = true;
+        }
       }
       return changed;
     }
-    async function pullCloud() {
+    async function pullCloud(forceApply) {
       try {
         setStatus("• Checking cloud…");
         const res = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": MASTER_KEY } });
         if (!res.ok) throw new Error("fail");
         const json = await res.json();
-        const changed = mergeCloudRecord(json.record || json);
+        const record = json.record || json;
+        lastCloudRecord = deepClone(record);
+        const changed = mergeCloudRecord(record);
         lastCloudOk = true;
         if (changed) {
           try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, savedAt: new Date().toISOString() })); } catch (e) {}
+          try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
           renderTitleSlots();
-          if (sessionOpen && saveSystem.activeSlot) { applySlotToWorking(saveSystem.activeSlot); applyUI(); }
+          if (sessionOpen && saveSystem.activeSlot) {
+            applySlotToWorking(saveSystem.activeSlot);
+            applyUI();
+          }
           setStatus("• Cloud loaded " + new Date().toLocaleTimeString());
-        } else setStatus("• Cloud up to date");
+        } else {
+          setStatus("• Cloud up to date");
+        }
         updateSaveMeta();
         return true;
       } catch (e) {
-        lastCloudOk = false; setStatus("• Saved on this device"); updateSaveMeta(); return false;
+        lastCloudOk = false;
+        setStatus("• Saved on this device");
+        updateSaveMeta();
+        return false;
       }
     }
-    async function maybePullCloud() { await pullCloud(); }
+    async function maybePullCloud() {
+      await pullCloud(true);
+    }
+
     function hasContent(slot) {
       if (!slot) return false;
-      if (Object.keys(slot.archive || {}).length) return true;
-      if ((slot.roster || []).length || (slot.powerRoster || []).length || (slot.sessions || []).length || (slot.diyProjects || []).length) return true;
+      if (Object.keys(slot.archive || {}).length > 0) return true;
+      if ((slot.roster || []).length > 0) return true;
+      if ((slot.powerRoster || []).length > 0) return true;
+      if ((slot.sessions || []).length > 0) return true;
+      if ((slot.diyProjects || []).length > 0) return true;
       const d = slot.data || {};
       if ((d.canFocus||"").trim() || (d.weekNotes||"").trim()) return true;
       for (const b of Object.values(d.blocks || {})) {
@@ -851,8 +965,8 @@
     }
     function countFilledDays(slot) {
       let n = 0;
-      Object.values((slot.data && slot.data.blocks) || {}).forEach(function (block) {
-        DAYS.forEach(function (day) {
+      Object.values(slot.data?.blocks || {}).forEach(block => {
+        DAYS.forEach(day => {
           const e = block[day];
           if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||(e.files&&e.files.length))) n++;
         });
@@ -861,29 +975,48 @@
     }
     function setStatus(msg) { const el = document.getElementById("cloudStatus"); if (el) el.textContent = msg; }
     function showToast(msg, err) {
-      const t = document.getElementById("toast"); t.textContent = msg; t.classList.toggle("error", !!err); t.classList.add("show");
-      setTimeout(function () { t.classList.remove("show"); }, 2500);
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.toggle("error", !!err);
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2500);
     }
+
     function safeSave() {
       if (!sessionOpen || !saveSystem.activeSlot) return;
       if (document.getElementById("main-app").style.display === "none") return;
-      collectFromDOM(); persistLocal(); pushCloud(); updateDashboard(); renderHistory();
+      collectFromDOM();
+      persistLocal();
+      pushCloud();
+      updateDashboard();
+      renderHistory();
     }
-    function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+    function esc(s) {
+      return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // ===== TEMPLATES — apply to ENTIRE current week =====
     function countTemplateFields(t) {
       let n = 0;
       if ((t.canFocus||"").trim()) n++;
       if ((t.weekNotes||"").trim()) n++;
-      Object.values(t.blocks || {}).forEach(function (block) {
-        DAYS.forEach(function (day) {
+      Object.values(t.blocks || {}).forEach(block => {
+        DAYS.forEach(day => {
           const e = block[day] || {};
           if (e.title || e.objective || e.activities || e.notes || (e.files && e.files.length)) n++;
         });
       });
       return n;
     }
-    function allStudents() { return (Array.isArray(roster) ? roster : []).concat(Array.isArray(powerRoster) ? powerRoster : []); }
-    function findAnyStudent(id) { return allStudents().find(function (st) { return st.id === id; }); }
+
+
+    function allStudents() {
+      return (Array.isArray(roster) ? roster : []).concat(Array.isArray(powerRoster) ? powerRoster : []);
+    }
+    function findAnyStudent(id) {
+      return allStudents().find(function (st) { return st.id === id; });
+    }
     function migrateStudent(st) {
       if (!st) return emptyStudent();
       if (!st.teacher) st.teacher = "";
@@ -892,10 +1025,19 @@
       return st;
     }
     function activeRosterList() {
-      if (rosterView === "power") { if (!Array.isArray(powerRoster)) powerRoster = []; powerRoster.forEach(migrateStudent); return powerRoster; }
-      if (!Array.isArray(roster)) roster = []; roster.forEach(migrateStudent); return roster;
+      if (rosterView === "power") {
+        if (!Array.isArray(powerRoster)) powerRoster = [];
+        powerRoster.forEach(migrateStudent);
+        return powerRoster;
+      }
+      if (!Array.isArray(roster)) roster = [];
+      roster.forEach(migrateStudent);
+      return roster;
     }
-    function setActiveRosterList(next) { if (rosterView === "power") powerRoster = next; else roster = next; }
+    function setActiveRosterList(next) {
+      if (rosterView === "power") powerRoster = next;
+      else roster = next;
+    }
     function updateRosterTabs() {
       const c = document.getElementById("tabRosterClass");
       const pw = document.getElementById("tabRosterPower");
@@ -910,10 +1052,22 @@
       if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
       if (note) {
         note.textContent = rosterView === "power"
-          ? "POWER Program — grouped by class. No computer numbers. Mark slip Yes to appear on DIY projects."
+          ? "POWER Program — grouped by class / teacher. No computer numbers on this list."
           : rosterView === "sessions"
-          ? "Sessions — pick students grouped by class."
-          : "My 8th Grade Class — computer numbers stay here only.";
+          ? "Sessions — pick students grouped by class. Check a name to add or remove them."
+          : "My 8th Grade Class — your own 24. Computer numbers stay on this list only.";
+      }
+      const help = document.getElementById("bulkHelp");
+      const bulk = document.getElementById("bulkStudents");
+      if (help) {
+        help.innerHTML = rosterView === "power"
+          ? 'One name per line. Format: <strong>First Name, Last Name - Grade</strong> (example: Maria, Lopez - 8). Teacher / DIY / slip can follow if you have them.'
+          : 'One name per line. Format: <strong>First Name, Last Name - Grade</strong>. Computer #, DIY, slip, and notes can follow.';
+      }
+      if (bulk) {
+        bulk.placeholder = rosterView === "power"
+          ? "Maria, Lopez - 8\nJose, Ramirez - 7"
+          : "Maria, Lopez - 8, C12\nJose, Ramirez - 8, C7, Yes";
       }
     }
     function classSortKey(teacher) {
@@ -933,29 +1087,38 @@
         groups[key].push(st);
       });
       return Object.keys(groups).sort(function (a, b) {
-        const ka = classSortKey(a), kb = classSortKey(b);
+        const ka = classSortKey(a);
+        const kb = classSortKey(b);
         if (ka === kb) return a.localeCompare(b);
         return ka < kb ? -1 : 1;
       }).map(function (teacher) {
-        return { teacher: teacher, students: groups[teacher].slice().sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); }) };
+        const students = groups[teacher].slice().sort(function (a, b) {
+          return (a.name || "").localeCompare(b.name || "");
+        });
+        return { teacher: teacher, students: students };
       });
-    }
-    function optSel(val, opts) {
-      return opts.map(function (o) { return '<option value="' + o + '"' + (val === o ? " selected" : "") + ">" + o + "</option>"; }).join("");
     }
     function studentRowHtml(st, showComp) {
       return '<tr data-sid="' + esc(st.id) + '">' +
         '<td><input data-rf="name" value="' + esc(st.name) + '" placeholder="Student name"></td>' +
         '<td><input data-rf="teacher" value="' + esc(st.teacher || "") + '" placeholder="Teacher"></td>' +
-        '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '"></td>' +
+        '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '" placeholder="8"></td>' +
         '<td><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></td>' +
         '<td><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></td>' +
-        (showComp ? '<td><input data-rf="computer" value="' + esc(st.computer) + '"></td>' : '') +
-        '<td><div class="bucks-cell"><button type="button" class="small" data-bucks="-1">−</button>' +
-        '<input data-rf="bucks" type="number" min="0" value="' + (Number(st.bucks)||0) + '">' +
-        '<button type="button" class="small" data-bucks="1">+</button></div></td>' +
-        '<td><textarea data-rf="notes" rows="1">' + esc(st.notes||"") + '</textarea></td>' +
-        '<td><button type="button" class="danger small" data-del-student>Remove</button></td></tr>';
+        (showComp ? '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' : '') +
+        '<td><div class="bucks-cell">' +
+          '<button type="button" class="small" data-bucks="-1">−</button>' +
+          '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
+          '<button type="button" class="small" data-bucks="1">+</button>' +
+        '</div></td>' +
+        '<td><textarea data-rf="notes" rows="1" placeholder="Notes">' + esc(st.notes||"") + '</textarea></td>' +
+        '<td><button type="button" class="danger small" data-del-student>Remove</button></td>' +
+      '</tr>';
+    }
+    function optSel(val, opts) {
+      return opts.map(function (o) {
+        return '<option value="' + o + '"' + (val === o ? " selected" : "") + ">" + o + "</option>";
+      }).join("");
     }
     function renderRoster() {
       updateRosterTabs();
@@ -969,11 +1132,12 @@
       const fSlip = (document.getElementById("rosterFilterSlip") || {}).value || "all";
       const diyYes = list.filter(function (st) { return st.diy === "Yes"; }).length;
       const slipYes = list.filter(function (st) { return st.slip === "Yes"; }).length;
+      const slipNo = list.filter(function (st) { return st.slip !== "Yes"; }).length;
       stats.innerHTML =
         '<div class="roster-stat"><div class="n">' + list.length + '</div><div class="l">Students</div></div>' +
         '<div class="roster-stat"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
         '<div class="roster-stat"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
-        '<div class="roster-stat"><div class="n">' + (list.length - slipYes) + '</div><div class="l">Slips missing / pending</div></div>';
+        '<div class="roster-stat"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
       const rows = list.filter(function (st) {
         if (fDiy !== "all" && st.diy !== fDiy) return false;
         if (fSlip !== "all" && st.slip !== fSlip) return false;
@@ -982,28 +1146,47 @@
       });
       const showComp = rosterView === "class";
       const cols = showComp ? 9 : 8;
-      const headHtml = "<th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th>" +
-        (showComp ? "<th>Computer #</th>" : "") + "<th>POWER Bucks</th><th>Notes</th><th></th>";
-      if (!list.length || !rows.length) {
-        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">' + (list.length ? "No matches." : "No students yet.") + "</td></tr></tbody></table></div>";
+      const headHtml =
+        '<th style="width:16%">Name</th>' +
+        '<th style="width:12%">Teacher</th>' +
+        '<th style="width:7%">Grade</th>' +
+        '<th style="width:11%">DIY</th>' +
+        '<th style="width:11%">Permission slip</th>' +
+        (showComp ? '<th style="width:10%">Computer #</th>' : '') +
+        '<th style="width:12%">POWER Bucks</th>' +
+        '<th>Notes</th>' +
+        '<th style="width:70px"></th>';
+      if (!list.length) {
+        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Click <strong>+ Add student</strong> or Load official POWER list.</td></tr></tbody></table></div>';
         return;
       }
-      wrap.innerHTML = groupStudentsByClass(rows).map(function (g) {
-        return '<div class="class-group"><div class="class-group-head">' + esc(g.teacher) + "<span>" + g.students.length + "</span></div>" +
-          '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + "</tr></thead><tbody>" +
-          g.students.map(function (st) { return studentRowHtml(st, showComp); }).join("") + "</tbody></table></div></div>";
+      if (!rows.length) {
+        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr></tbody></table></div>';
+        return;
+      }
+      const groups = groupStudentsByClass(rows);
+      wrap.innerHTML = groups.map(function (g) {
+        return '<div class="class-group">' +
+          '<div class="class-group-head">' + esc(g.teacher) + '<span>' + g.students.length + ' student' + (g.students.length === 1 ? "" : "s") + '</span></div>' +
+          '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody>' +
+          g.students.map(function (st) { return studentRowHtml(st, showComp); }).join("") +
+          '</tbody></table></div></div>';
       }).join("");
     }
     function findStudent(id) { return activeRosterList().find(function (st) { return st.id === id; }) || findAnyStudent(id); }
     function addStudent() {
       if (!sessionOpen) return;
-      if (rosterView === "sessions") rosterView = "power";
+      if (rosterView === "sessions") { rosterView = "power"; }
       const list = activeRosterList();
       const st = emptyStudent();
       if (rosterView === "class") { st.grade = "8"; st.teacher = "Mr. Enciso"; st.source = "class"; }
       else st.source = "power";
-      list.push(st); setActiveRosterList(list); renderRoster(); safeSave();
-    }    const EHDW_CATALOG = [
+      list.push(st);
+      setActiveRosterList(list);
+      renderRoster();
+      safeSave();
+    }
+    const EHDW_CATALOG = [
       { name: "Candy Dispenser", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
       { name: "Derby Car + Ramp", level: "Beginner", url: "https://www.ehdw.com/diy-derby-car-and-ramp" },
       { name: "Fairy Light Bottle", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
@@ -1040,8 +1223,14 @@
     function emptyDiy() {
       return { id: "d"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", level:"Advanced", startDate:"", endDate:"", status:"Planned", notes:"", url:"https://www.ehdw.com/diy-builders", studentIds: [] };
     }
-    function migrateDiy(pr) { if (!pr) return emptyDiy(); if (!Array.isArray(pr.studentIds)) pr.studentIds = []; return pr; }
-    function slipYesStudents() { return allStudents().filter(function (st) { return (st.slip || "") === "Yes"; }); }
+    function migrateDiy(pr) {
+      if (!pr) return emptyDiy();
+      if (!Array.isArray(pr.studentIds)) pr.studentIds = [];
+      return pr;
+    }
+    function slipYesStudents() {
+      return allStudents().filter(function (st) { return (st.slip || "") === "Yes"; });
+    }
     function pruneDiyAssignments() {
       if (!Array.isArray(diyProjects)) return;
       const allowed = {};
@@ -1056,16 +1245,19 @@
       if (!sel) return;
       sel.innerHTML = '<option value="">Choose an EHDW project…</option>' +
         EHDW_CATALOG.map(function (pr) {
-          return '<option value="' + esc(pr.name) + '" data-level="' + esc(pr.level) + '" data-url="' + esc(pr.url) + '">' + esc(pr.level) + " · " + esc(pr.name) + "</option>";
+          return '<option value="' + esc(pr.name) + '" data-level="' + esc(pr.level) + '" data-url="' + esc(pr.url) + '">' +
+            esc(pr.level) + " · " + esc(pr.name) + "</option>";
         }).join("");
     }
     function formatDiyDates(pr) {
-      const a = pr.startDate || "", b = pr.endDate || "";
+      const a = pr.startDate || "";
+      const b = pr.endDate || "";
       if (a && b) return a + " → " + b;
       return a || b || "No dates set";
     }
     function renderDiy() {
-      fillDiyCatalog(); pruneDiyAssignments();
+      fillDiyCatalog();
+      pruneDiyAssignments();
       const listEl = document.getElementById("diyList");
       const stats = document.getElementById("diyStats");
       if (!listEl || !stats) return;
@@ -1075,64 +1267,79 @@
       const active = diyProjects.filter(function (pr) { return pr.status === "In progress"; }).length;
       const done = diyProjects.filter(function (pr) { return pr.status === "Done"; }).length;
       const assigned = diyProjects.reduce(function (n, pr) { return n + (pr.studentIds || []).length; }, 0);
+      const eligible = slipYesStudents().length;
       stats.innerHTML =
         '<div class="roster-stat"><div class="n">' + diyProjects.length + '</div><div class="l">Projects</div></div>' +
         '<div class="roster-stat"><div class="n">' + planned + '</div><div class="l">Planned</div></div>' +
         '<div class="roster-stat"><div class="n">' + active + '</div><div class="l">In progress</div></div>' +
         '<div class="roster-stat"><div class="n">' + done + '</div><div class="l">Done</div></div>' +
         '<div class="roster-stat"><div class="n">' + assigned + '</div><div class="l">Builders assigned</div></div>' +
-        '<div class="roster-stat"><div class="n">' + slipYesStudents().length + '</div><div class="l">Slip = Yes</div></div>';
+        '<div class="roster-stat"><div class="n">' + eligible + '</div><div class="l">Slip = Yes (eligible)</div></div>';
       if (!diyProjects.length) {
-        listEl.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No projects yet.</p>';
+        listEl.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No projects yet. Choose one from the EHDW catalog or type a custom name.</p>';
         return;
       }
-      const eligibleGroups = groupStudentsByClass(slipYesStudents());
+      const classGroups = groupStudentsByClass(allStudents());
       listEl.innerHTML = diyProjects.map(function (pr) {
         migrateDiy(pr);
         const kids = (pr.studentIds || []).map(findAnyStudent).filter(Boolean);
         const link = pr.url ? '<a href="' + esc(pr.url) + '" target="_blank" rel="noopener" style="color:var(--gold-light);font-size:0.78rem;">ehdw.com</a>' : "";
-        const picker = eligibleGroups.length
-          ? eligibleGroups.map(function (g) {
-              const picks = g.students.filter(function (st) { return (pr.studentIds || []).indexOf(st.id) !== -1; }).length;
-              return '<div class="sess-class-head">' + esc(g.teacher) + " · " + picks + "/" + g.students.length + " selected</div>" +
+        const picker = classGroups.length
+          ? classGroups.map(function (g) {
+              const eligibleHere = g.students.filter(function (st) { return st.slip === "Yes"; });
+              const picks = eligibleHere.filter(function (st) { return (pr.studentIds || []).indexOf(st.id) !== -1; }).length;
+              return '<div class="sess-class-head">' + esc(g.teacher) + ' · ' + picks + '/' + eligibleHere.length + ' eligible selected · ' + g.students.length + ' in class</div>' +
                 g.students.map(function (st) {
-                  const on = (pr.studentIds || []).indexOf(st.id) !== -1;
+                  const allowed = st.slip === "Yes";
+                  const on = allowed && (pr.studentIds || []).indexOf(st.id) !== -1;
                   const tag = roster.some(function (x) { return x.id === st.id; }) ? "My Class" : "POWER";
-                  return '<label style="display:flex;gap:0.45rem;align-items:flex-start;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;">' +
-                    '<input type="checkbox" data-pick-diy="' + esc(pr.id) + '" data-pick-stu="' + esc(st.id) + '"' + (on ? " checked" : "") + ">" +
-                    "<span><strong>" + esc(st.name || "Unnamed") + "</strong> · " + tag + " · Gr " + esc(st.grade || "—") + "</span></label>";
+                  return '<label style="display:flex;gap:0.45rem;align-items:flex-start;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;' + (allowed ? "" : "opacity:0.55;") + '">' +
+                    '<input type="checkbox" data-pick-diy="' + esc(pr.id) + '" data-pick-stu="' + esc(st.id) + '"' + (on ? " checked" : "") + (allowed ? "" : " disabled") + '>' +
+                    '<span><strong>' + esc(st.name || "Unnamed") + '</strong> · ' + tag +
+                    ' · Gr ' + esc(st.grade || "—") +
+                    (allowed ? "" : " · needs slip") + '</span></label>';
                 }).join("");
             }).join("")
-          : '<p style="color:var(--text-muted);padding:0.4rem 0;">No students with a Yes permission slip. Mark slips Yes on the Roster first.</p>';
+          : '<p style="color:var(--text-muted);padding:0.4rem 0;">Add students on the Roster first. Then mark permission slip Yes to enable their checkbox.</p>';
         const assignedGroups = groupStudentsByClass(kids);
         const rosterRows = assignedGroups.length
           ? assignedGroups.map(function (g) {
-              return '<tr><td colspan="4" style="background:var(--navy-dark);color:var(--gold-light);font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>" +
+              return '<tr><td colspan="4" style="background:var(--navy-dark);color:var(--gold-light);font-weight:700;">' + esc(g.teacher) + ' · ' + g.students.length + '</td></tr>' +
                 g.students.map(function (st) {
-                  return "<tr><td>" + esc(st.name || "—") + "</td><td>" + esc(st.teacher || "—") + "</td><td>" + esc(st.grade || "—") + "</td><td>" + esc(st.diy || "No") + "</td></tr>";
+                  return '<tr><td>' + esc(st.name || "—") + '</td><td>' + esc(st.teacher || "—") + '</td><td>' + esc(st.grade || "—") +
+                    '</td><td>' + esc(st.diy || "No") + '</td></tr>';
                 }).join("");
             }).join("")
-          : '<tr><td colspan="4" style="color:var(--text-muted);">Nobody assigned yet.</td></tr>';
+          : '<tr><td colspan="4" style="color:var(--text-muted);">Nobody assigned yet. Check a name with a Yes slip.</td></tr>';
         return '<div class="bulk-box" data-did="' + esc(pr.id) + '">' +
           '<div class="toolbar-row" style="margin:0 0 0.5rem;">' +
             '<input data-df="name" value="' + esc(pr.name) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.55rem;border-radius:6px;min-width:180px;flex:1;">' +
             '<select data-df="level" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">' +
-              ["Beginner","Intermediate","Advanced","Custom"].map(function (lv) { return '<option value="' + lv + '"' + (pr.level===lv?" selected":"") + ">" + lv + "</option>"; }).join("") + "</select>" +
+              ["Beginner","Intermediate","Advanced","Custom"].map(function (lv) {
+                return '<option value="' + lv + '"' + (pr.level===lv?" selected":"") + ">" + lv + "</option>";
+              }).join("") +
+            "</select>" +
             '<select data-df="status" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">' +
-              ["Planned","In progress","Done"].map(function (st) { return '<option value="' + st + '"' + (pr.status===st?" selected":"") + ">" + st + "</option>"; }).join("") + "</select>" +
+              ["Planned","In progress","Done"].map(function (st) {
+                return '<option value="' + st + '"' + (pr.status===st?" selected":"") + ">" + st + "</option>";
+              }).join("") +
+            "</select>" +
             '<button type="button" class="small" data-print-diy="' + esc(pr.id) + '">Print builders</button>' +
-            '<button type="button" class="danger small" data-del-diy>Remove</button></div>' +
+            '<button type="button" class="danger small" data-del-diy>Remove</button>' +
+          "</div>" +
           '<div class="toolbar-row" style="margin:0 0 0.55rem;">' +
             '<label style="font-size:0.78rem;color:var(--text-muted);">Start</label>' +
             '<input data-df="startDate" type="date" value="' + esc(pr.startDate || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.4rem;border-radius:6px;">' +
             '<label style="font-size:0.78rem;color:var(--text-muted);">End</label>' +
             '<input data-df="endDate" type="date" value="' + esc(pr.endDate || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.4rem;border-radius:6px;">' +
             '<span style="font-size:0.8rem;color:var(--gold-light);">' + kids.length + " builders · " + esc(formatDiyDates(pr)) + "</span>" +
-            (link ? "<span>" + link + "</span>" : "") + "</div>" +
-          '<textarea data-df="notes" rows="2" placeholder="Project notes" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0.45rem 0.6rem;margin-bottom:0.6rem;font-family:inherit;">' + esc(pr.notes||"") + "</textarea>" +
-          '<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Assign builders for the whole project window. Only Yes slips.</p>' +
+            (link ? "<span>" + link + "</span>" : "") +
+          "</div>" +
+          '<textarea data-df="notes" rows="2" placeholder="Project notes / materials" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0.45rem 0.6rem;margin-bottom:0.6rem;font-family:inherit;">' + esc(pr.notes||"") + "</textarea>" +
+          '<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Assign builders for the whole project window. Only students with a Yes permission slip can be added.</p>' +
           '<div style="max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;background:var(--bg);">' + picker + "</div>" +
-          '<div class="roster-table-wrap"><table class="roster-table" style="min-width:480px;"><thead><tr><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY standing</th></tr></thead><tbody>' + rosterRows + "</tbody></table></div></div>";
+          '<div class="roster-table-wrap"><table class="roster-table" style="min-width:480px;"><thead><tr><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY standing</th></tr></thead><tbody>' + rosterRows + "</tbody></table></div>" +
+        "</div>";
       }).join("");
     }
     function addDiyProject() {
@@ -1152,42 +1359,71 @@
       diyProjects.push(item);
       document.getElementById("diyCustomName").value = "";
       if (sel) sel.value = "";
-      renderDiy(); safeSave();
+      renderDiy();
+      safeSave();
     }
     function findDiy(id) { return diyProjects.find(function (pr) { return pr.id === id; }); }
-    function updateDiyField(id, field, value) { const pr = findDiy(id); if (!pr) return; pr[field] = value; safeSave(); }
+    function updateDiyField(id, field, value) {
+      const pr = findDiy(id);
+      if (!pr) return;
+      pr[field] = value;
+      safeSave();
+    }
     function toggleDiyStudent(prId, stuId, on) {
-      const pr = findDiy(prId); if (!pr) return; migrateDiy(pr);
+      const pr = findDiy(prId);
+      if (!pr) return;
+      migrateDiy(pr);
       const st = findAnyStudent(stuId);
-      if (on && (!st || st.slip !== "Yes")) { renderDiy(); return; }
+      if (on && (!st || st.slip !== "Yes")) {
+        renderDiy();
+        return;
+      }
       const i = pr.studentIds.indexOf(stuId);
       if (on && i === -1) pr.studentIds.push(stuId);
       if (!on && i !== -1) pr.studentIds.splice(i, 1);
-      renderDiy(); safeSave();
+      renderDiy();
+      safeSave();
     }
     function printDiy(id) {
-      const pr = findDiy(id); if (!pr) return; migrateDiy(pr); pruneDiyAssignments();
+      const pr = findDiy(id);
+      if (!pr) return;
+      migrateDiy(pr);
+      pruneDiyAssignments();
       const kids = (pr.studentIds || []).map(findAnyStudent).filter(Boolean);
       let html = "<h1>Mr. Enciso’s Scholastic Batch – DIY Project</h1>" +
-        '<div class="meta"><strong>Project:</strong> ' + esc(pr.name || "—") + "<br><strong>Level:</strong> " + esc(pr.level || "—") +
-        "<br><strong>Status:</strong> " + esc(pr.status || "—") + "<br><strong>Duration:</strong> " + esc(formatDiyDates(pr)) +
+        '<div class="meta"><strong>Project:</strong> ' + esc(pr.name || "—") +
+        "<br><strong>Level:</strong> " + esc(pr.level || "—") +
+        "<br><strong>Status:</strong> " + esc(pr.status || "—") +
+        "<br><strong>Duration:</strong> " + esc(formatDiyDates(pr)) +
         "<br><strong>Printed:</strong> " + new Date().toLocaleString() + "</div>";
-      html += '<table class="print-roster-table"><thead><tr><th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>List</th><th>Slip</th></tr></thead><tbody>';
-      if (!kids.length) html += '<tr><td colspan="6">No builders assigned.</td></tr>';
+      if ((pr.notes || "").trim()) html += '<div class="week-notes"><strong>Notes:</strong><br>' + esc(pr.notes).replace(/\n/g,"<br>") + "</div>";
+      html += '<table class="print-roster-table"><thead><tr><th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>List</th><th>DIY standing</th><th>Permission slip</th></tr></thead><tbody>';
+      if (!kids.length) html += '<tr><td colspan="7">No builders assigned (only Yes slips can be added).</td></tr>';
       else {
         let n = 0;
         groupStudentsByClass(kids).forEach(function (g) {
-          html += '<tr><td colspan="6" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>";
+          html += '<tr><td colspan="7" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>";
           g.students.forEach(function (st) {
             n += 1;
-            html += "<tr><td>" + n + "</td><td>" + esc(st.name||"—") + "</td><td>" + esc(st.teacher||"—") + "</td><td>" + esc(st.grade||"—") +
-              "</td><td>" + (roster.some(function (x) { return x.id === st.id; }) ? "8th Grade Class" : "POWER Program") + "</td><td>" + esc(st.slip||"No") + "</td></tr>";
+            const tag = roster.some(function (x) { return x.id === st.id; }) ? "8th Grade Class" : "POWER Program";
+            html += "<tr><td>" + n + "</td><td>" + esc(st.name||"—") + "</td><td>" + esc(st.teacher||"—") +
+              "</td><td>" + esc(st.grade||"—") + "</td><td>" + tag + "</td><td>" + esc(st.diy||"No") +
+              "</td><td>" + esc(st.slip||"No") + "</td></tr>";
           });
         });
       }
-      html += "</tbody></table><div class=\"print-footer\">Builders assigned for the full project window</div>";
-      const r = document.getElementById("printReport"); r.innerHTML = html; r.style.display = "block";
+      html += "</tbody></table><div class=\"print-footer\">DIY builders · assigned for the full project window · La Viña Middle School</div>";
+      const r = document.getElementById("printReport");
+      r.innerHTML = html; r.style.display = "block";
       setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
+    }
+    function removeDiy(id) {
+      const pr = findDiy(id);
+      if (!pr) return;
+      if (!confirm('Remove project "' + (pr.name || "") + '"?')) return;
+      diyProjects = diyProjects.filter(function (x) { return x.id !== id; });
+      renderDiy();
+      safeSave();
     }
     function parseDiy(v) {
       v = (v || "").trim().toLowerCase();
@@ -1197,34 +1433,67 @@
       return null;
     }
     function looksLikeComputer(v) {
-      v = (v || "").trim(); if (!v) return false;
+      v = (v || "").trim();
+      if (!v) return false;
       if (/^(comp(uter)?|pc|laptop|chromebook|#)?\s*[:#-]?\s*[a-z]{0,4}\s*-?\s*\d{1,4}$/i.test(v)) return true;
+      if (/^(c|lab|pc|cb|lt)[- ]?\d{1,4}$/i.test(v)) return true;
       if (/^\d{1,3}$/.test(v) && Number(v) > 8 && Number(v) < 200) return true;
       return false;
     }
-    function looksLikeGrade(v) { return /^(6|7|8|6th|7th|8th)$/i.test((v || "").trim()); }
-    function looksLikeBucks(v) { return /^\d{1,4}$/.test((v || "").trim().replace(/bucks?|pts?/gi, "").trim()); }
+    function looksLikeGrade(v) {
+      v = (v || "").trim().toLowerCase();
+      return /^(6|7|8|6th|7th|8th|sixth|seventh|eighth)$/.test(v);
+    }
+    function looksLikeBucks(v) {
+      v = (v || "").trim().toLowerCase().replace(/bucks?|pts?|points?/g, "").trim();
+      return /^\d{1,4}$/.test(v);
+    }
+    function looksLikeNameToken(v) {
+      v = (v || "").trim();
+      if (!v || v.length < 2) return false;
+      if (parseDiy(v)) return false;
+      if (typeof parseSlip === "function" && parseSlip(v)) return false;
+      if (looksLikeComputer(v) || looksLikeGrade(v) || looksLikeBucks(v)) return false;
+      if (/^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v)) return false;
+      return /[a-záéíóúñü]/i.test(v);
+    }
+    function cleanName(v) {
+      return (v || "")
+        .replace(/^\s*\d+[\.\)\-:]+\s*/, "")
+        .replace(/^[-*•]+\s*/, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+    function identifyName(parts) {
+      const tokens = parts.filter(Boolean);
+      if (!tokens.length) return { name: "", rest: [] };
+      // "Last, First" → "First Last"
+      if (tokens.length >= 2 && looksLikeNameToken(tokens[0]) && looksLikeNameToken(tokens[1]) &&
+          tokens[0].indexOf(" ") === -1 && tokens[1].indexOf(" ") === -1) {
+        return { name: tokens[1] + " " + tokens[0], rest: tokens.slice(2) };
+      }
+      if (looksLikeNameToken(tokens[0])) {
+        return { name: tokens[0], rest: tokens.slice(1) };
+      }
+      for (let i = 0; i < tokens.length; i++) {
+        if (looksLikeNameToken(tokens[i])) {
+          return { name: tokens[i], rest: tokens.slice(0, i).concat(tokens.slice(i + 1)) };
+        }
+      }
+      return { name: tokens[0], rest: tokens.slice(1) };
+    }
     function parseSlip(v) {
       v = (v || "").trim().toLowerCase();
       if (["slip yes","permission yes","signed","turned in","in","returned","complete"].indexOf(v) !== -1) return "Yes";
       if (["slip pending","permission pending","waiting slip"].indexOf(v) !== -1) return "Pending";
       if (["slip no","permission no","missing","not signed","unsigned"].indexOf(v) !== -1) return "No";
+      if (v === "slip") return "Pending";
       return null;
     }
-    function looksLikeTeacher(v) { return /^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test((v || "").trim()); }
-    function looksLikeNameToken(v) {
+    function looksLikeTeacher(v) {
       v = (v || "").trim();
-      if (!v || v.length < 2) return false;
-      if (parseDiy(v) || parseSlip(v) || looksLikeComputer(v) || looksLikeGrade(v) || looksLikeBucks(v) || looksLikeTeacher(v)) return false;
-      return /[a-záéíóúñü]/i.test(v);
-    }
-    function cleanName(v) { return (v || "").replace(/^\s*\d+[\.\)\-:]+\s*/, "").replace(/^[-*•]+\s*/, "").replace(/\s+/g, " ").trim(); }
-    function identifyName(parts) {
-      const tokens = parts.filter(Boolean);
-      if (!tokens.length) return { name: "", rest: [] };
-      if (tokens.length >= 2 && looksLikeNameToken(tokens[0]) && looksLikeNameToken(tokens[1])) return { name: tokens[1] + " " + tokens[0], rest: tokens.slice(2) };
-      if (looksLikeNameToken(tokens[0])) return { name: tokens[0], rest: tokens.slice(1) };
-      return { name: tokens[0], rest: tokens.slice(1) };
+      if (!v) return false;
+      return /^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v);
     }
     function parseBulkLine(line) {
       line = (line || "").replace(/^\s*[-*•]+\s*/, "").replace(/^\s*\d+[\.\)\-:]+\s*/, "").trim();
@@ -1232,466 +1501,1185 @@
       const s = emptyStudent();
       s.source = rosterView === "power" ? "power" : "class";
       if (rosterView === "class") s.teacher = "Mr. Enciso";
+
+      // Primary POWER format: First Name, Last Name - Grade
+      // Also accepts: First Last - 8   |   First, Last-8   |   First Last, 8
       let rest = "";
       let m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+)\s*,\s*([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
-      if (m) { s.name = cleanName(m[1] + " " + m[2]); s.grade = String(m[3]).replace(/th$/i, ""); rest = (m[4] || "").trim(); }
-      else {
+      if (m) {
+        s.name = cleanName(m[1] + " " + m[2]);
+        s.grade = String(m[3]).replace(/th$/i, "");
+        rest = (m[4] || "").trim();
+      } else {
         m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
-        if (m) { s.name = cleanName(m[1].replace(/,/g, " ")); s.grade = String(m[2]).replace(/th$/i, ""); rest = (m[3] || "").trim(); }
+        if (m) {
+          s.name = cleanName(m[1].replace(/,/g, " "));
+          s.grade = String(m[2]).replace(/th$/i, "");
+          rest = (m[3] || "").trim();
+        }
       }
       if (!s.name) {
-        let parts = (line.indexOf("\t") !== -1 ? line.split("\t") : line.split(",")).map(function (x) { return x.trim(); }).filter(Boolean);
+        let parts = line.indexOf("\t") !== -1
+          ? line.split("\t").map(function (x) { return x.trim(); })
+          : line.split(",").map(function (x) { return x.trim(); });
+        parts = parts.filter(function (x) { return x !== ""; });
         if (!parts.length) return null;
         const identified = identifyName(parts);
-        s.name = cleanName(identified.name); rest = identified.rest.join(", ");
+        s.name = cleanName(identified.name);
+        rest = identified.rest.join(", ");
       }
       if (!s.name) return null;
-      (rest ? rest.split(/[,;\t]+/).map(function (x) { return x.trim(); }).filter(Boolean) : []).forEach(function (piece) {
+
+      const extras = rest
+        ? rest.split(/[,;\t]+/).map(function (x) { return x.trim(); }).filter(Boolean)
+        : [];
+      extras.forEach(function (piece) {
         const g = piece.replace(/^grade\s*/i, "").trim();
         if (looksLikeGrade(g)) { s.grade = g.replace(/th$/i, ""); return; }
-        const diy = parseDiy(piece); if (diy && s.diy === "No") { s.diy = diy; return; }
-        const slip = parseSlip(piece); if (slip && s.slip === "No") { s.slip = slip; return; }
+        const diy = parseDiy(piece);
+        if (diy && s.diy === "No") { s.diy = diy; return; }
+        const slip = parseSlip(piece);
+        if (slip && s.slip === "No") { s.slip = slip; return; }
         if (looksLikeTeacher(piece) && !s.teacher) { s.teacher = piece; return; }
-        if (rosterView === "class" && looksLikeComputer(piece) && !s.computer) { s.computer = piece.replace(/^(computer|comp|pc|#)\s*[:#-]?\s*/i, ""); return; }
+        if (rosterView === "class" && looksLikeComputer(piece) && !s.computer) {
+          s.computer = piece.replace(/^(computer|comp|pc|#)\s*[:#-]?\s*/i, "");
+          return;
+        }
+        if (looksLikeBucks(piece) && !s.bucks) { s.bucks = Math.max(0, parseInt(piece.replace(/[^\d]/g, ""), 10) || 0); return; }
+        if (!s.teacher && looksLikeNameToken(piece) && /[a-záéíóúñü]/i.test(piece)) { s.teacher = piece; return; }
         s.notes = (s.notes ? s.notes + "; " : "") + piece;
       });
       return s;
     }
     function wipeActiveRoster() {
-      if (!sessionOpen || rosterView === "sessions") return;
-      const n = activeRosterList().length; if (!n) return;
-      if (!confirm("Wipe this roster (" + n + ")?")) return;
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
+      const label = rosterView === "power" ? "POWER Program roster" : "8th Grade Class roster";
+      const n = activeRosterList().length;
+      if (!n) { alert("This roster is already empty."); return; }
+      if (!confirm("Wipe the entire " + label + " (" + n + " student" + (n === 1 ? "" : "s") + ")?\nThis cannot be undone from here.")) return;
       const gone = activeRosterList().map(function (st) { return st.id; });
       setActiveRosterList([]);
-      sessions.forEach(function (sess) { if (sess.studentIds) sess.studentIds = sess.studentIds.filter(function (id) { return gone.indexOf(id) === -1; }); });
-      diyProjects.forEach(function (pr) { pr.studentIds = (pr.studentIds || []).filter(function (id) { return gone.indexOf(id) === -1; }); });
-      renderRoster(); safeSave();
+      sessions.forEach(function (sess) {
+        if (Array.isArray(sess.studentIds)) {
+          sess.studentIds = sess.studentIds.filter(function (id) { return gone.indexOf(id) === -1; });
+        }
+      });
+      diyProjects.forEach(function (pr) {
+        migrateDiy(pr);
+        pr.studentIds = (pr.studentIds || []).filter(function (id) { return gone.indexOf(id) === -1; });
+      });
+      renderRoster();
+      safeSave();
     }
     function addBulkStudents() {
-      if (!sessionOpen || rosterView === "sessions") return;
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
+      const raw = (document.getElementById("bulkStudents").value || "");
+      const lines = raw.split(/\r?\n/);
       const added = [];
-      (document.getElementById("bulkStudents").value || "").split(/\r?\n/).forEach(function (line) { const s = parseBulkLine(line); if (s) added.push(s); });
-      if (!added.length) { alert("No valid students found."); return; }
+      lines.forEach(function (line) {
+        const s = parseBulkLine(line);
+        if (s) added.push(s);
+      });
+      if (!added.length) {
+        alert("No valid students found. Put one name per line.");
+        return;
+      }
       setActiveRosterList(activeRosterList().concat(added));
       document.getElementById("bulkStudents").value = "";
-      renderRoster(); safeSave();
+      renderRoster();
+      safeSave();
+      showToast("Added " + added.length + " student" + (added.length === 1 ? "" : "s"));
+    }
+    function buildRosterPrintHtml() {
+      const list = activeRosterList().slice();
+      list.sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); });
+      const diyYes = list.filter(function (s) { return s.diy === "Yes"; }).length;
+      const bucks = list.reduce(function (a, s) { return a + (Number(s.bucks) || 0); }, 0);
+      const listTitle = rosterView === "power" ? "POWER Program" : "My 8th Grade Class";
+      const slipYes = list.filter(function (s) { return s.slip === "Yes"; }).length;
+      let html = "<h1>Mr. Enciso’s Scholastic Batch – " + listTitle + "</h1>" +
+        '<div class="meta"><strong>School:</strong> La Viña Middle School<br>' +
+        "<strong>List:</strong> " + listTitle + "<br>" +
+        "<strong>Save File:</strong> " + (saveSystem.activeSlot || "—") +
+        "<br><strong>Printed:</strong> " + new Date().toLocaleString() +
+        "<br><strong>Students:</strong> " + list.length +
+        " · <strong>DIY enrolled:</strong> " + diyYes +
+        " · <strong>Slips in:</strong> " + slipYes + "</div>";
+      const showComp = rosterView === "class";
+      html += '<table class="print-roster-table"><thead><tr>' +
+        "<th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th>" +
+        (showComp ? "<th>Computer #</th>" : "") +
+        "<th>Notes</th></tr></thead><tbody>";
+      if (!list.length) {
+        html += '<tr><td colspan="' + (showComp ? 8 : 7) + '">No students on this roster.</td></tr>';
+      } else {
+        let n = 0;
+        groupStudentsByClass(list).forEach(function (g) {
+          html += '<tr><td colspan="' + (showComp ? 8 : 7) + '" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>";
+          g.students.forEach(function (s) {
+            n += 1;
+            html += "<tr><td>" + n + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
+              "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
+              "</td><td>" + esc(s.slip || "No") + "</td>" +
+              (showComp ? "<td>" + esc(s.computer || "—") + "</td>" : "") +
+              "<td>" + esc(s.notes || "") + "</td></tr>";
+          });
+        });
+      }
+      html += "</tbody></table>";
+      html += '<div class="print-footer">POWER Program Roster · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>';
+      return html;
     }
     function printRoster() {
-      if (!sessionOpen || rosterView === "sessions") return;
-      const list = activeRosterList().slice();
-      const showComp = rosterView === "class";
-      let html = "<h1>" + (rosterView === "power" ? "POWER Program" : "My 8th Grade Class") + "</h1>";
-      html += '<table class="print-roster-table"><thead><tr><th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Slip</th>' + (showComp?"<th>Computer</th>":"") + "<th>Notes</th></tr></thead><tbody>";
-      let n = 0;
-      groupStudentsByClass(list).forEach(function (g) {
-        html += '<tr><td colspan="' + (showComp?8:7) + '" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + "</td></tr>";
-        g.students.forEach(function (s) {
-          n += 1;
-          html += "<tr><td>" + n + "</td><td>" + esc(s.name) + "</td><td>" + esc(s.teacher) + "</td><td>" + esc(s.grade) + "</td><td>" + esc(s.diy) + "</td><td>" + esc(s.slip) + "</td>" + (showComp?"<td>"+esc(s.computer)+"</td>":"") + "<td>" + esc(s.notes) + "</td></tr>";
-        });
-      });
-      html += "</tbody></table>";
-      const r = document.getElementById("printReport"); r.innerHTML = html; r.style.display = "block";
-      setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
+      if (!sessionOpen) return;
+      if (rosterView === "sessions") { alert("Open a session and use Print session."); return; }
+      const r = document.getElementById("printReport");
+      r.innerHTML = buildRosterPrintHtml();
+      r.style.display = "block";
+      setTimeout(function () {
+        window.print();
+        setTimeout(function () { r.style.display = "none"; }, 2000);
+      }, 400);
     }
     function updateStudentField(id, field, value) {
-      const s = findStudent(id); if (!s) return;
-      if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0); else s[field] = value;
+      const s = findStudent(id);
+      if (!s) return;
+      if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
+      else s[field] = value;
       if (field === "slip") pruneDiyAssignments();
-      renderRoster(); if (document.getElementById("page-diy").classList.contains("active")) renderDiy();
+      renderRoster();
+      if (field === "slip") renderDiy();
       safeSave();
     }
     function removeStudent(id) {
-      const s = findStudent(id); if (!s || !confirm("Remove " + (s.name || "this student") + "?")) return;
-      setActiveRosterList(activeRosterList().filter(function (x) { return x.id !== id; }));
-      sessions.forEach(function (sess) { if (sess.studentIds) sess.studentIds = sess.studentIds.filter(function (sid) { return sid !== id; }); });
-      diyProjects.forEach(function (pr) { pr.studentIds = (pr.studentIds || []).filter(function (sid) { return sid !== id; }); });
-      renderRoster(); safeSave();
+      const s = findStudent(id);
+      if (!s) return;
+      if (!confirm('Remove ' + (s.name || "this student") + ' from the roster?')) return;
+      setActiveRosterList(activeRosterList().filter(x => x.id !== id));
+      sessions.forEach(function (sess) {
+        if (Array.isArray(sess.studentIds)) sess.studentIds = sess.studentIds.filter(function (sid) { return sid !== id; });
+      });
+      diyProjects.forEach(function (pr) {
+        migrateDiy(pr);
+        pr.studentIds = (pr.studentIds || []).filter(function (sid) { return sid !== id; });
+      });
+      renderRoster();
+      safeSave();
     }
+
     function formatSessTime(sess) {
-      const span = (sess.startTime && sess.endTime) ? (sess.startTime + " – " + sess.endTime) : (sess.startTime || sess.endTime || "");
-      return [sess.days || "", span].filter(Boolean).join(" · ") || "No time set";
+      const days = sess.days || "";
+      const a = sess.startTime || "";
+      const b = sess.endTime || "";
+      const span = (a && b) ? (a + " – " + b) : (a || b || "");
+      return [days, span].filter(Boolean).join(" · ") || "No time set";
     }
     function renderSessions() {
       if (!Array.isArray(sessions)) sessions = [];
-      const stats = document.getElementById("sessionStats"); const box = document.getElementById("sessionList"); if (!box) return;
-      if (stats) stats.innerHTML = '<div class="roster-stat"><div class="n">' + sessions.length + '</div><div class="l">Sessions</div></div>';
-      if (!sessions.length) { box.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No sessions yet.</p>'; return; }
+      const stats = document.getElementById("sessionStats");
+      const box = document.getElementById("sessionList");
+      if (!box) return;
+      const enrolled = sessions.reduce(function (n, sess) { return n + (sess.studentIds || []).length; }, 0);
+      if (stats) {
+        stats.innerHTML =
+          '<div class="roster-stat"><div class="n">' + sessions.length + '</div><div class="l">Sessions</div></div>' +
+          '<div class="roster-stat"><div class="n">' + enrolled + '</div><div class="l">Seat assignments</div></div>' +
+          '<div class="roster-stat"><div class="n">' + allStudents().length + '</div><div class="l">Students you can pick</div></div>';
+      }
+      if (!sessions.length) {
+        box.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No sessions yet. Create one above, then pick students from either roster.</p>';
+        return;
+      }
       box.innerHTML = sessions.map(function (sess) {
         const kids = (sess.studentIds || []).map(findAnyStudent).filter(Boolean);
+        const slipsIn = kids.filter(function (st) { return st.slip === "Yes"; }).length;
         const pickerGroups = groupStudentsByClass(allStudents());
-        const picker = pickerGroups.map(function (g) {
-          const picks = g.students.filter(function (st) { return (sess.studentIds || []).indexOf(st.id) !== -1; }).length;
-          return '<div class="sess-class-head">' + esc(g.teacher) + " · " + picks + "/" + g.students.length + "</div>" +
-            g.students.map(function (st) {
-              const on = (sess.studentIds || []).indexOf(st.id) !== -1;
-              return '<label style="display:flex;gap:0.45rem;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;"><input type="checkbox" data-pick-sess="' + esc(sess.id) + '" data-pick-stu="' + esc(st.id) + '"' + (on?" checked":"") + "><span><strong>" + esc(st.name) + "</strong> · Slip " + esc(st.slip) + "</span></label>";
-            }).join("");
-        }).join("");
-        const rosterRows = groupStudentsByClass(kids).map(function (g) {
-          return '<tr><td colspan="5" style="background:var(--navy-dark);color:var(--gold-light);font-weight:700;">' + esc(g.teacher) + "</td></tr>" +
-            g.students.map(function (st) { return "<tr><td>" + esc(st.name) + "</td><td>" + esc(st.teacher) + "</td><td>" + esc(st.grade) + "</td><td>" + esc(st.diy) + "</td><td>" + esc(st.slip) + "</td></tr>"; }).join("");
-        }).join("") || '<tr><td colspan="5">Nobody picked yet.</td></tr>';
-        return '<div class="bulk-box"><div class="toolbar-row" style="margin:0 0 0.5rem;"><input data-sf="name" data-sess="' + esc(sess.id) + '" value="' + esc(sess.name) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.55rem;border-radius:6px;flex:1;"><select data-sf="className" data-sess="' + esc(sess.id) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem;border-radius:6px;">' + optSel(sess.className||"DIY",["SEL / CHECK-IN","INTERVENTION","ENRICHMENT","SPARK","DIY","Other"]) + '</select><button type="button" class="small" data-print-sess="' + esc(sess.id) + '">Print</button><button type="button" class="danger small" data-del-sess="' + esc(sess.id) + '">Remove</button></div><div class="toolbar-row"><input data-sf="days" data-sess="' + esc(sess.id) + '" value="' + esc(sess.days||"") + '" placeholder="Days" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem;border-radius:6px;width:140px;"><input type="time" data-sf="startTime" data-sess="' + esc(sess.id) + '" value="' + esc(sess.startTime||"") + '"><span>to</span><input type="time" data-sf="endTime" data-sess="' + esc(sess.id) + '" value="' + esc(sess.endTime||"") + '"></div><div style="max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;margin:0.5rem 0;background:var(--bg);">' + picker + '</div><div class="roster-table-wrap"><table class="roster-table"><thead><tr><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Slip</th></tr></thead><tbody>' + rosterRows + "</tbody></table></div></div>";
+        const picker = pickerGroups.length
+          ? pickerGroups.map(function (g) {
+              const picks = g.students.filter(function (st) { return (sess.studentIds || []).indexOf(st.id) !== -1; }).length;
+              return '<div class="sess-class-head">' + esc(g.teacher) + ' · ' + picks + '/' + g.students.length + ' selected</div>' +
+                g.students.map(function (st) {
+                  const on = (sess.studentIds || []).indexOf(st.id) !== -1;
+                  const tag = (roster.some(function (x) { return x.id === st.id; }) ? "My Class" : "POWER");
+                  return '<label style="display:flex;gap:0.45rem;align-items:flex-start;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;">' +
+                    '<input type="checkbox" data-pick-sess="' + esc(sess.id) + '" data-pick-stu="' + esc(st.id) + '"' + (on ? " checked" : "") + '>' +
+                    '<span><strong>' + esc(st.name || "Unnamed") + '</strong> · ' + tag +
+                    ' · Gr ' + esc(st.grade || "—") +
+                    ' · DIY ' + esc(st.diy || "No") +
+                    ' · Slip ' + esc(st.slip || "No") + '</span></label>';
+                }).join("");
+            }).join("")
+          : '<p style="color:var(--text-muted);">Add students to a roster first.</p>';
+        const assignedGroups = groupStudentsByClass(kids);
+        const rosterRows = assignedGroups.length
+          ? assignedGroups.map(function (g) {
+              return '<tr><td colspan="5" style="background:var(--navy-dark);color:var(--gold-light);font-weight:700;">' + esc(g.teacher) + ' · ' + g.students.length + '</td></tr>' +
+                g.students.map(function (st) {
+                  return '<tr><td>' + esc(st.name || "—") + '</td><td>' + esc(st.teacher || "—") + '</td><td>' + esc(st.grade || "—") +
+                    '</td><td>' + esc(st.diy || "No") + '</td><td>' + esc(st.slip || "No") + '</td></tr>';
+                }).join("");
+            }).join("")
+          : '<tr><td colspan="5" style="color:var(--text-muted);">Nobody picked yet.</td></tr>';
+        return '<div class="bulk-box" data-sess-card="' + esc(sess.id) + '">' +
+          '<div class="toolbar-row" style="margin:0 0 0.5rem;">' +
+            '<input data-sf="name" data-sess="' + esc(sess.id) + '" value="' + esc(sess.name) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.55rem;border-radius:6px;min-width:180px;flex:1;">' +
+            '<select data-sf="className" data-sess="' + esc(sess.id) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">' +
+              optSel(sess.className || "DIY", ["SEL / CHECK-IN","INTERVENTION","ENRICHMENT","SPARK","DIY","Other"]) +
+            '</select>' +
+            '<button type="button" class="small" data-print-sess="' + esc(sess.id) + '">Print session</button>' +
+            '<button type="button" class="danger small" data-del-sess="' + esc(sess.id) + '">Remove</button>' +
+          '</div>' +
+          '<div class="toolbar-row" style="margin:0 0 0.6rem;">' +
+            '<input data-sf="days" data-sess="' + esc(sess.id) + '" placeholder="Days" value="' + esc(sess.days || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.55rem;border-radius:6px;width:140px;">' +
+            '<input type="time" data-sf="startTime" data-sess="' + esc(sess.id) + '" value="' + esc(sess.startTime || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.4rem;border-radius:6px;">' +
+            '<span style="color:var(--text-muted);">to</span>' +
+            '<input type="time" data-sf="endTime" data-sess="' + esc(sess.id) + '" value="' + esc(sess.endTime || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.4rem;border-radius:6px;">' +
+            '<span style="font-size:0.8rem;color:var(--gold-light);">' + kids.length + ' students · ' + slipsIn + ' slips in</span>' +
+          '</div>' +
+          '<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Pick from My Class and POWER Program. Check a name to add them to this session.</p>' +
+          '<div style="max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;background:var(--bg);">' + picker + '</div>' +
+          '<div class="roster-table-wrap"><table class="roster-table" style="min-width:520px;"><thead><tr><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Slip</th></tr></thead><tbody>' + rosterRows + '</tbody></table></div>' +
+        '</div>';
       }).join("");
     }
     function addSession() {
-      if (!sessionOpen) return;
-      const name = ((document.getElementById("sessName") || {}).value || "").trim(); if (!name) { alert("Name the session first."); return; }
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const name = ((document.getElementById("sessName") || {}).value || "").trim();
+      if (!name) { alert("Name the session first."); return; }
       const sess = emptySession();
-      sess.name = name; sess.className = (document.getElementById("sessClass") || {}).value || "DIY";
+      sess.name = name;
+      sess.className = (document.getElementById("sessClass") || {}).value || "DIY";
       sess.days = (document.getElementById("sessDays") || {}).value || "";
       sess.startTime = (document.getElementById("sessStart") || {}).value || "";
       sess.endTime = (document.getElementById("sessEnd") || {}).value || "";
-      sessions.push(sess); document.getElementById("sessName").value = ""; renderSessions(); safeSave();
+      sessions.push(sess);
+      document.getElementById("sessName").value = "";
+      renderSessions();
+      safeSave();
     }
-    function findSession(id) { return (sessions || []).find(function (sess) { return sess.id === id; }); }
-    function updateSessionField(id, field, value) { const sess = findSession(id); if (!sess) return; sess[field] = value; safeSave(); }
+    function findSession(id) {
+      return (sessions || []).find(function (sess) { return sess.id === id; });
+    }
+    function updateSessionField(id, field, value) {
+      const sess = findSession(id);
+      if (!sess) return;
+      sess[field] = value;
+      safeSave();
+    }
     function toggleSessionStudent(sessId, stuId, on) {
-      const sess = findSession(sessId); if (!sess) return;
+      const sess = findSession(sessId);
+      if (!sess) return;
       if (!Array.isArray(sess.studentIds)) sess.studentIds = [];
       const i = sess.studentIds.indexOf(stuId);
       if (on && i === -1) sess.studentIds.push(stuId);
       if (!on && i !== -1) sess.studentIds.splice(i, 1);
-      renderSessions(); safeSave();
+      renderSessions();
+      safeSave();
     }
     function removeSession(id) {
-      if (!confirm("Remove this session?")) return;
-      sessions = sessions.filter(function (x) { return x.id !== id; }); renderSessions(); safeSave();
+      const sess = findSession(id);
+      if (!sess) return;
+      if (!confirm('Remove session "' + (sess.name || "") + '"?')) return;
+      sessions = sessions.filter(function (x) { return x.id !== id; });
+      renderSessions();
+      safeSave();
     }
     function printSession(id) {
-      const sess = findSession(id); if (!sess) return;
+      const sess = findSession(id);
+      if (!sess) return;
       const kids = (sess.studentIds || []).map(findAnyStudent).filter(Boolean);
-      let html = "<h1>Session – " + esc(sess.name) + "</h1><div class=\"meta\">" + esc(formatSessTime(sess)) + "</div>";
-      html += '<table class="print-roster-table"><thead><tr><th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>Slip</th></tr></thead><tbody>';
-      let n = 0;
-      groupStudentsByClass(kids).forEach(function (g) {
-        html += '<tr><td colspan="5" style="background:#1F4E79;color:#fff;">' + esc(g.teacher) + "</td></tr>";
-        g.students.forEach(function (st) { n += 1; html += "<tr><td>"+n+"</td><td>"+esc(st.name)+"</td><td>"+esc(st.teacher)+"</td><td>"+esc(st.grade)+"</td><td>"+esc(st.slip)+"</td></tr>"; });
-      });
+      kids.sort(function (a,b) { return (a.name||"").localeCompare(b.name||""); });
+      let html = "<h1>Mr. Enciso’s Scholastic Batch – Session</h1>" +
+        '<div class="meta"><strong>Session:</strong> ' + esc(sess.name || "—") +
+        "<br><strong>Class:</strong> " + esc(sess.className || "—") +
+        "<br><strong>Time:</strong> " + esc(formatSessTime(sess)) +
+        "<br><strong>Printed:</strong> " + new Date().toLocaleString() + "</div>";
+      html += '<table class="print-roster-table"><thead><tr><th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>List</th><th>DIY</th><th>Permission slip</th></tr></thead><tbody>';
+      if (!kids.length) html += '<tr><td colspan="7">No students picked for this session.</td></tr>';
+      else {
+        let n = 0;
+        groupStudentsByClass(kids).forEach(function (g) {
+          html += '<tr><td colspan="7" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>";
+          g.students.forEach(function (st) {
+            n += 1;
+            const tag = roster.some(function (x) { return x.id === st.id; }) ? "8th Grade Class" : "POWER Program";
+            html += "<tr><td>" + n + "</td><td>" + esc(st.name||"—") + "</td><td>" + esc(st.teacher||"—") +
+              "</td><td>" + esc(st.grade||"—") + "</td><td>" + tag + "</td><td>" + esc(st.diy||"No") +
+              "</td><td>" + esc(st.slip||"No") + "</td></tr>";
+          });
+        });
+      }
       html += "</tbody></table>";
-      const r = document.getElementById("printReport"); r.innerHTML = html; r.style.display = "block";
+      html += '<div class="print-footer">Session roster · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>';
+      const r = document.getElementById("printReport");
+      r.innerHTML = html;
+      r.style.display = "block";
       setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
     }
+
     function renderTemplates() {
-      const list = document.getElementById("templateList"); if (!list) return;
+      const list = document.getElementById("templateList");
+      if (!list) return;
       const keys = Object.keys(templates || {}).sort();
-      if (!keys.length) { list.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No templates yet.</p>'; return; }
+      if (!keys.length) {
+        list.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0;">No templates yet. Plan a full week, enter a name above, then click <strong>Save current week as template</strong>.</p>';
+        return;
+      }
       list.innerHTML = keys.map(function (name) {
-        return '<div class="template-item"><div class="t-info"><div class="t-name">' + esc(name) + '</div><div class="t-meta">' + countTemplateFields(templates[name]||{}) + " fields</div></div><div class=\"t-actions\"><button type=\"button\" class=\"primary small\" data-tpl-apply=\"" + encodeURIComponent(name) + "\">Use on this week</button><button type=\"button\" class=\"danger small\" data-tpl-delete=\"" + encodeURIComponent(name) + "\">Delete</button></div></div>";
+        const t = templates[name] || {};
+        const fields = countTemplateFields(t);
+        const when = t.savedAt || "—";
+        return (
+          '<div class="template-item">' +
+            '<div class="t-info">' +
+              '<div class="t-name">' + esc(name) + '</div>' +
+              '<div class="t-meta">' + fields + ' filled field(s) · Saved ' + esc(when) + '</div>' +
+            '</div>' +
+            '<div class="t-actions">' +
+              '<button type="button" class="primary small" data-tpl-apply="' + encodeURIComponent(name) + '">Use on this week</button>' +
+              '<button type="button" class="danger small" data-tpl-delete="' + encodeURIComponent(name) + '">Delete</button>' +
+            '</div>' +
+          '</div>'
+        );
       }).join("");
     }
+
     function saveCurrentAsTemplate() {
-      if (!sessionOpen) return; collectFromDOM();
-      const name = (document.getElementById("templateName").value || "").trim(); if (!name) { alert("Type a template name."); return; }
-      templates[name] = { canFocus: (data.canFocus||"").toString(), weekNotes: (data.weekNotes||"").toString(), blocks: deepClone(ensureBlocks(data).blocks), savedAt: new Date().toLocaleString() };
-      saveTemplatesStore(); document.getElementById("templateName").value = ""; renderTemplates(); safeSave();
-    }
-    function applyTemplateToCurrentWeek(name) {
-      if (!sessionOpen || !templates[name]) return;
-      if (!confirm('Apply template "' + name + '" to this week? Roster and DIY stay.')) return;
-      const t = templates[name];
+      if (!sessionOpen) {
+        alert("Open a Save File first, then open Templates.");
+        return;
+      }
       collectFromDOM();
-      data.canFocus = (t.canFocus||"").toString(); data.weekNotes = (t.weekNotes||"").toString(); data.blocks = deepClone(t.blocks||{});
-      ensureBlocks(data);
-      document.getElementById("canFocus").value = data.canFocus; document.getElementById("weekNotes").value = data.weekNotes;
-      renderAllDayGrids(); updateDashboard(); safeSave(); switchPage("dashboard");
+      const name = (document.getElementById("templateName").value || "").trim();
+      if (!name) {
+        alert("Type a template name first.");
+        document.getElementById("templateName").focus();
+        return;
+      }
+      if (!hasCurrentWork()) {
+        if (!confirm("This week looks empty. Save it as a blank template anyway?")) return;
+      }
+      if (templates[name] && !confirm('Overwrite template "' + name + '"?')) return;
+
+      // Deep copy of entire week plan
+      templates[name] = {
+        canFocus: (data.canFocus || "").toString(),
+        weekNotes: (data.weekNotes || "").toString(),
+        blocks: deepClone(ensureBlocks(data).blocks),
+        savedAt: new Date().toLocaleString()
+      };
+      saveTemplatesStore();
+      document.getElementById("templateName").value = "";
+      renderTemplates();
+      showToast('Template saved: "' + name + '"');
     }
-    function deleteTemplate(name) { if (!templates[name] || !confirm("Delete template?")) return; delete templates[name]; saveTemplatesStore(); renderTemplates(); safeSave(); }
+
+    function applyTemplateToCurrentWeek(name) {
+      if (!sessionOpen) {
+        alert("Open a Save File first.");
+        return;
+      }
+      if (!templates[name]) {
+        alert('Template "' + name + '" was not found. Try saving it again.');
+        renderTemplates();
+        return;
+      }
+
+      const t = templates[name];
+      const fields = countTemplateFields(t);
+      const weekLabel = (document.getElementById("weekOf").value.trim() || currentWeek || "this week");
+      const msg =
+        'Apply template "' + name + '" to the entire current week?\n\n' +
+        'Week: ' + weekLabel + '\n' +
+        'This will replace:\n' +
+        '• C.A.N. Standards Focus\n' +
+        '• Week Notes\n' +
+        '• All SEL, Intervention, Enrichment, and SPARK plans (Mon–Fri)\n\n' +
+        'Template has ' + fields + ' filled field(s).\n' +
+        'Your week name will stay the same.';
+
+      if (!confirm(msg)) return;
+
+      // Optional: archive current before overwrite if it has content
+      collectFromDOM();
+      if (hasCurrentWork()) {
+        const keep = confirm("Archive your current week content first so you don’t lose it?\n\nOK = archive then apply\nCancel = apply without archiving (current plans will be replaced)");
+        if (keep) {
+          let archName = (document.getElementById("weekOf").value.trim() || currentWeek || "").trim();
+          if (!archName || archName === "default") {
+            archName = prompt("Name for the archive of your current week:", thisWeekLabel());
+            if (archName === null) return;
+            archName = archName.trim();
+            if (!archName) { alert("Cancelled — no archive name."); return; }
+          }
+          archive[archName] = snapshotCurrentWeek();
+          if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = deepClone(archive);
+        }
+      }
+
+      // APPLY FULL WEEK from template
+      data.canFocus = (t.canFocus || "").toString();
+      data.weekNotes = (t.weekNotes || "").toString();
+      data.blocks = deepClone(t.blocks || {});
+      data.showAttachments = true;
+      ensureBlocks(data);
+
+      // Keep week name — do not reset currentWeek
+      document.getElementById("canFocus").value = data.canFocus;
+      document.getElementById("weekNotes").value = data.weekNotes;
+      renderAllDayGrids();
+      updateDashboard();
+      safeSave();
+      switchPage("dashboard");
+      showToast('Template applied to entire week');
+    }
+
+    function deleteTemplate(name) {
+      if (!templates[name]) return;
+      if (!confirm('Delete template "' + name + '"?')) return;
+      delete templates[name];
+      saveTemplatesStore();
+      renderTemplates();
+      showToast("Template deleted", true);
+    }
+
     async function copyText(text, btn) {
-      text = (text||"").toString(); if (!text) return;
+      text = (text || "").toString();
+      if (!text) return;
       let ok = false;
-      try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; } } catch (e) {}
-      if (btn) { const prev = btn.textContent; btn.textContent = ok ? "Copied" : "Failed"; setTimeout(function () { btn.textContent = prev; }, 1200); }
+      try {
+        if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; }
+      } catch (e) {}
+      if (!ok) {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.left="-9999px";
+          document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); document.body.removeChild(ta);
+        } catch (e) { ok = false; }
+      }
+      if (btn) {
+        const prev = btn.textContent;
+        btn.textContent = ok ? "Copied" : "Failed";
+        btn.classList.toggle("copied", ok);
+        setTimeout(() => { btn.textContent = prev; btn.classList.remove("copied"); }, 1200);
+      }
+    }
+    async function readClipboardText() {
+      try { if (navigator.clipboard && window.isSecureContext) return await navigator.clipboard.readText(); } catch (e) {}
+      const t = prompt("Paste is blocked by the browser. Paste here, then OK:");
+      return t === null ? "" : t;
     }
     async function pasteIntoField(inputEl, btn) {
       if (!inputEl) return;
-      let text = "";
-      try { if (navigator.clipboard && window.isSecureContext) text = await navigator.clipboard.readText(); } catch (e) { text = prompt("Paste here:") || ""; }
-      inputEl.value = text; inputEl.dispatchEvent(new Event("input", { bubbles: true })); if (sessionOpen) safeSave();
+      const text = await readClipboardText();
+      if (text === "" || text === null) return;
+      inputEl.value = text;
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      if (sessionOpen) safeSave();
+      if (btn) {
+        const prev = btn.textContent;
+        btn.textContent = "Pasted";
+        btn.classList.add("pasted");
+        setTimeout(() => { btn.textContent = prev; btn.classList.remove("pasted"); }, 1200);
+      }
     }
-    function mondayOf(d) { const x = new Date(d); const day = x.getDay(); x.setDate(x.getDate() + (day === 0 ? -6 : 1 - day)); x.setHours(12,0,0,0); return x; }
+
+    function mondayOf(d) {
+      const x = new Date(d); const day = x.getDay(); const diff = day === 0 ? -6 : 1 - day;
+      x.setDate(x.getDate() + diff); x.setHours(12,0,0,0); return x;
+    }
     function formatShort(d) { return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
-    function thisWeekLabel() { const mon = mondayOf(new Date()); const fri = new Date(mon); fri.setDate(mon.getDate() + 4); return formatShort(mon) + " – " + formatShort(fri); }
+    function thisWeekLabel() {
+      const mon = mondayOf(new Date()); const fri = new Date(mon); fri.setDate(mon.getDate() + 4);
+      return formatShort(mon) + " – " + formatShort(fri);
+    }
     function setThisWeekName() {
       if (!sessionOpen) return;
-      const label = thisWeekLabel(); document.getElementById("weekOf").value = label; currentWeek = label;
-      document.getElementById("currentWeekLabel").textContent = "Editing: " + label; safeSave();
+      const label = thisWeekLabel();
+      document.getElementById("weekOf").value = label;
+      currentWeek = label;
+      document.getElementById("currentWeekLabel").textContent = "Editing: " + label;
+      safeSave();
     }
+
     function fillDupSelects() {
-      Object.keys(BLOCKS).forEach(function (b) {
-        const from = document.getElementById("dupFrom-" + b), to = document.getElementById("dupTo-" + b); if (!from || !to) return;
-        const opts = DAYS.map(function (d) { return '<option value="' + d + '">' + d + "</option>"; }).join("");
+      Object.keys(BLOCKS).forEach(b => {
+        const from = document.getElementById("dupFrom-" + b);
+        const to = document.getElementById("dupTo-" + b);
+        if (!from || !to) return;
+        const opts = DAYS.map(d => '<option value="' + d + '">' + d + "</option>").join("");
         from.innerHTML = opts; to.innerHTML = opts; if (DAYS[1]) to.value = DAYS[1];
       });
     }
     function cloneDay(src) { return deepClone(migrateDay(src || emptyDay())); }
     function duplicateDayInBlock(block) {
+      if (!sessionOpen) return;
       collectFromDOM();
-      const from = document.getElementById("dupFrom-" + block).value, to = document.getElementById("dupTo-" + block).value;
-      if (from === to) return;
+      const from = document.getElementById("dupFrom-" + block).value;
+      const to = document.getElementById("dupTo-" + block).value;
+      if (from === to) { alert("Pick two different days."); return; }
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
-      data.blocks[block][to] = cloneDay(data.blocks[block][from]); renderAllDayGrids(); safeSave();
+      data.blocks[block][to] = cloneDay(data.blocks[block][from]);
+      renderAllDayGrids(); safeSave(); showToast(from + " → " + to);
     }
     function copyDayToAllInBlock(block) {
+      if (!sessionOpen) return;
       collectFromDOM();
       const from = document.getElementById("dupFrom-" + block).value;
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
       const src = cloneDay(data.blocks[block][from]);
-      DAYS.forEach(function (d) { if (d !== from) data.blocks[block][d] = cloneDay(src); });
-      renderAllDayGrids(); safeSave();
+      DAYS.forEach(d => { if (d !== from) data.blocks[block][d] = cloneDay(src); });
+      renderAllDayGrids(); safeSave(); showToast(from + " applied to all days");
     }
+
     function preserveCurrentWorkBeforeSwitch(nextName) {
-      collectFromDOM(); if (!hasCurrentWork()) return true; if (nextName && currentWeek === nextName) return true;
+      collectFromDOM();
+      if (!hasCurrentWork()) return true;
+      if (nextName && currentWeek === nextName) return true;
       let name = (document.getElementById("weekOf").value.trim() || currentWeek || "").trim();
-      if (!name || name === "default") { name = prompt("Name this week:", thisWeekLabel()); if (!name) return false; name = name.trim(); }
+      if (!name || name === "default") {
+        name = prompt("Name this week to keep it:", thisWeekLabel());
+        if (name === null) return false;
+        name = name.trim();
+        if (!name) { alert("A name is required. Cancelled."); return false; }
+      }
+      if (archive[name] && name !== nextName) {
+        if (!confirm('Archive "' + name + '" exists. Update it with current work?')) return false;
+      }
       archive[name] = snapshotCurrentWeek();
       if (saveSystem.activeSlot) saveSystem.slots[saveSystem.activeSlot].archive = deepClone(archive);
-      persistLocal(); return true;
+      persistLocal();
+      return true;
     }
+
     function renderTitleSlots() {
-      document.getElementById("saveSlots").innerHTML = [1,2,3].map(function (n) {
-        const slot = saveSystem.slots[n], has = hasContent(slot);
+      const box = document.getElementById("saveSlots");
+      box.innerHTML = [1,2,3].map(n => {
+        const slot = saveSystem.slots[n];
+        const has = hasContent(slot);
+        const archives = Object.keys(slot.archive || {}).length;
         const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
         const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
-        return '<div class="save-slot"><div class="slot-main" data-enter="' + n + '"><div class="slot-info"><h3>Save File ' + n + "</h3><p>" + (has ? esc(week) : "New Game") + '</p><p style="font-size:0.75rem;">Archives: ' + Object.keys(slot.archive||{}).length + " · " + when + '</p></div></div><div class="slot-actions"><button type="button" class="primary" data-enter="' + n + '">' + (has?"Continue":"Start") + '</button><button type="button" class="danger" data-wipe="' + n + '">Wipe</button></div></div>';
+        return '<div class="save-slot"><div class="slot-main" data-enter="' + n + '"><div class="slot-info">' +
+          "<h3>Save File " + n + "</h3><p>" + (has ? esc(week) : "New Game") + "</p>" +
+          '<p style="font-size:0.75rem;margin-top:0.15rem;">Archives: ' + archives + " · Last saved: " + when + "</p>" +
+          '</div></div><div class="slot-actions">' +
+          '<button type="button" class="primary" data-enter="' + n + '">' + (has ? "Continue" : "Start") + "</button>" +
+          '<button type="button" class="danger" data-wipe="' + n + '">Wipe</button></div></div>';
       }).join("");
     }
+
     function enterSlot(n) {
       n = Number(n);
       if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) safeSave();
-      saveSystem.activeSlot = n; sessionOpen = true; applySlotToWorking(n); seedOfficialPowerIfEmpty();
+      saveSystem.activeSlot = n;
+      sessionOpen = true;
+      const slot = saveSystem.slots[n];
+      slot.data = ensureBlocks(slot.data || emptyData());
+      if (!slot.archive) slot.archive = {};
+      if (!Array.isArray(slot.roster)) slot.roster = [];
+      if (!Array.isArray(slot.powerRoster)) slot.powerRoster = [];
+      if (!Array.isArray(slot.sessions)) slot.sessions = [];
+      if (!Array.isArray(slot.diyProjects)) slot.diyProjects = [];
+      currentWeek = slot.currentWeek || "default";
+      data = {
+        canFocus: (slot.data.canFocus || "").toString(),
+        weekNotes: (slot.data.weekNotes || "").toString(),
+        blocks: deepClone(slot.data.blocks || {}),
+        showAttachments: true
+      };
+      ensureBlocks(data);
+      archive = deepClone(slot.archive);
+      roster = deepClone(slot.roster || []);
+      powerRoster = deepClone(slot.powerRoster || []);
+      sessions = deepClone(slot.sessions || []);
+      diyProjects = deepClone(slot.diyProjects || []);
+      seedOfficialPowerIfEmpty();
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
       applyUI();
+      setStatus("• Save File " + n);
+      updateSaveMeta();
+      previewSource = null;
     }
+
     function wipeSlot(n) {
-      n = Number(n); if (!confirm("Wipe Save File " + n + "?")) return;
+      n = Number(n);
+      if (!confirm("Wipe Save File " + n + " completely?")) return;
       saveSystem.slots[n] = emptySlot();
       if (sessionOpen && saveSystem.activeSlot === n) {
-        currentWeek = "default"; data = emptyData(); archive = {}; roster = []; powerRoster = []; sessions = []; diyProjects = []; templates = {}; ensureBlocks(data); applyUI();
+        currentWeek = "default"; data = emptyData(); archive = {}; roster = []; powerRoster = []; sessions = []; diyProjects = []; ensureBlocks(data); applyUI();
       }
       persistLocal(); pushCloud(); renderTitleSlots();
+      showToast("Save File " + n + " wiped", true);
     }
+
     function returnToTitle() {
-      if (sessionOpen) safeSave(); sessionOpen = false; saveSystem.activeSlot = null;
-      document.getElementById("main-app").style.display = "none"; document.getElementById("title-screen").style.display = "flex"; renderTitleSlots();
+      if (sessionOpen) safeSave();
+      sessionOpen = false;
+      saveSystem.activeSlot = null;
+      document.getElementById("main-app").style.display = "none";
+      document.getElementById("title-screen").style.display = "flex";
+      renderTitleSlots();
     }
+
     function applyUI() {
       document.getElementById("weekOf").value = currentWeek === "default" ? "" : currentWeek;
       document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? "Editing: " + currentWeek : "Current week";
       document.getElementById("canFocus").value = (data.canFocus || "").toString();
       document.getElementById("weekNotes").value = (data.weekNotes || "").toString();
-      fillDupSelects(); renderAllDayGrids(); updateDashboard(); renderHistory(); renderTemplates(); renderRoster(); renderDiy(); updateSaveMeta();
+      fillDupSelects();
+      renderAllDayGrids();
+      updateDashboard();
+      renderHistory();
+      renderTemplates();
+      renderRoster();
+      renderDiy();
+      if (document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
+      updateSaveMeta();
     }
+
     function switchPage(id) {
-      document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
-      document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
-      const page = document.getElementById("page-" + id); const nav = document.querySelector('.nav-item[data-page="' + id + '"]');
-      if (page) page.classList.add("active"); if (nav) nav.classList.add("active");
-      if (id === "preview") renderPreviewPage(); if (id === "templates") renderTemplates(); if (id === "roster") renderRoster(); if (id === "diy") renderDiy();
+      if (!id) return;
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      const page = document.getElementById("page-" + id);
+      const nav = document.querySelector('.nav-item[data-page="' + id + '"]');
+      if (page) page.classList.add("active");
+      if (nav) nav.classList.add("active");
+      if (id === "preview") { renderPreviewPage(); refreshCloudPreview(); }
+      if (id === "templates") renderTemplates();
+      if (id === "roster") renderRoster();
+      if (id === "diy") renderDiy();
+    }
+
+    function cloudSlotSummary(n) {
+      const rec = lastCloudRecord || {};
+      const slot = normalizeSlot((rec.slots && rec.slots[n]) || emptySlot());
+      const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
+      return { slot: slot, week: week };
     }
     function renderPreviewPage() {
-      document.getElementById("previewTargetLabel").textContent = saveSystem.activeSlot || "—";
+      const label = document.getElementById("previewTargetLabel");
+      if (label) label.textContent = lastCloudOk === true
+        ? ("Cloud backup " + (lastCloudRecord && lastCloudRecord.savedAt ? lastCloudRecord.savedAt : "loaded"))
+        : (lastCloudRecord ? "Showing last fetched backup" : "No cloud backup loaded yet");
       document.getElementById("previewSourceButtons").innerHTML = [1,2,3].map(function (n) {
-        return '<button type="button" class="source-btn' + (previewSource===n?" active":"") + '" data-preview-src="' + n + '">Save File ' + n + "</button>";
+        return '<button type="button" class="source-btn' + (previewSource===n?" active":"") + '" data-preview-src="' + n + '">Cloud Save File ' + n + "</button>";
       }).join("");
       const panel = document.getElementById("previewPanel");
-      if (!previewSource) { panel.innerHTML = "<p style=\"color:var(--text-muted);\">Select a Save File.</p>"; return; }
-      let slot = saveSystem.slots[previewSource];
-      if (previewSource === saveSystem.activeSlot && sessionOpen) {
-        collectFromDOM();
-        slot = { currentWeek: currentWeek, data: data, archive: archive, roster: roster, powerRoster: powerRoster, sessions: sessions, diyProjects: diyProjects, templates: templates };
+      if (!lastCloudRecord || !lastCloudRecord.slots) {
+        panel.innerHTML = '<p style="color:var(--text-muted);">Click <strong>Refresh cloud backup</strong> to pull the full save from JSONBin.</p>';
+        return;
       }
-      panel.innerHTML = '<div class="preview-card"><h3>Save File ' + previewSource + "</h3><p class=\"meta\">Week: " + esc(slot.currentWeek||"—") +
-        "</p><p class=\"meta\">Archives: " + Object.keys(slot.archive||{}).length +
-        "</p><p class=\"meta\">Class: " + (slot.roster||[]).length + " · POWER: " + (slot.powerRoster||[]).length +
-        "</p><p class=\"meta\">Sessions: " + (slot.sessions||[]).length + " · DIY: " + (slot.diyProjects||[]).length +
-        "</p><p class=\"meta\">Transfer moves the entire Save File.</p></div>" +
-        (previewSource === saveSystem.activeSlot ? "" : '<button type="button" class="primary" id="btnTransferPreview">Transfer data</button>');
+      if (!previewSource) {
+        panel.innerHTML = '<p style="color:var(--text-muted);">Pick a Cloud Save File above to preview it. Load it only if this device should match that backup.</p>';
+        return;
+      }
+      const info = cloudSlotSummary(previewSource);
+      const slot = info.slot;
+      const builders = (slot.diyProjects || []).reduce(function (n, pr) { return n + ((pr.studentIds || []).length); }, 0);
+      panel.innerHTML =
+        '<div class="preview-card"><h3>Cloud Save File ' + previewSource + "</h3>" +
+        '<p class="meta"><strong>Week:</strong> ' + esc(info.week) + "</p>" +
+        '<p class="meta"><strong>Days with content:</strong> ' + countFilledDays(slot) + "</p>" +
+        '<p class="meta"><strong>Archives:</strong> ' + Object.keys(slot.archive||{}).length + "</p>" +
+        '<p class="meta"><strong>8th Grade Class:</strong> ' + ((slot.roster||[]).length) + "</p>" +
+        '<p class="meta"><strong>POWER Program:</strong> ' + ((slot.powerRoster||[]).length) + "</p>" +
+        '<p class="meta"><strong>Sessions:</strong> ' + ((slot.sessions||[]).length) + "</p>" +
+        '<p class="meta"><strong>DIY projects / builders:</strong> ' + ((slot.diyProjects||[]).length) + " / " + builders + "</p>" +
+        '<p class="meta"><strong>Templates:</strong> ' + Object.keys(slot.templates||{}).length + "</p>" +
+        "<p class=\"meta\">This is the cloud copy. Loading it replaces Save File " + previewSource + " on this device only.</p></div>" +
+        '<div class="preview-actions"><button type="button" class="primary" id="btnTransferPreview">Load cloud Save File ' + previewSource + " onto this device</button></div>";
+    }
+    async function refreshCloudPreview() {
+      setStatus("• Checking cloud…");
+      await pullCloud(false);
+      renderPreviewPage();
     }
     function transferPreviewToCurrent() {
-      if (!previewSource || previewSource === saveSystem.activeSlot) return;
-      if (!confirm("Replace this Save File with Save File " + previewSource + " entirely?")) return;
-      const copy = deepClone(saveSystem.slots[previewSource]);
-      saveSystem.slots[saveSystem.activeSlot] = normalizeSlot(copy);
-      applySlotToWorking(saveSystem.activeSlot); applyUI(); persistLocal(); pushCloud(); switchPage("dashboard");
+      if (!lastCloudRecord || !lastCloudRecord.slots || !previewSource) {
+        alert("Refresh the cloud backup first.");
+        return;
+      }
+      const n = Number(previewSource);
+      const cloudSlot = normalizeSlot(deepClone(lastCloudRecord.slots[n] || emptySlot()));
+      if (!confirm("Load Cloud Save File " + n + " onto this device?\nThis replaces Save File " + n + " here with the cloud backup (plans, rosters, sessions, DIY builders, archives, templates).")) return;
+      saveSystem.slots[n] = cloudSlot;
+      if (sessionOpen && saveSystem.activeSlot === n) applySlotToWorking(n);
+      else if (!sessionOpen) { saveSystem.activeSlot = n; sessionOpen = true; applySlotToWorking(n); }
+      if (lastCloudRecord.templates && typeof lastCloudRecord.templates === "object") templates = deepClone(lastCloudRecord.templates);
+      persistLocal();
+      document.getElementById("title-screen").style.display = "none";
+      document.getElementById("main-app").style.display = "block";
+      document.getElementById("activeSlotLabel").textContent = "Save File " + n;
+      applyUI();
+      switchPage("dashboard");
     }
+
     function archiveCurrentWeek() {
+      if (!sessionOpen) return;
       collectFromDOM();
       const name = (document.getElementById("weekOf").value.trim() || currentWeek);
-      if (!name || name === "default") { alert("Name the week first."); return; }
-      archive[name] = snapshotCurrentWeek(); currentWeek = name; safeSave(); renderHistory();
+      if (!name || name === "default") { alert("Enter a week name first (or click This week)."); return; }
+      if (archive[name] && !confirm('"' + name + '" exists. Overwrite?')) return;
+      archive[name] = snapshotCurrentWeek();
+      currentWeek = name;
+      document.getElementById("weekOf").value = name;
+      document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
+      safeSave(); renderHistory();
     }
+
     function startNewWeek() {
+      if (!sessionOpen) return;
       if (!preserveCurrentWorkBeforeSwitch(null)) return;
-      if (!confirm("Start a blank week? Roster, sessions, and DIY stay.")) return;
-      currentWeek = "default"; data = emptyData(); ensureBlocks(data);
-      document.getElementById("weekOf").value = ""; document.getElementById("canFocus").value = ""; document.getElementById("weekNotes").value = "";
-      renderAllDayGrids(); updateDashboard(); safeSave();
-    }
-    function loadFromArchive(name) {
-      if (!archive[name] || !preserveCurrentWorkBeforeSwitch(name)) return;
-      const entry = archive[name]; currentWeek = name;
-      data = { canFocus: (entry.canFocus||"").toString(), weekNotes: (entry.weekNotes||"").toString(), blocks: deepClone(entry.blocks||{}), showAttachments: true };
+      if (!confirm("Start a new blank week?")) return;
+      currentWeek = "default";
+      data = emptyData();
       ensureBlocks(data);
-      document.getElementById("weekOf").value = name; document.getElementById("canFocus").value = data.canFocus; document.getElementById("weekNotes").value = data.weekNotes;
-      renderAllDayGrids(); updateDashboard(); renderHistory(); safeSave(); switchPage("dashboard");
+      /* roster + diyProjects stay with the Save File */
+      document.getElementById("weekOf").value = "";
+      document.getElementById("currentWeekLabel").textContent = "New blank week";
+      document.getElementById("canFocus").value = "";
+      document.getElementById("weekNotes").value = "";
+      renderAllDayGrids(); updateDashboard(); renderHistory(); safeSave();
     }
-    function deleteFromArchive(name) { if (!confirm("Delete archive?")) return; delete archive[name]; safeSave(); renderHistory(); }
+
+    function loadFromArchive(name) {
+      if (!archive[name]) return;
+      if (currentWeek === name) {
+        collectFromDOM(); archive[name] = snapshotCurrentWeek(); safeSave(); return;
+      }
+      if (!preserveCurrentWorkBeforeSwitch(name)) return;
+      if (!confirm('Load archived week "' + name + '"?')) return;
+      const entry = archive[name];
+      currentWeek = name;
+      data = {
+        canFocus: (entry.canFocus || "").toString(),
+        weekNotes: (entry.weekNotes || "").toString(),
+        blocks: deepClone(entry.blocks || {}),
+        showAttachments: true
+      };
+      ensureBlocks(data);
+      document.getElementById("weekOf").value = name;
+      document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
+      document.getElementById("canFocus").value = data.canFocus;
+      document.getElementById("weekNotes").value = data.weekNotes;
+      renderAllDayGrids(); updateDashboard(); renderHistory(); safeSave();
+      switchPage("dashboard");
+    }
+
+    function deleteFromArchive(name) {
+      if (!confirm('Delete "' + name + '" from Archives?')) return;
+      delete archive[name]; safeSave(); renderHistory(); showToast("Deleted from archive", true);
+    }
+
     function renderHistory() {
       const list = document.getElementById("historyList");
       const keys = Object.keys(archive || {}).sort().reverse();
-      if (!keys.length) { list.innerHTML = '<div class="empty-history">No archived weeks yet.</div>'; return; }
-      list.innerHTML = keys.map(function (name) {
-        return '<div class="history-item"><div><h3>' + esc(name) + "</h3></div><div class=\"history-actions\"><button type=\"button\" class=\"primary\" data-arch-load=\"" + encodeURIComponent(name) + "\">Load</button><button type=\"button\" class=\"danger\" data-arch-del=\"" + encodeURIComponent(name) + "\">Delete</button></div></div>";
+      if (!keys.length) {
+        list.innerHTML = '<div class="empty-history">No archived weeks yet.</div>';
+        return;
+      }
+      list.innerHTML = keys.map(name => {
+        const can = (archive[name].canFocus || "").toString().trim();
+        const canLine = can
+          ? '<div class="can-preview"><strong>C.A.N.:</strong> ' + esc(can.length > 120 ? can.slice(0,120)+"…" : can) + "</div>"
+          : '<div class="can-preview">No C.A.N. Focus stored</div>';
+        return '<div class="history-item">' +
+          "<div><h3>" + esc(name) + "</h3><div class=\"meta\">Saved: " + (archive[name].savedAt || "Unknown") + "</div>" + canLine + "</div>" +
+          '<div class="history-actions">' +
+          '<button type="button" class="primary" data-arch-load="' + encodeURIComponent(name) + '">Load</button>' +
+          '<button type="button" class="danger" data-arch-del="' + encodeURIComponent(name) + '">Delete</button>' +
+          "</div></div>";
       }).join("");
     }
+
     function collectFromDOM() {
       if (!sessionOpen) return;
       data.canFocus = document.getElementById("canFocus").value || "";
       data.weekNotes = document.getElementById("weekNotes").value || "";
-      document.querySelectorAll(".days-grid").forEach(function (grid) {
-        const block = grid.dataset.block; if (!data.blocks[block]) data.blocks[block] = emptyBlock();
-        grid.querySelectorAll(".day-card").forEach(function (card) {
-          const day = card.dataset.day, existing = data.blocks[block][day] || emptyDay();
+      data.showAttachments = true;
+      document.querySelectorAll(".days-grid").forEach(grid => {
+        const block = grid.dataset.block;
+        if (!data.blocks[block]) data.blocks[block] = emptyBlock();
+        grid.querySelectorAll(".day-card").forEach(card => {
+          const day = card.dataset.day;
+          const existing = data.blocks[block][day] || emptyDay();
           data.blocks[block][day] = {
-            title: (card.querySelector('[data-field="title"]') || {}).value || "",
-            objective: (card.querySelector('[data-field="objective"]') || {}).value || "",
-            activities: (card.querySelector('[data-field="activities"]') || {}).value || "",
-            notes: (card.querySelector('[data-field="notes"]') || {}).value || "",
-            noSchool: card.classList.contains("no-school"), files: existing.files || []
+            title: card.querySelector('[data-field="title"]')?.value || "",
+            objective: card.querySelector('[data-field="objective"]')?.value || "",
+            activities: card.querySelector('[data-field="activities"]')?.value || "",
+            notes: card.querySelector('[data-field="notes"]')?.value || "",
+            noSchool: card.classList.contains("no-school"),
+            files: existing.files || []
           };
         });
       });
     }
+
     function toggleNoSchool(b, d) {
       if (!data.blocks[b]) data.blocks[b] = emptyBlock();
-      data.blocks[b][d].noSchool = !data.blocks[b][d].noSchool; renderAllDayGrids(); safeSave();
+      data.blocks[b][d].noSchool = !data.blocks[b][d].noSchool;
+      renderAllDayGrids(); safeSave();
     }
+
     function isImageName(n,u){ return /\.(jpe?g|png|gif|webp)$/i.test(n||"") || /\.(jpe?g|png|gif|webp)(\?|$)/i.test(u||""); }
     function isPdfName(n,u){ return /\.pdf$/i.test(n||"") || /\.pdf(\?|$)/i.test(u||""); }
-    function pdfPageUrl(publicId, page) { return publicId ? "https://res.cloudinary.com/" + CLOUD_NAME + "/image/upload/f_auto,q_auto,pg_" + page + "/" + publicId : null; }
-    function publicIdFromUrl(url) { try { const m = (url||"").match(/\/upload\/(?:v\d+\/)?(.+)$/); return m ? m[1].replace(/\.[a-z0-9]+$/i,"") : ""; } catch (e) { return ""; } }
+    function pdfPageUrl(publicId, page) {
+      if (!publicId) return null;
+      return "https://res.cloudinary.com/" + CLOUD_NAME + "/image/upload/f_auto,q_auto,pg_" + page + "/" + publicId;
+    }
+    function publicIdFromUrl(url) {
+      if (!url) return "";
+      try {
+        const m = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
+        if (!m) return "";
+        return m[1].replace(/\.[a-z0-9]+$/i, "");
+      } catch (e) { return ""; }
+    }
+
     async function handleFile(b, d, fileList) {
-      const files = Array.from(fileList || []); if (!files.length) return;
+      const files = Array.from(fileList || []);
+      if (!files.length) return;
       if (!data.blocks[b]) data.blocks[b] = emptyBlock();
-      const day = data.blocks[b][d]; day.files = day.files || [];
+      const day = data.blocks[b][d];
+      day.files = day.files || [];
       for (const file of files) {
-        if (day.files.length >= MAX_FILES) break;
-        const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", UPLOAD_PRESET); fd.append("folder", "scholastic-batch");
+        if (day.files.length >= MAX_FILES) { alert("Max " + MAX_FILES + " files per day."); break; }
+        const name = file.name || "";
+        if (!isImageName(name) && !isPdfName(name)) { alert("Images (JPG/PNG) or PDF only."); continue; }
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", UPLOAD_PRESET);
+        fd.append("folder", "scholastic-batch");
         try {
-          const res = await fetch(CLOUDINARY_URL, { method: "POST", body: fd }); if (!res.ok) throw new Error("fail");
+          const res = await fetch(CLOUDINARY_URL, { method: "POST", body: fd });
+          if (!res.ok) throw new Error("fail");
           const r = await res.json();
-          day.files.push({ fileName: r.original_filename || file.name, fileUrl: r.secure_url, publicId: r.public_id || "" });
-        } catch (e) {}
+          day.files.push({
+            fileName: r.original_filename || file.name,
+            fileUrl: r.secure_url,
+            publicId: r.public_id || publicIdFromUrl(r.secure_url) || ""
+          });
+        } catch (e) { showToast("Upload failed", true); }
       }
       renderAllDayGrids(); safeSave();
     }
-    function removeFile(b, d, idx) { if (data.blocks[b] && data.blocks[b][d] && data.blocks[b][d].files) { data.blocks[b][d].files.splice(idx, 1); renderAllDayGrids(); safeSave(); } }
+    function removeFile(b, d, idx) {
+      if (!data.blocks[b]?.[d]?.files) return;
+      data.blocks[b][d].files.splice(idx, 1);
+      renderAllDayGrids(); safeSave();
+    }
+
     function renderDayCard(b, day) {
       const e = migrateDay((data.blocks[b] && data.blocks[b][day]) || emptyDay());
       if (e.noSchool) {
-        return '<div class="day-card no-school" data-day="' + day + '"><div class="day-card-header"><span>' + day + '</span><button type="button" class="day-close" data-noschool="' + b + "|" + day + '">✕</button></div><div class="no-school-message"><strong>No School</strong>There was no session this day due to a holiday or event.</div></div>';
+        return '<div class="day-card no-school" data-day="' + day + '">' +
+          '<div class="day-card-header"><span>' + day + '</span>' +
+          '<button type="button" class="day-close" data-noschool="' + b + '|' + day + '">✕</button></div>' +
+          '<div class="no-school-message"><strong>No School</strong>There was no session this day due to a holiday or event.</div></div>';
       }
-      const filesHtml = (e.files || []).map(function (f, i) {
-        return '<div class="attached-file"><div class="af-name">📎 ' + esc(f.fileName) + '</div><button type="button" class="danger small" data-rmfile="' + b + "|" + day + "|" + i + '">Remove</button></div>';
+      let filesHtml = (e.files || []).map((f, i) => {
+        const isImg = isImageName(f.fileName, f.fileUrl);
+        const preview = isImg && f.fileUrl
+          ? '<div class="af-preview"><img src="' + esc(f.fileUrl) + '" alt=""></div>'
+          : (isPdfName(f.fileName, f.fileUrl) ? '<div class="af-name">PDF — prints as pages</div>' : "");
+        return '<div class="attached-file"><div class="af-name">📎 ' + esc(f.fileName) + "</div>" + preview +
+          '<div class="af-actions"><button type="button" class="danger small" data-rmfile="' + b + "|" + day + "|" + i + '">Remove</button></div></div>';
       }).join("");
-      const drop = (e.files||[]).length < MAX_FILES ? '<div class="drop-zone" data-drop="' + b + "|" + day + '"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple />📄 Add image/PDF</div>' : "";
-      return '<div class="day-card" data-day="' + day + '"><div class="day-card-header"><span>' + day + '</span><button type="button" class="day-close" data-noschool="' + b + "|" + day + '">✕</button></div><div class="day-card-body">' +
-        '<div class="field"><div class="field-header"><label>Title</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div><input data-field="title" value="' + esc(e.title) + '"></div>' +
-        '<div class="field"><div class="field-header"><label>Objective</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div><input data-field="objective" value="' + esc(e.objective) + '"></div>' +
-        '<div class="field"><div class="field-header"><label>Activities</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div><textarea data-field="activities">' + esc(e.activities) + "</textarea></div>" +
-        '<div class="field"><div class="field-header"><label>Notes</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div><textarea data-field="notes" rows="2">' + esc(e.notes) + "</textarea></div>" + filesHtml + drop + "</div></div>";
+      const canAdd = (e.files || []).length < MAX_FILES;
+      const drop = canAdd
+        ? '<div class="drop-zone" data-drop="' + b + "|" + day + '"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple />📄 Add image/PDF (' + (e.files||[]).length + "/" + MAX_FILES + ")</div>"
+        : '<div class="files-cap">File limit reached (' + MAX_FILES + ")</div>";
+
+      return '<div class="day-card" data-day="' + day + '">' +
+        '<div class="day-card-header"><span>' + day + '</span>' +
+        '<button type="button" class="day-close" data-noschool="' + b + "|" + day + '">✕</button></div>' +
+        '<div class="day-card-body">' +
+        '<div class="field"><div class="field-header"><label>Lesson / Activity Title</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<input type="text" data-field="title" value="' + esc(e.title) + '"></div>' +
+        '<div class="field"><div class="field-header"><label>Objective / Focus</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<input type="text" data-field="objective" value="' + esc(e.objective) + '"></div>' +
+        '<div class="field"><div class="field-header"><label>Activities / Content</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<textarea data-field="activities">' + esc(e.activities) + "</textarea></div>" +
+        '<div class="field"><div class="field-header"><label>Notes / Materials</label><div class="field-actions"><button type="button" class="copy-btn">Copy</button><button type="button" class="paste-btn">Paste</button></div></div>' +
+        '<textarea data-field="notes" rows="2">' + esc(e.notes) + "</textarea></div>" +
+        filesHtml + drop + "</div></div>";
     }
-    function renderAllDayGrids() { document.querySelectorAll(".days-grid").forEach(function (g) { g.innerHTML = DAYS.map(function (d) { return renderDayCard(g.dataset.block, d); }).join(""); }); }
+
+    function renderAllDayGrids() {
+      document.querySelectorAll(".days-grid").forEach(g => {
+        g.innerHTML = DAYS.map(d => renderDayCard(g.dataset.block, d)).join("");
+      });
+    }
     function updateDashboard() {
-      document.getElementById("dashboardGrid").innerHTML = Object.keys(BLOCKS).map(function (k) {
-        const info = BLOCKS[k], bd = data.blocks[k] || emptyBlock(); let filled = 0;
-        DAYS.forEach(function (d) { const e = bd[d]; if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||(e.files&&e.files.length))) filled++; });
-        return '<div class="dash-card" data-goto="' + k + '"><h3>' + info.name + '</h3><div class="time">' + info.time + '</div><div class="status ' + (filled?"filled":"") + '">' + (filled ? filled + " of 5 days planned" : "No lessons yet") + "</div></div>";
+      const grid = document.getElementById("dashboardGrid");
+      grid.innerHTML = Object.entries(BLOCKS).map(([k, info]) => {
+        const bd = data.blocks[k] || emptyBlock();
+        let filled = 0;
+        DAYS.forEach(d => {
+          const e = bd[d];
+          if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||(e.files&&e.files.length))) filled++;
+        });
+        return '<div class="dash-card" data-goto="' + k + '"><h3>' + info.name + "</h3>" +
+          '<div class="time">' + info.time + '</div><div class="status ' + (filled?"filled":"") + '">' +
+          (filled ? filled + " of 5 days planned" : "No lessons yet") + "</div></div>";
       }).join("");
     }
-    function generatePrintReport() {
+
+    function printAttachmentHtml(e) {
+      const files = e.files || [];
+      if (!files.length) return "";
+      let html = "";
+      files.forEach(f => {
+        html += '<div class="print-attachment"><strong>Worksheet: ' + esc(f.fileName || "Document") + '</strong><div class="print-doc-preview">';
+        const url = f.fileUrl || "";
+        const pid = f.publicId || publicIdFromUrl(url);
+        if (isImageName(f.fileName, url) && url) html += '<img src="' + esc(url) + '" alt="">';
+        else if (isPdfName(f.fileName, url) && pid) {
+          for (let p = 1; p <= 3; p++) html += '<div class="page-label">Page ' + p + '</div><img src="' + pdfPageUrl(pid,p) + '" alt="" onerror="this.style.display=\'none\'">';
+        } else if (url) html += "<em>" + esc(f.fileName) + "</em>";
+        html += "</div></div>";
+      });
+      return html;
+    }
+
+    function buildPrintHtml() {
       collectFromDOM();
       const week = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
-      let html = "<h1>Weekly Lesson Plan</h1><div class=\"meta\">" + esc(week) + "</div><div class=\"can-focus\"><strong>C.A.N.:</strong><br>" + esc(data.canFocus||"—").replace(/\n/g,"<br>") + "</div>";
-      DAYS.forEach(function (day) {
-        html += '<div class="print-day"><div class="print-day-header">' + day + "</div>";
-        Object.keys(BLOCKS).forEach(function (k) {
-          const e = migrateDay((data.blocks[k] && data.blocks[k][day]) || emptyDay());
-          html += '<div class="print-block"><div class="print-block-title">' + BLOCKS[k].name + "</div><div class=\"print-field\">" + (e.noSchool ? "No session this day due to a holiday or event." : esc(e.title||"—") + "<br>" + esc(e.activities||"")) + "</div></div>";
-        });
+      let html = "<h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>" +
+        '<div class="meta"><strong>Week of:</strong> ' + esc(week) + "<br><strong>Save File:</strong> " + saveSystem.activeSlot +
+        "<br><strong>School:</strong> La Viña Middle School · 8th Grade<br><strong>Generated:</strong> " + new Date().toLocaleString() + "</div>" +
+        '<div class="can-focus"><strong>C.A.N. Standards Focus:</strong><br>' + esc(data.canFocus||"—").replace(/\n/g,"<br>") + "</div>";
+      if ((data.weekNotes || "").trim()) {
+        html += '<div class="week-notes"><strong>Week Notes / Reminders:</strong><br>' + esc(data.weekNotes).replace(/\n/g,"<br>") + "</div>";
+      }
+      DAYS.forEach(day => {
+        let no = true;
+        Object.keys(BLOCKS).forEach(k => { if (!(data.blocks[k]?.[day]?.noSchool)) no = false; });
+        html += '<div class="print-day"><div class="print-day-header' + (no?" no-school":"") + '">' + day + (no?" — NO SCHOOL":"") + "</div>";
+        if (no) {
+          html += '<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>';
+        } else {
+          Object.entries(BLOCKS).forEach(([k,info]) => {
+            const e = migrateDay(data.blocks[k]?.[day] || emptyDay());
+            if (e.noSchool) {
+              html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time +
+                '</div><div class="print-no-school-note" style="margin:0;padding:0.5rem;">There was no session this day due to a holiday or event.</div></div>';
+            } else {
+              html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time + "</div>" +
+                '<div class="print-field"><strong>Title:</strong> ' + (esc(e.title)||"—") + "</div>" +
+                '<div class="print-field"><strong>Objective:</strong> ' + (esc(e.objective)||"—") + "</div>" +
+                '<div class="print-field"><strong>Activities:</strong> ' + (esc(e.activities).replace(/\n/g,"<br>")||"—") + "</div>" +
+                '<div class="print-field"><strong>Notes:</strong> ' + (esc(e.notes).replace(/\n/g,"<br>")||"—") + "</div>" +
+                printAttachmentHtml(e) + "</div>";
+            }
+          });
+        }
         html += "</div>";
       });
-      const r = document.getElementById("printReport"); r.innerHTML = html; r.style.display = "block";
-      setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
+      html += '<div class="print-footer">Mr. Enciso’s Scholastic Batch · Save File ' + saveSystem.activeSlot + " · La Viña Middle School</div>";
+      return html;
     }
-    async function downloadPdf() { generatePrintReport(); }
+
+    function generatePrintReport() {
+      if (!sessionOpen) return;
+      const r = document.getElementById("printReport");
+      r.innerHTML = buildPrintHtml();
+      r.style.display = "block";
+      setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 2000); }, 900);
+    }
+
+    async function downloadPdf() {
+      if (!sessionOpen) return;
+      if (typeof html2pdf === "undefined") { showToast("PDF library not loaded — use Print", true); return; }
+      const r = document.getElementById("printReport");
+      r.innerHTML = buildPrintHtml();
+      r.style.display = "block";
+      const week = (document.getElementById("weekOf").value.trim() || currentWeek || "week").replace(/[^\w\-]+/g, "_");
+      try {
+        await html2pdf().set({
+          margin: 0.4, filename: "Scholastic-Batch-" + week + ".pdf",
+          image: { type: "jpeg", quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+        }).from(r).save();
+        showToast("PDF downloaded");
+      } catch (e) { showToast("PDF failed — try Print", true); }
+      finally { setTimeout(() => { r.style.display = "none"; }, 500); }
+    }
+
+    // Single click handler
     document.addEventListener("click", async function (ev) {
       const t = ev.target;
-      const nav = t.closest(".nav-item"); if (nav && nav.dataset.page) { switchPage(nav.dataset.page); return; }
-      const enter = t.closest("[data-enter]"); if (enter) { enterSlot(enter.getAttribute("data-enter")); return; }
-      const wipe = t.closest("[data-wipe]"); if (wipe) { wipeSlot(wipe.getAttribute("data-wipe")); return; }
-      const rview = t.closest("[data-roster-view]"); if (rview) { rosterView = rview.getAttribute("data-roster-view") || "class"; renderRoster(); return; }
+
+      const nav = t.closest(".nav-item");
+      if (nav && nav.dataset.page) { switchPage(nav.dataset.page); return; }
+
+      const enter = t.closest("[data-enter]");
+      if (enter) { enterSlot(enter.getAttribute("data-enter")); return; }
+      const wipe = t.closest("[data-wipe]");
+      if (wipe) { wipeSlot(wipe.getAttribute("data-wipe")); return; }
+
+      // TEMPLATE APPLY / DELETE
+      const rview = t.closest("[data-roster-view]");
+      if (rview) { rosterView = rview.getAttribute("data-roster-view") || "class"; renderRoster(); return; }
       if (t.id === "btnAddStudent" || t.closest("#btnAddStudent")) { addStudent(); return; }
       if (t.id === "btnAddSession" || t.closest("#btnAddSession")) { addSession(); return; }
-      const delSess = t.closest("[data-del-sess]"); if (delSess) { removeSession(delSess.getAttribute("data-del-sess")); return; }
-      const prSess = t.closest("[data-print-sess]"); if (prSess) { printSession(prSess.getAttribute("data-print-sess")); return; }
-      const prDiy = t.closest("[data-print-diy]"); if (prDiy) { printDiy(prDiy.getAttribute("data-print-diy")); return; }
+      const delSess = t.closest("[data-del-sess]");
+      if (delSess) { removeSession(delSess.getAttribute("data-del-sess")); return; }
+      const prSess = t.closest("[data-print-sess]");
+      if (prSess) { printSession(prSess.getAttribute("data-print-sess")); return; }
       if (t.id === "btnBulkAdd" || t.closest("#btnBulkAdd")) { addBulkStudents(); return; }
       if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster")) { printRoster(); return; }
       if (t.id === "btnWipeRoster" || t.closest("#btnWipeRoster")) { wipeActiveRoster(); return; }
       if (t.id === "btnLoadOfficialPower" || t.closest("#btnLoadOfficialPower")) { loadOfficialPowerList(); return; }
       if (t.id === "btnAddDiy" || t.closest("#btnAddDiy")) { addDiyProject(); return; }
-      const delD = t.closest("[data-del-diy]"); if (delD) { const tr = delD.closest("[data-did]"); if (tr) { diyProjects = diyProjects.filter(function (x) { return x.id !== tr.getAttribute("data-did"); }); renderDiy(); safeSave(); } return; }
-      const delS = t.closest("[data-del-student]"); if (delS) { const tr = delS.closest("[data-sid]"); if (tr) removeStudent(tr.getAttribute("data-sid")); return; }
+      const prDiy = t.closest("[data-print-diy]");
+      if (prDiy) { printDiy(prDiy.getAttribute("data-print-diy")); return; }
+      const delD = t.closest("[data-del-diy]");
+      if (delD) {
+        const tr = delD.closest("[data-did]");
+        if (tr) removeDiy(tr.getAttribute("data-did"));
+        return;
+      }
+      const delS = t.closest("[data-del-student]");
+      if (delS) {
+        const tr = delS.closest("[data-sid]");
+        if (tr) removeStudent(tr.getAttribute("data-sid"));
+        return;
+      }
       const bucksBtn = t.closest("[data-bucks]");
-      if (bucksBtn) { const tr = bucksBtn.closest("[data-sid]"); if (tr) { const s = findStudent(tr.getAttribute("data-sid")); if (s) { s.bucks = Math.max(0, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks"))); renderRoster(); safeSave(); } } return; }
-      const tplApply = t.closest("[data-tpl-apply]"); if (tplApply) { applyTemplateToCurrentWeek(decodeURIComponent(tplApply.getAttribute("data-tpl-apply"))); return; }
-      const tplDel = t.closest("[data-tpl-delete]"); if (tplDel) { deleteTemplate(decodeURIComponent(tplDel.getAttribute("data-tpl-delete"))); return; }
-      const archLoad = t.closest("[data-arch-load]"); if (archLoad) { loadFromArchive(decodeURIComponent(archLoad.getAttribute("data-arch-load"))); return; }
-      const archDel = t.closest("[data-arch-del]"); if (archDel) { deleteFromArchive(decodeURIComponent(archDel.getAttribute("data-arch-del"))); return; }
-      const dupB = t.closest("[data-dup-block]"); if (dupB) { duplicateDayInBlock(dupB.getAttribute("data-dup-block")); return; }
-      const dupA = t.closest("[data-dup-all]"); if (dupA) { copyDayToAllInBlock(dupA.getAttribute("data-dup-all")); return; }
-      const dash = t.closest("[data-goto]"); if (dash) { switchPage(dash.getAttribute("data-goto")); return; }
-      const psrc = t.closest("[data-preview-src]"); if (psrc) { previewSource = Number(psrc.getAttribute("data-preview-src")); renderPreviewPage(); return; }
-      if (t.id === "btnTransferPreview") { transferPreviewToCurrent(); return; }
-      const ns = t.closest("[data-noschool]"); if (ns) { const p = ns.getAttribute("data-noschool").split("|"); toggleNoSchool(p[0], p[1]); return; }
-      const rfrm = t.closest("[data-rmfile]"); if (rfrm) { const p = rfrm.getAttribute("data-rmfile").split("|"); removeFile(p[0], p[1], Number(p[2])); return; }
-      const drop = t.closest("[data-drop]"); if (drop && !t.matches("input")) { const input = drop.querySelector('input[type="file"]'); if (input) input.click(); return; }
-      const copyBtn = t.closest(".copy-btn"), pasteBtn = t.closest(".paste-btn");
+      if (bucksBtn) {
+        const tr = bucksBtn.closest("[data-sid]");
+        if (tr) {
+          const s = findStudent(tr.getAttribute("data-sid"));
+          if (s) {
+            s.bucks = Math.max(0, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks")));
+            renderRoster();
+            safeSave();
+          }
+        }
+        return;
+      }
+
+      const tplApply = t.closest("[data-tpl-apply]");
+      if (tplApply) {
+        const name = decodeURIComponent(tplApply.getAttribute("data-tpl-apply"));
+        applyTemplateToCurrentWeek(name);
+        return;
+      }
+      const tplDel = t.closest("[data-tpl-delete]");
+      if (tplDel) {
+        const name = decodeURIComponent(tplDel.getAttribute("data-tpl-delete"));
+        deleteTemplate(name);
+        return;
+      }
+
+      const archLoad = t.closest("[data-arch-load]");
+      if (archLoad) { loadFromArchive(decodeURIComponent(archLoad.getAttribute("data-arch-load"))); return; }
+      const archDel = t.closest("[data-arch-del]");
+      if (archDel) { deleteFromArchive(decodeURIComponent(archDel.getAttribute("data-arch-del"))); return; }
+
+      const dupB = t.closest("[data-dup-block]");
+      if (dupB) { duplicateDayInBlock(dupB.getAttribute("data-dup-block")); return; }
+      const dupA = t.closest("[data-dup-all]");
+      if (dupA) { copyDayToAllInBlock(dupA.getAttribute("data-dup-all")); return; }
+
+      const dash = t.closest("[data-goto]");
+      if (dash) { switchPage(dash.getAttribute("data-goto")); return; }
+
+      const psrc = t.closest("[data-preview-src]");
+      if (psrc) { previewSource = Number(psrc.getAttribute("data-preview-src")); renderPreviewPage(); return; }
+      if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) { transferPreviewToCurrent(); return; }
+      if (t.id === "btnRefreshCloud" || t.closest("#btnRefreshCloud")) { refreshCloudPreview(); return; }
+
+      const ns = t.closest("[data-noschool]");
+      if (ns) { const p = ns.getAttribute("data-noschool").split("|"); toggleNoSchool(p[0], p[1]); return; }
+      const rf = t.closest("[data-rmfile]");
+      if (rf) { const p = rf.getAttribute("data-rmfile").split("|"); removeFile(p[0], p[1], Number(p[2])); return; }
+
+      const drop = t.closest("[data-drop]");
+      if (drop && !t.matches("input")) { const input = drop.querySelector('input[type="file"]'); if (input) input.click(); return; }
+
+      const copyBtn = t.closest(".copy-btn");
+      const pasteBtn = t.closest(".paste-btn");
       if (copyBtn) {
-        let text = copyBtn.dataset.copyTarget === "canFocus" ? document.getElementById("canFocus").value : copyBtn.dataset.copyTarget === "weekNotes" ? document.getElementById("weekNotes").value : ((copyBtn.closest(".field") || {}).querySelector("input, textarea") || {}).value || "";
-        await copyText(text, copyBtn);
+        let text = "";
+        if (copyBtn.dataset.copyTarget === "canFocus") text = document.getElementById("canFocus").value;
+        else if (copyBtn.dataset.copyTarget === "weekNotes") text = document.getElementById("weekNotes").value;
+        else { const field = copyBtn.closest(".field"); const input = field && field.querySelector("input, textarea"); if (input) text = input.value; }
+        await copyText(text, copyBtn); return;
       }
       if (pasteBtn) {
-        let input = pasteBtn.dataset.pasteTarget === "canFocus" ? document.getElementById("canFocus") : pasteBtn.dataset.pasteTarget === "weekNotes" ? document.getElementById("weekNotes") : (pasteBtn.closest(".field") || {}).querySelector("input, textarea");
+        let input = null;
+        if (pasteBtn.dataset.pasteTarget === "canFocus") input = document.getElementById("canFocus");
+        else if (pasteBtn.dataset.pasteTarget === "weekNotes") input = document.getElementById("weekNotes");
+        else { const field = pasteBtn.closest(".field"); input = field && field.querySelector("input, textarea"); }
         await pasteIntoField(input, pasteBtn);
       }
     });
+
     document.addEventListener("change", function (ev) {
       const input = ev.target;
       const tr = input.closest && input.closest("[data-sid]");
-      if (tr && input.getAttribute("data-rf")) { updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value); return; }
+      if (tr && input.getAttribute("data-rf")) {
+        updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value);
+        return;
+      }
       const dtr = input.closest && input.closest("[data-did]");
-      if (dtr && input.getAttribute("data-df")) { updateDiyField(dtr.getAttribute("data-did"), input.getAttribute("data-df"), input.value); return; }
-      if (input.getAttribute("data-sf") && input.getAttribute("data-sess")) { updateSessionField(input.getAttribute("data-sess"), input.getAttribute("data-sf"), input.value); return; }
-      if (input.getAttribute("data-pick-sess") && input.getAttribute("data-pick-stu")) { toggleSessionStudent(input.getAttribute("data-pick-sess"), input.getAttribute("data-pick-stu"), input.checked); return; }
-      if (input.getAttribute("data-pick-diy") && input.getAttribute("data-pick-stu")) { toggleDiyStudent(input.getAttribute("data-pick-diy"), input.getAttribute("data-pick-stu"), input.checked); return; }
+      if (dtr && input.getAttribute("data-df")) {
+        updateDiyField(dtr.getAttribute("data-did"), input.getAttribute("data-df"), input.value);
+        return;
+      }
+      if (input.getAttribute("data-sf") && input.getAttribute("data-sess")) {
+        updateSessionField(input.getAttribute("data-sess"), input.getAttribute("data-sf"), input.value);
+        return;
+      }
+      if (input.getAttribute("data-pick-sess") && input.getAttribute("data-pick-stu")) {
+        toggleSessionStudent(input.getAttribute("data-pick-sess"), input.getAttribute("data-pick-stu"), input.checked);
+        return;
+      }
+      if (input.getAttribute("data-pick-diy") && input.getAttribute("data-pick-stu")) {
+        toggleDiyStudent(input.getAttribute("data-pick-diy"), input.getAttribute("data-pick-stu"), input.checked);
+        return;
+      }
       if (input && input.type === "file") {
         const drop = input.closest("[data-drop]");
-        if (drop) { const p = drop.getAttribute("data-drop").split("|"); handleFile(p[0], p[1], input.files); input.value = ""; }
+        if (drop) {
+          const p = drop.getAttribute("data-drop").split("|");
+          handleFile(p[0], p[1], input.files);
+          input.value = "";
+        }
       }
     });
-    document.addEventListener("input", function (ev) { if (sessionOpen && ev.target.matches("input, textarea")) safeSave(); });
-    document.addEventListener("dragover", function (ev) { const drop = ev.target.closest("[data-drop]"); if (drop) { ev.preventDefault(); drop.classList.add("dragover"); } });
-    document.addEventListener("drop", function (ev) {
-      const drop = ev.target.closest("[data-drop]"); if (!drop) return;
-      ev.preventDefault(); const p = drop.getAttribute("data-drop").split("|"); handleFile(p[0], p[1], ev.dataTransfer.files);
+    document.addEventListener("input", function (ev) {
+      if (!sessionOpen) return;
+      if (ev.target.matches("input, textarea")) safeSave();
     });
-    document.getElementById("btnSave").onclick = function () { safeSave(); };
+    document.addEventListener("dragover", function (ev) {
+      const drop = ev.target.closest("[data-drop]");
+      if (drop) { ev.preventDefault(); drop.classList.add("dragover"); }
+    });
+    document.addEventListener("dragleave", function (ev) {
+      const drop = ev.target.closest("[data-drop]");
+      if (drop) drop.classList.remove("dragover");
+    });
+    document.addEventListener("drop", function (ev) {
+      const drop = ev.target.closest("[data-drop]");
+      if (!drop) return;
+      ev.preventDefault();
+      drop.classList.remove("dragover");
+      const p = drop.getAttribute("data-drop").split("|");
+      handleFile(p[0], p[1], ev.dataTransfer.files);
+    });
+
+    document.getElementById("btnSave").onclick = () => safeSave();
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
     document.getElementById("btnNewWeek").onclick = startNewWeek;
     document.getElementById("btnPrintReport").onclick = generatePrintReport;
@@ -1699,23 +2687,41 @@
     document.getElementById("btnTitleScreen").onclick = returnToTitle;
     document.getElementById("btnThisWeek").onclick = setThisWeekName;
     document.getElementById("btnSaveTemplate").onclick = saveCurrentAsTemplate;
-    document.getElementById("btnLoadWeek").onclick = function () {
+    const rs = document.getElementById("rosterSearch");
+    const rf = document.getElementById("rosterFilterDiy");
+    const rslip = document.getElementById("rosterFilterSlip");
+    if (rs) rs.addEventListener("input", renderRoster);
+    if (rf) rf.addEventListener("change", renderRoster);
+    if (rslip) rslip.addEventListener("change", renderRoster);
+    const diyCat = document.getElementById("diyCatalog");
+    if (diyCat) diyCat.addEventListener("change", function () {
+      const opt = diyCat.options[diyCat.selectedIndex];
+      if (opt && opt.getAttribute("data-level")) document.getElementById("diyLevel").value = opt.getAttribute("data-level");
+    });
+    document.getElementById("btnLoadWeek").onclick = () => {
       if (!sessionOpen) return;
-      currentWeek = document.getElementById("weekOf").value.trim() || "default";
-      document.getElementById("currentWeekLabel").textContent = currentWeek !== "default" ? "Editing: " + currentWeek : "Current week";
+      const w = document.getElementById("weekOf").value.trim() || "default";
+      currentWeek = w;
+      document.getElementById("currentWeekLabel").textContent = w !== "default" ? "Editing: " + w : "Current week";
       safeSave();
     };
-    const rs = document.getElementById("rosterSearch"); if (rs) rs.addEventListener("input", renderRoster);
-    const rf = document.getElementById("rosterFilterDiy"); if (rf) rf.addEventListener("change", renderRoster);
-    const rslip = document.getElementById("rosterFilterSlip"); if (rslip) rslip.addEventListener("change", renderRoster);
-    setInterval(function () { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
-    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") pullCloud(); });
-    window.addEventListener("beforeunload", function () { if (sessionOpen) { collectFromDOM(); persistLocal(); } });
-    loadLocal(); loadTemplates(); sessionOpen = false; saveSystem.activeSlot = null;
+
+    setInterval(() => { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") pullCloud(false);
+    });
+    window.addEventListener("beforeunload", () => {
+      if (sessionOpen && saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
+    });
+
+    loadLocal();
+    loadTemplates();
+    sessionOpen = false;
+    saveSystem.activeSlot = null;
     document.getElementById("title-screen").style.display = "flex";
     document.getElementById("main-app").style.display = "none";
     renderTitleSlots();
-    setTimeout(maybePullCloud, 800);
+    setTimeout(maybePullCloud, 1200);
   })();
   </script>
 </body>
