@@ -594,7 +594,8 @@
           <div id="diyList"></div>
         </section>
         <section id="page-history" class="page">
-          <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
+          <h2 style="margin-bottom:0.35rem; color:var(--gold-light);">Archives (Permanent)</h2>
+          <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:1rem;">Visible on all devices</p>
           <div class="history-list" id="historyList"></div>
         </section>
 
@@ -1041,6 +1042,16 @@
     let cloudBusy = false;
     let cloudAgain = false;
     let lastCloudRecord = null;
+    let pushTimer = null;
+    function deviceLabel() {
+      const ua = navigator.userAgent || "";
+      if (/iPhone|iPad/.test(ua)) return "iPhone";
+      if (/Android/.test(ua)) return "Android";
+      if (/CrOS/.test(ua)) return "Chromebook";
+      if (/Macintosh/.test(ua)) return "Mac";
+      if (/Windows/.test(ua)) return "Windows";
+      return "Device";
+    }
     function cloudPayload() {
       if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
       return {
@@ -1050,12 +1061,17 @@
         savedAt: new Date().toISOString()
       };
     }
+    function scheduleCloudPush() {
+      setStatus("Syncing…");
+      clearTimeout(pushTimer);
+      pushTimer = setTimeout(function () { pushCloud(); }, 800);
+    }
     async function pushCloud() {
       if (cloudBusy) { cloudAgain = true; return; }
       cloudBusy = true;
       persistLocal();
       try {
-        setStatus("Backing up…");
+        setStatus("Syncing…");
         const payload = cloudPayload();
         const res = await fetch(API_URL, {
           method: "PUT",
@@ -1065,10 +1081,10 @@
         if (!res.ok) throw new Error("fail");
         lastCloudRecord = deepClone(payload);
         lastCloudOk = true;
-        setStatus("• Cloud synced " + new Date().toLocaleTimeString());
+        setStatus("Cloud synced " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
       } catch (e) {
         lastCloudOk = false;
-        setStatus("• Saved on this device");
+        setStatus("Offline — will sync when online");
       } finally {
         cloudBusy = false;
         updateSaveMeta();
@@ -1096,66 +1112,122 @@
         templates = deepClone(slot.templates);
       }
     }
-    function mergeCloudRecord(record) {
-      if (!record || !record.slots) return false;
-      let changed = false;
-      [1,2,3].forEach(function (n) {
-        const cloudSlot = normalizeSlot(record.slots[n]);
-        const localSlot = normalizeSlot(saveSystem.slots[n]);
-        const cloudHas = hasContent(cloudSlot) || slotStamp(cloudSlot) > 0;
-        const localHas = hasContent(localSlot) || slotStamp(localSlot) > 0;
-        const cloudW = slotWeight(cloudSlot);
-        const localW = slotWeight(localSlot);
-        if (localHas && cloudW < localW) {
-          saveSystem.slots[n] = localSlot;
-        } else if (cloudHas && (!localHas || slotStamp(cloudSlot) > slotStamp(localSlot))) {
-          saveSystem.slots[n] = cloudSlot;
-          changed = true;
-        } else {
-          saveSystem.slots[n] = localSlot;
+    function weekRichness(entry) {
+      if (!entry) return 0;
+      let n = 0;
+      if ((entry.canFocus || "").toString().trim()) n += 2;
+      if ((entry.weekNotes || "").toString().trim()) n += 1;
+      Object.values(entry.blocks || {}).forEach(function (block) {
+        DAYS.forEach(function (day) {
+          const e = block[day] || {};
+          if (e.title || e.objective || e.activities || e.notes || (e.files && e.files.length)) n += 1;
+        });
+      });
+      return n;
+    }
+    function slotWeight(slot) {
+      if (!slot) return 0;
+      let n = Object.keys(slot.archive || {}).length * 10;
+      n += (slot.roster || []).length;
+      n += (slot.powerRoster || []).length;
+      n += (slot.sessions || []).length;
+      n += (slot.diyProjects || []).length;
+      n += weekRichness(slot.data || {});
+      n += slotStamp(slot) ? 1 : 0;
+      return n;
+    }
+    function mergeArchivesUnion(a, b) {
+      const out = {};
+      const keys = {};
+      Object.keys(a || {}).forEach(function (k) { keys[k] = true; });
+      Object.keys(b || {}).forEach(function (k) { keys[k] = true; });
+      Object.keys(keys).forEach(function (name) {
+        const x = a && a[name];
+        const y = b && b[name];
+        if (!x) out[name] = deepClone(y);
+        else if (!y) out[name] = deepClone(x);
+        else {
+          const tx = Date.parse(x.savedAt || 0) || 0;
+          const ty = Date.parse(y.savedAt || 0) || 0;
+          const rx = weekRichness(x);
+          const ry = weekRichness(y);
+          out[name] = (ty > tx || (ty === tx && ry >= rx)) ? deepClone(y) : deepClone(x);
         }
       });
-      if (record.templates && typeof record.templates === "object") {
-        const cloudKeys = Object.keys(record.templates);
-        const localKeys = Object.keys(templates || {});
-        if (cloudKeys.length >= localKeys.length) {
-          templates = record.templates;
-          changed = true;
+      return out;
+    }
+    function mergeSlotPair(localSlot, cloudSlot) {
+      const local = normalizeSlot(localSlot);
+      const cloud = normalizeSlot(cloudSlot);
+      const archives = mergeArchivesUnion(local.archive, cloud.archive);
+      const localHas = hasContent(local);
+      const cloudHas = hasContent(cloud);
+      let base;
+      if (!localHas && cloudHas) base = cloud;
+      else if (localHas && !cloudHas) base = local;
+      else if (slotStamp(cloud) >= slotStamp(local)) base = cloud;
+      else base = local;
+      base = normalizeSlot(deepClone(base));
+      base.archive = archives;
+      return base;
+    }
+    function mergeTemplatesUnion(localT, cloudT) {
+      const out = {};
+      const keys = {};
+      Object.keys(localT || {}).forEach(function (k) { keys[k] = true; });
+      Object.keys(cloudT || {}).forEach(function (k) { keys[k] = true; });
+      Object.keys(keys).forEach(function (name) {
+        const x = localT && localT[name];
+        const y = cloudT && cloudT[name];
+        if (!x) out[name] = y;
+        else if (!y) out[name] = x;
+        else {
+          const tx = Date.parse(x.savedAt || 0) || 0;
+          const ty = Date.parse(y.savedAt || 0) || 0;
+          out[name] = ty >= tx ? y : x;
         }
-      }
-      if (Array.isArray(record.backupHistory) && record.backupHistory.length) {
-        backupHistory = mergeBackupHistory(backupHistory, record.backupHistory);
-        changed = true;
-      }
-      return changed;
+      });
+      return out;
+    }
+    function mergeCloudRecord(record) {
+      if (!record || !record.slots) return false;
+      [1, 2, 3].forEach(function (n) {
+        saveSystem.slots[n] = mergeSlotPair(saveSystem.slots[n], record.slots[n]);
+      });
+      templates = mergeTemplatesUnion(templates, record.templates || {});
+      backupHistory = mergeBackupHistory(backupHistory, record.backupHistory || []);
+      return true;
     }
     async function pullCloud(forceApply) {
       try {
-        setStatus("• Checking cloud…");
+        setStatus("Syncing…");
         const res = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": MASTER_KEY } });
         if (!res.ok) throw new Error("fail");
         const json = await res.json();
         const record = json.record || json;
         lastCloudRecord = deepClone(record);
-        const changed = mergeCloudRecord(record);
+        mergeCloudRecord(record);
         lastCloudOk = true;
-        if (changed) {
-          try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, backupHistory: backupHistory, savedAt: new Date().toISOString() })); } catch (e) {}
-          try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
-          renderTitleSlots();
-          if (sessionOpen && saveSystem.activeSlot) {
-            applySlotToWorking(saveSystem.activeSlot);
-            applyUI();
+        try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, backupHistory: backupHistory, savedAt: new Date().toISOString() })); } catch (e) {}
+        try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
+        renderTitleSlots();
+        renderHistory();
+        if (document.getElementById("page-preview") && document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
+        if (sessionOpen && saveSystem.activeSlot) {
+          const keepWeek = currentWeek;
+          const keepData = hasCurrentWork() ? snapshotCurrentWeek() : null;
+          applySlotToWorking(saveSystem.activeSlot);
+          if (keepData && keepWeek && archive[keepWeek]) {
+            /* current week already in unioned archives */
           }
-          setStatus("• Cloud loaded " + new Date().toLocaleTimeString());
-        } else {
-          setStatus("• Cloud up to date");
+          applyUI();
         }
+        setStatus("Cloud synced " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
         updateSaveMeta();
         return true;
       } catch (e) {
         lastCloudOk = false;
-        setStatus("• Saved on this device");
+        setStatus("Offline — will sync when online");
         updateSaveMeta();
         return false;
       }
@@ -1213,13 +1285,27 @@
       setTimeout(() => t.classList.remove("show"), 2500);
     }
 
+    function appendSyncHistory() {
+      if (!sessionOpen || !saveSystem.activeSlot) return;
+      const snap = snapshotFullSaveFile();
+      const entry = {
+        id: "h-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        savedAt: new Date().toISOString(),
+        slot: Number(saveSystem.activeSlot),
+        week: currentWeek || snap.currentWeek || "",
+        device: deviceLabel(),
+        fingerprint: Number(saveSystem.activeSlot) + "::" + backupFingerprint(snap),
+        snapshot: snap
+      };
+      backupHistory = mergeBackupHistory([entry], backupHistory);
+    }
     function safeSave(recordHistory) {
       if (!sessionOpen || !saveSystem.activeSlot) return;
       if (document.getElementById("main-app").style.display === "none") return;
       collectFromDOM();
       persistLocal();
-      if (recordHistory) saveCloudBackup();
-      else pushCloud();
+      if (recordHistory) appendSyncHistory();
+      scheduleCloudPush();
       updateDashboard();
       renderHistory();
     }
@@ -2718,7 +2804,7 @@
       });
       return Object.keys(byId).map(function (k) { return byId[k]; }).sort(function (x, y) {
         return String(y.savedAt || "").localeCompare(String(x.savedAt || ""));
-      }).slice(0, 50);
+      }).slice(0, 200);
     }
     function backupCounts(snap) {
       const builders = (snap.diyProjects || []).reduce(function (n, pr) { return n + ((pr.studentIds || []).length); }, 0);
@@ -2761,12 +2847,7 @@
       return entry;
     }
     function mergeArchives(keep, incoming) {
-      const out = deepClone(keep || {});
-      Object.keys(incoming || {}).forEach(function (name) {
-        const next = incoming[name];
-        if (!out[name]) out[name] = deepClone(next);
-      });
-      return out;
+      return mergeArchivesUnion(keep, incoming);
     }
     function applySnapshotSafely(n, snap) {
       n = Number(n);
@@ -2988,7 +3069,7 @@
       currentWeek = name;
       document.getElementById("weekOf").value = name;
       document.getElementById("currentWeekLabel").textContent = "Editing: " + name;
-      safeSave(); renderHistory();
+      safeSave(true); renderHistory();
     }
 
     function startNewWeek() {
@@ -3545,6 +3626,9 @@
     setInterval(() => { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") pullCloud(false);
+    });
+    window.addEventListener("online", function () {
+      pullCloud(false).then(function () { scheduleCloudPush(); });
     });
     window.addEventListener("beforeunload", () => {
       if (sessionOpen && saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
