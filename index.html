@@ -263,6 +263,19 @@
     .roster-stat .n { font-size:1.25rem; font-weight:700; color:var(--gold-light); }
     .roster-stat .l { font-size:0.75rem; color:var(--text-muted); }
     .roster-table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:10px; }
+    .roster-sticky { position:sticky; top:70px; z-index:40; background:var(--bg); padding:0.55rem 0 0.35rem; }
+    .roster-hit { background:rgba(212,175,55,0.22); border-radius:3px; padding:0 1px; }
+    .wait-badge { display:inline-block; margin-left:0.4rem; font-size:0.68rem; color:#F0D78C; border:1px solid var(--gold); border-radius:999px; padding:0 0.4rem; }
+    .text-block-panel textarea { min-height:280px; font-family:ui-monospace,Consolas,monospace; font-size:0.82rem; }
+    .class-group-head { cursor:pointer; }
+    .class-group.collapsed .roster-table-wrap { display:none; }
+    @media (max-width: 820px) {
+      .roster-table { min-width:0; }
+      .roster-desktop { display:none; }
+      .roster-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem; margin-bottom:0.55rem; }
+      .roster-card h4 { color:var(--gold-light); margin-bottom:0.25rem; }
+    }
+    @media (min-width: 821px) { .roster-mobile { display:none; } }
     .roster-table { width:100%; border-collapse:collapse; min-width:820px; background:var(--surface); }
     .roster-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold-light); padding:0.6rem 0.55rem; border-bottom:2px solid var(--gold); background:var(--navy-dark); }
     .roster-table td { padding:0.4rem 0.45rem; border-bottom:1px solid var(--border); vertical-align:middle; }
@@ -457,8 +470,9 @@
 
           <div id="rosterPeopleWrap">
             <div class="roster-stats" id="rosterStats"></div>
+            <div class="roster-sticky">
             <div class="toolbar-row">
-              <input type="text" id="rosterSearch" placeholder="Search name, teacher, grade…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:220px;flex:1;" />
+              <input type="text" id="rosterSearch" placeholder="Search name, teacher, grade, computer, notes…" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:220px;flex:1;" />
               <select id="rosterFilterDiy" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
                 <option value="all">All DIY</option>
                 <option value="Yes">DIY enrolled</option>
@@ -471,11 +485,24 @@
                 <option value="No">Slip missing</option>
                 <option value="Pending">Slip pending</option>
               </select>
-              <button type="button" class="small" id="btnLoadMyClass">Load my 8th grade class</button>
-              <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
-              <button type="button" id="btnPrintRoster">🖨 Print this list</button>
+              <select id="rosterFilterGrade" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                <option value="all">All grades</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+              </select>
+              <select id="rosterFilterTeacher" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                <option value="all">All teachers</option>
+              </select>
+              <button type="button" class="primary" id="btnAddStudent">+ Student</button>
+              <button type="button" id="btnPrintRoster">🖨 Print</button>
+              <button type="button" id="btnToggleTextBlock">Text block</button>
+              <button type="button" class="small" id="btnCsvRoster">CSV</button>
+              <button type="button" class="small" id="btnLoadMyClass">Load my class</button>
               <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
+              <button type="button" class="danger small" id="btnClearHits">Clear hits</button>
               <button type="button" id="btnLoadOfficialPower">Load all 86</button>
+            </div>
             </div>
             <div class="toolbar-row" id="powerClassLoadRow">
               <span style="font-size:0.82rem;color:var(--text-muted);">Load one POWER class:</span>
@@ -484,12 +511,16 @@
               <button type="button" class="small" data-load-class="soto">Miss Soto / Rm. 4</button>
               <button type="button" class="small" data-load-class="enciso">Mr. Enciso / Rm. 1</button>
             </div>
-            <div class="bulk-box">
-              <h3>Add many students at once</h3>
-              <p id="bulkHelp">One name per line. POWER list format: <strong>First Name, Last Name - Grade</strong> (example: Maria, Lopez - 8).</p>
-              <textarea id="bulkStudents" placeholder="Maria, Lopez - 8&#10;Jose, Ramirez - 7"></textarea>
+            <div class="bulk-box text-block-panel" id="textBlockPanel" style="display:none;">
+              <h3>Giant text block</h3>
+              <p id="bulkHelp">[#id] First Name, Last Name - Grade, computer, DIY Pending, slip Yes, notes. Lines without [#id] are new students. Apply replaces only this section.</p>
+              <textarea id="bulkStudents" placeholder="[#cls-noemi-felix] Noemi, Felix - 8, 12, DIY Pending, 55012"></textarea>
               <div class="toolbar-row" style="margin:0.6rem 0 0;">
-                <button type="button" class="primary" id="btnBulkAdd">Add list to this roster</button>
+                <button type="button" id="btnTextLoad">Load current section</button>
+                <button type="button" class="primary" id="btnTextApply">Apply to this section</button>
+                <button type="button" id="btnBulkAdd">Append lines</button>
+                <button type="button" id="btnTextCopy">Copy</button>
+                <button type="button" id="btnTextClear">Clear box</button>
               </div>
             </div>
             <div id="rosterTables"></div>
@@ -673,7 +704,7 @@
       s.grade = String(grade);
       s.teacher = teacher;
       s.source = "power";
-      s.notes = waitlisted ? "Waitlist (W)" : "";
+      s.notes = "";
       return s;
     }
     function officialClassRoster() {
@@ -1213,6 +1244,13 @@
       if (!st.teacher) st.teacher = "";
       if (!st.slip) st.slip = "No";
       if (!st.source) st.source = "";
+      if (st.notes) {
+        st.notes = String(st.notes)
+          .replace(/\s*Waitlist\s*\(W\)\s*/gi, " ")
+          .replace(/\bWaitlist\b/gi, " ")
+          .replace(/\s{2,}/g, " ")
+          .trim();
+      }
       return st;
     }
     function activeRosterList() {
@@ -1293,8 +1331,221 @@
         return { teacher: teacher, students: students };
       });
     }
+    // ROSTER QOL
+    let rosterSaveTimer = null;
+    let rosterUndo = null;
+    let rosterTextOpen = false;
+    function debounceRosterSave() {
+      clearTimeout(rosterSaveTimer);
+      rosterSaveTimer = setTimeout(function () { safeSave(); }, 400);
+    }
+    function rosterCollapseKey(teacher) { return "xe-roster-collapse:" + teacher; }
+    function isGroupCollapsed(teacher) {
+      try { return sessionStorage.getItem(rosterCollapseKey(teacher)) === "1"; } catch (e) { return false; }
+    }
+    function toggleGroupCollapsed(teacher) {
+      try {
+        sessionStorage.setItem(rosterCollapseKey(teacher), isGroupCollapsed(teacher) ? "0" : "1");
+      } catch (e) {}
+    }
+    function snapshotRosterUi() {
+      const wrap = document.getElementById("rosterTables");
+      const ae = document.activeElement;
+      return {
+        scroll: wrap ? wrap.scrollTop : 0,
+        pageY: window.scrollY,
+        sid: ae && ae.closest && ae.closest("[data-sid]") ? ae.closest("[data-sid]").getAttribute("data-sid") : "",
+        field: ae && ae.getAttribute ? ae.getAttribute("data-rf") : "",
+        start: ae && ae.selectionStart,
+        end: ae && ae.selectionEnd
+      };
+    }
+    function restoreRosterUi(snap) {
+      if (!snap) return;
+      const wrap = document.getElementById("rosterTables");
+      if (wrap) wrap.scrollTop = snap.scroll;
+      window.scrollTo(0, snap.pageY || 0);
+      if (snap.sid && snap.field) {
+        const el = document.querySelector('[data-sid="' + snap.sid + '"] [data-rf="' + snap.field + '"]');
+        if (el) {
+          el.focus();
+          try { if (typeof snap.start === "number") el.setSelectionRange(snap.start, snap.end); } catch (e) {}
+        }
+      }
+    }
+    function highlightHit(text, q) {
+      const raw = String(text || "");
+      if (!q) return esc(raw);
+      const i = raw.toLowerCase().indexOf(q);
+      if (i < 0) return esc(raw);
+      return esc(raw.slice(0, i)) + '<span class="roster-hit">' + esc(raw.slice(i, i + q.length)) + "</span>" + esc(raw.slice(i + q.length));
+    }
+    function studentToLine(st) {
+      const bits = (st.name || "").trim().split(/\s+/);
+      const last = bits.length ? bits.pop() : "";
+      const first = bits.join(" ");
+      let line = "[#" + st.id + "] " + (first ? first + ", " : "") + last + " - " + (st.grade || "8");
+      if (st.computer) line += ", " + st.computer;
+      if (st.diy && st.diy !== "No") line += ", DIY " + st.diy;
+      if (st.slip && st.slip !== "No") line += ", slip " + st.slip;
+      if (Number(st.bucks)) line += ", " + st.bucks + " bucks";
+      if (st.notes) line += ", " + st.notes;
+      return line;
+    }
+    function loadTextBlockFromSection() {
+      const list = filteredRosterRows(activeRosterList());
+      document.getElementById("bulkStudents").value = list.map(studentToLine).join("\n");
+    }
+    function rosterSectionSnapshot(which) {
+      if (which === "power") return { which: "power", data: deepClone(powerRoster) };
+      if (which === "class") return { which: "class", data: deepClone(roster) };
+      if (which && String(which).indexOf("sess:") === 0) {
+        const id = which.slice(5);
+        const sess = findSession(id);
+        return { which: which, data: sess ? deepClone(sess.studentIds || []) : [] };
+      }
+      return { which: which, data: deepClone(powerRoster.filter(function (st) { return officialPowerClassKey(st.teacher) === which; })) };
+    }
+    function offerRosterUndo(snap) {
+      rosterUndo = snap;
+      showToast("Undo available 20s");
+      setTimeout(function () { if (rosterUndo === snap) rosterUndo = null; }, 20000);
+    }
+    function undoRosterSection() {
+      if (!rosterUndo) return;
+      if (rosterUndo.which === "power") powerRoster = rosterUndo.data;
+      else if (rosterUndo.which === "class") roster = rosterUndo.data;
+      else if (String(rosterUndo.which).indexOf("sess:") === 0) {
+        const sess = findSession(rosterUndo.which.slice(5));
+        if (sess) sess.studentIds = rosterUndo.data;
+      } else {
+        const keep = powerRoster.filter(function (st) { return officialPowerClassKey(st.teacher) !== rosterUndo.which; });
+        powerRoster = keep.concat(rosterUndo.data);
+      }
+      rosterUndo = null;
+      renderRoster();
+      safeSave();
+    }
+    function filteredRosterRows(list) {
+      const q = ((document.getElementById("rosterSearch") || {}).value || "").toLowerCase().trim();
+      const fDiy = (document.getElementById("rosterFilterDiy") || {}).value || "all";
+      const fSlip = (document.getElementById("rosterFilterSlip") || {}).value || "all";
+      const fGr = (document.getElementById("rosterFilterGrade") || {}).value || "all";
+      const fT = (document.getElementById("rosterFilterTeacher") || {}).value || "all";
+      return (list || []).filter(function (st) {
+        if (fDiy !== "all" && st.diy !== fDiy) return false;
+        if (fSlip !== "all" && st.slip !== fSlip) return false;
+        if (fGr !== "all" && String(st.grade) !== fGr) return false;
+        if (fT !== "all" && (st.teacher || "") !== fT) return false;
+        if (!q) return true;
+        return [st.name, st.teacher, st.computer, st.notes, st.grade, st.diy, st.slip].join(" ").toLowerCase().indexOf(q) !== -1;
+      });
+    }
+    function fillTeacherFilter() {
+      const sel = document.getElementById("rosterFilterTeacher");
+      if (!sel) return;
+      const cur = sel.value || "all";
+      const teachers = [];
+      activeRosterList().forEach(function (st) {
+        const t = (st.teacher || "").trim();
+        if (t && teachers.indexOf(t) === -1) teachers.push(t);
+      });
+      sel.innerHTML = '<option value="all">All teachers</option>' + teachers.map(function (t) {
+        return '<option value="' + esc(t) + '">' + esc(t) + "</option>";
+      }).join("");
+      sel.value = teachers.indexOf(cur) !== -1 ? cur : "all";
+    }
+    function applyRosterTextBlock(mode) {
+      if (!sessionOpen) return;
+      const raw = (document.getElementById("bulkStudents").value || "");
+      const lines = raw.split(/\r?\n/);
+      const parsed = [];
+      const errors = [];
+      lines.forEach(function (line, i) {
+        if (!String(line).trim()) return;
+        const idm = line.match(/^\[#([^\]]+)\]\s*/);
+        const rest = idm ? line.slice(idm[0].length) : line;
+        const s = parseBulkLine(rest);
+        if (!s) { errors.push(i + 1); return; }
+        if (idm) s.id = idm[1];
+        parsed.push(s);
+      });
+      if (errors.length) {
+        showToast("Fix line " + errors.join(", "), true);
+        return;
+      }
+      if (!parsed.length) { alert("No valid lines."); return; }
+      if (mode === "replace" && !confirm("Replace this section with " + parsed.length + " line(s)? Other sections stay.")) return;
+      if (mode === "replace") {
+        if (rosterView === "power") {
+          const teachers = {};
+          parsed.forEach(function (s) { teachers[officialPowerClassKey(s.teacher) || ""] = true; });
+          const keys = Object.keys(teachers).filter(Boolean);
+          if (keys.length === 1) {
+            offerRosterUndo(rosterSectionSnapshot(keys[0]));
+            const keep = powerRoster.filter(function (st) { return officialPowerClassKey(st.teacher) !== keys[0]; });
+            parsed.forEach(function (s) { if (!s.teacher) s.teacher = officialPowerByClass(keys[0])[0] ? officialPowerByClass(keys[0])[0].teacher : s.teacher; });
+            powerRoster = keep.concat(parsed);
+          } else {
+            offerRosterUndo(rosterSectionSnapshot("power"));
+            powerRoster = parsed;
+          }
+        } else {
+          offerRosterUndo(rosterSectionSnapshot("class"));
+          roster = parsed;
+        }
+      } else {
+        parsed.forEach(function (s) {
+          if (!s.id || !findStudent(s.id)) {
+            s.id = emptyStudent().id;
+            activeRosterList().push(s);
+          } else {
+            const dest = findStudent(s.id);
+            ["name","computer","teacher","diy","slip","bucks","grade","notes"].forEach(function (k) { if (s[k] !== undefined && s[k] !== "") dest[k] = s[k]; });
+          }
+        });
+      }
+      renderRoster();
+      safeSave();
+    }
+    function clearPowerClass(key) {
+      const incoming = officialPowerByClass(key);
+      const label = incoming[0] ? incoming[0].teacher : key;
+      const n = powerRoster.filter(function (st) { return officialPowerClassKey(st.teacher) === key; }).length;
+      if (!n) return;
+      if (!confirm("Clear " + label + " (" + n + " students)? Other POWER classes stay.")) return;
+      offerRosterUndo(rosterSectionSnapshot(key));
+      powerRoster = powerRoster.filter(function (st) { return officialPowerClassKey(st.teacher) !== key; });
+      renderRoster();
+      safeSave();
+    }
+    function clearFilterHits() {
+      const hits = filteredRosterRows(activeRosterList());
+      if (!hits.length) return;
+      if (!confirm("Clear " + hits.length + " filtered student(s) from this list only?")) return;
+      offerRosterUndo(rosterSectionSnapshot(rosterView === "power" ? "power" : "class"));
+      const gone = {};
+      hits.forEach(function (st) { gone[st.id] = true; });
+      setActiveRosterList(activeRosterList().filter(function (st) { return !gone[st.id]; }));
+      renderRoster();
+      safeSave();
+    }
+    function exportRosterCsv() {
+      const rows = filteredRosterRows(activeRosterList());
+      const showComp = rosterView === "class";
+      const head = ["Name","Teacher","Grade","DIY","Slip"].concat(showComp ? ["Computer"] : []).concat(["Bucks","Notes"]);
+      const lines = [head.join(",")].concat(rows.map(function (st) {
+        const cols = [st.name, st.teacher, st.grade, st.diy, st.slip].concat(showComp ? [st.computer] : []).concat([st.bucks, st.notes]);
+        return cols.map(function (v) { return '"' + String(v || "").replace(/"/g, '""') + '"'; }).join(",");
+      }));
+      const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = (rosterView === "power" ? "power-roster" : "class-roster") + ".csv";
+      a.click();
+    }
     function studentRowHtml(st, showComp) {
-      return '<tr data-sid="' + esc(st.id) + '">' +
+      return '<tr data-sid="' + esc(st.id) + '" data-id="' + esc(st.id) + '">' +
         '<td><input data-rf="name" value="' + esc(st.name) + '" placeholder="Student name"></td>' +
         '<td><input data-rf="teacher" value="' + esc(st.teacher || "") + '" placeholder="Teacher"></td>' +
         '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '" placeholder="8"></td>' +
@@ -1318,27 +1569,24 @@
     function renderRoster() {
       updateRosterTabs();
       if (rosterView === "sessions") { renderSessions(); return; }
+      const snap = snapshotRosterUi();
       const wrap = document.getElementById("rosterTables");
       const stats = document.getElementById("rosterStats");
       if (!wrap || !stats) return;
+      fillTeacherFilter();
+      const panel = document.getElementById("textBlockPanel");
+      if (panel) panel.style.display = rosterTextOpen ? "block" : "none";
       const list = activeRosterList();
       const q = ((document.getElementById("rosterSearch") || {}).value || "").toLowerCase().trim();
-      const fDiy = (document.getElementById("rosterFilterDiy") || {}).value || "all";
-      const fSlip = (document.getElementById("rosterFilterSlip") || {}).value || "all";
       const diyYes = list.filter(function (st) { return st.diy === "Yes"; }).length;
       const slipYes = list.filter(function (st) { return st.slip === "Yes"; }).length;
       const slipNo = list.filter(function (st) { return st.slip !== "Yes"; }).length;
       stats.innerHTML =
-        '<div class="roster-stat"><div class="n">' + list.length + '</div><div class="l">Students</div></div>' +
-        '<div class="roster-stat"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
-        '<div class="roster-stat"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
-        '<div class="roster-stat"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
-      const rows = list.filter(function (st) {
-        if (fDiy !== "all" && st.diy !== fDiy) return false;
-        if (fSlip !== "all" && st.slip !== fSlip) return false;
-        if (!q) return true;
-        return [st.name, st.teacher, st.computer, st.notes, st.grade, st.diy, st.slip].join(" ").toLowerCase().indexOf(q) !== -1;
-      });
+        '<div class="roster-stat" data-stat-filter="all"><div class="n">' + list.length + '</div><div class="l">Students</div></div>' +
+        '<div class="roster-stat" data-stat-diy="Yes"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
+        '<div class="roster-stat" data-stat-slip="Yes"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
+        '<div class="roster-stat" data-stat-slip="missing"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
+      const rows = filteredRosterRows(list);
       const showComp = rosterView === "class";
       const cols = showComp ? 9 : 8;
       const headHtml =
@@ -1352,21 +1600,36 @@
         '<th>Notes</th>' +
         '<th style="width:70px"></th>';
       if (!list.length) {
-        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Click <strong>+ Add student</strong> or Load official POWER list.</td></tr></tbody></table></div>';
+        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Use <strong>Load my class</strong> or <strong>Load all 86</strong>.</td></tr></tbody></table></div>';
+        restoreRosterUi(snap);
         return;
       }
       if (!rows.length) {
         wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr></tbody></table></div>';
+        restoreRosterUi(snap);
         return;
       }
       const groups = groupStudentsByClass(rows);
       wrap.innerHTML = groups.map(function (g) {
-        return '<div class="class-group">' +
-          '<div class="class-group-head">' + esc(g.teacher) + '<span>' + g.students.length + ' student' + (g.students.length === 1 ? "" : "s") + '</span></div>' +
-          '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody>' +
+        const key = officialPowerClassKey(g.teacher);
+        const wait = g.students.some(function (st) { return /waitlist/i.test(st.notes || ""); });
+        const collapsed = isGroupCollapsed(g.teacher);
+        return '<div class="class-group' + (collapsed ? " collapsed" : "") + '" data-group="' + esc(g.teacher) + '">' +
+          '<div class="class-group-head" data-toggle-group="' + esc(g.teacher) + '">' + esc(g.teacher) +
+          (wait ? '<span class="wait-badge">Waitlist</span>' : "") +
+          '<span>' + g.students.length + ' student' + (g.students.length === 1 ? "" : "s") +
+          (rosterView === "power" && key ? ' · <button type="button" class="danger small" data-clear-class="' + key + '">Clear this class</button>' : "") +
+          "</span></div>" +
+          '<div class="roster-table-wrap roster-desktop"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody>' +
           g.students.map(function (st) { return studentRowHtml(st, showComp); }).join("") +
-          '</tbody></table></div></div>';
+          '</tbody></table></div>' +
+          '<div class="roster-mobile">' + g.students.map(function (st) {
+            return '<div class="roster-card" data-sid="' + esc(st.id) + '"><h4>' + highlightHit(st.name, q) + " · " + esc(st.grade || "") + "</h4>" +
+              '<p class="v-meta">' + esc(st.teacher || "") + " · DIY " + esc(st.diy || "No") + " · Slip " + esc(st.slip || "No") + " · " + (Number(st.bucks)||0) + " bucks</p>" +
+              (st.notes ? '<p class="v-meta">' + highlightHit(st.notes, q) + "</p>" : "") + "</div>";
+          }).join("") + "</div></div>";
       }).join("");
+      restoreRosterUi(snap);
     }
     function findStudent(id) { return activeRosterList().find(function (st) { return st.id === id; }) || findAnyStudent(id); }
     function addStudent() {
@@ -1844,9 +2107,7 @@
       if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
       else s[field] = value;
       if (field === "slip") pruneDiyAssignments();
-      renderRoster();
-      if (field === "slip") renderDiy();
-      safeSave();
+      debounceRosterSave();
     }
     function removeStudent(id) {
       const s = findStudent(id);
@@ -2969,6 +3230,23 @@
       const rview = t.closest("[data-roster-view]");
       if (rview) { rosterView = rview.getAttribute("data-roster-view") || "class"; renderRoster(); return; }
       if (t.id === "btnLoadMyClass" || t.closest("#btnLoadMyClass")) { loadOfficialClassList(); return; }
+      if (t.id === "btnToggleTextBlock" || t.closest("#btnToggleTextBlock")) { rosterTextOpen = !rosterTextOpen; renderRoster(); return; }
+      if (t.id === "btnTextLoad" || t.closest("#btnTextLoad")) { loadTextBlockFromSection(); return; }
+      if (t.id === "btnTextApply" || t.closest("#btnTextApply")) { applyRosterTextBlock("replace"); return; }
+      if (t.id === "btnTextCopy" || t.closest("#btnTextCopy")) { copyText((document.getElementById("bulkStudents") || {}).value || ""); return; }
+      if (t.id === "btnTextClear" || t.closest("#btnTextClear")) { document.getElementById("bulkStudents").value = ""; return; }
+      if (t.id === "btnCsvRoster" || t.closest("#btnCsvRoster")) { exportRosterCsv(); return; }
+      if (t.id === "btnClearHits" || t.closest("#btnClearHits")) { clearFilterHits(); return; }
+      const clearClass = t.closest("[data-clear-class]");
+      if (clearClass) { ev.stopPropagation(); clearPowerClass(clearClass.getAttribute("data-clear-class")); return; }
+      const togG = t.closest("[data-toggle-group]");
+      if (togG) { toggleGroupCollapsed(togG.getAttribute("data-toggle-group")); renderRoster(); return; }
+      if (t.closest("[data-stat-diy]")) { document.getElementById("rosterFilterDiy").value = t.closest("[data-stat-diy]").getAttribute("data-stat-diy"); renderRoster(); return; }
+      if (t.closest("[data-stat-slip]")) {
+        const v = t.closest("[data-stat-slip]").getAttribute("data-stat-slip");
+        document.getElementById("rosterFilterSlip").value = v === "missing" ? "No" : v;
+        renderRoster(); return;
+      }
       if (t.id === "btnAddStudent" || t.closest("#btnAddStudent")) { addStudent(); return; }
       if (t.id === "btnAddSession" || t.closest("#btnAddSession")) { addSession(); return; }
       const delSess = t.closest("[data-del-sess]");
@@ -3158,9 +3436,13 @@
     const rs = document.getElementById("rosterSearch");
     const rf = document.getElementById("rosterFilterDiy");
     const rslip = document.getElementById("rosterFilterSlip");
+    const rgr = document.getElementById("rosterFilterGrade");
+    const rth = document.getElementById("rosterFilterTeacher");
     if (rs) rs.addEventListener("input", renderRoster);
     if (rf) rf.addEventListener("change", renderRoster);
     if (rslip) rslip.addEventListener("change", renderRoster);
+    if (rgr) rgr.addEventListener("change", renderRoster);
+    if (rth) rth.addEventListener("change", renderRoster);
     const diyCat = document.getElementById("diyCatalog");
     if (diyCat) diyCat.addEventListener("change", function () {
       const opt = diyCat.options[diyCat.selectedIndex];
@@ -3177,6 +3459,24 @@
     document.addEventListener("keydown", function (ev) {
       if (!sessionOpen) return;
       const tag = (ev.target && ev.target.tagName) || "";
+      const pageRoster = document.getElementById("page-roster") && document.getElementById("page-roster").classList.contains("active");
+      if (pageRoster && ev.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA") {
+        ev.preventDefault();
+        const s = document.getElementById("rosterSearch");
+        if (s) s.focus();
+        return;
+      }
+      if (pageRoster && ev.key === "Escape") {
+        const s = document.getElementById("rosterSearch");
+        if (s && s.value) { s.value = ""; renderRoster(); }
+        return;
+      }
+      if (pageRoster && (ev.key === "n" || ev.key === "N") && tag !== "INPUT" && tag !== "TEXTAREA" && rosterView !== "sessions") {
+        ev.preventDefault(); addStudent(); return;
+      }
+      if (pageRoster && (ev.key === "z" || ev.key === "Z") && (ev.metaKey || ev.ctrlKey) && rosterUndo) {
+        ev.preventDefault(); undoRosterSection(); return;
+      }
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
       if (ev.key === "r" || ev.key === "R") { ev.preventDefault(); refreshCloudPreview(); }
       if (ev.key === "s" || ev.key === "S") { ev.preventDefault(); saveCloudBackup(); }
