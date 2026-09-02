@@ -241,6 +241,19 @@
     }
     .print-roster-table th { background: #1F4E79; color: white; }
     .print-roster-table tr:nth-child(even) td { background: #f8fafc; }
+    .class-group { margin: 0 0 1rem; }
+    .class-group-head {
+      background: var(--navy-dark); border: 1px solid var(--gold); border-bottom: none;
+      color: var(--gold-light); font-weight: 700; font-size: 0.88rem;
+      padding: 0.55rem 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+    }
+    .class-group-head span { color: var(--text-muted); font-weight: 500; font-size: 0.78rem; }
+    .class-group .roster-table-wrap { border-top-left-radius: 0; border-top-right-radius: 0; }
+    .sess-class-head {
+      background: var(--navy-dark); color: var(--gold-light); font-size: 0.78rem; font-weight: 700;
+      padding: 0.4rem 0.5rem; margin: 0.45rem -0.6rem 0.2rem; border-top: 1px solid var(--gold);
+    }
+    .sess-class-head:first-child { margin-top: 0; border-top: none; }
     @media print {
       body * { visibility: hidden; }
       .print-report, .print-report * { visibility: visible; }
@@ -418,20 +431,13 @@
                 <button type="button" class="primary" id="btnBulkAdd">Add list to this roster</button>
               </div>
             </div>
-            <div class="roster-table-wrap">
-              <table class="roster-table">
-                <thead>
-                  <tr id="rosterHeadRow"></tr>
-                </thead>
-                <tbody id="rosterBody"></tbody>
-              </table>
-            </div>
+            <div id="rosterTables"></div>
           </div>
 
           <div id="rosterSessionsWrap" style="display:none;">
             <div class="roster-stats" id="sessionStats"></div>
             <div class="bulk-box">
-              <h3>New session</h3>
+              <h3>New session              <h3>New session</h3>
               <p>Give it a name, a class block, and a time frame. Then pick students from either roster.</p>
               <div class="toolbar-row" style="margin:0;">
                 <input type="text" id="sessName" placeholder="Session name (e.g. Tuesday DIY Build)" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.7rem;border-radius:6px;min-width:200px;flex:1;" />
@@ -504,7 +510,6 @@
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Archives (Permanent)</h2>
           <div class="history-list" id="historyList"></div>
         </section>
-
         <section id="page-templates" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Week Templates</h2>
           <div class="tpl-help">
@@ -519,7 +524,6 @@
           </div>
           <div class="template-list" id="templateList"></div>
         </section>
-
         <section id="page-preview" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Preview / Transfer</h2>
           <div class="preview-banner"><strong>Preview only.</strong> Transfer replaces Save File <span id="previewTargetLabel">—</span> only.</div>
@@ -529,11 +533,10 @@
       </main>
     </div>
   </div>
-
   <div class="print-report" id="printReport"></div>
   <div class="toast" id="toast"></div>
-
-  <script>  (function () {
+  <script>
+  (function () {
     const BIN_ID = "6a6cfe28f5f4af5e29db8208";
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
     const API_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
@@ -551,7 +554,6 @@
       enrichment: { name: "ENRICHMENT", time: "3:49 – 4:15" },
       spark: { name: "SPARK", time: "4:19 – 5:00" }
     };
-
     let saveSystem = { activeSlot: null, slots: { 1: emptySlot(), 2: emptySlot(), 3: emptySlot() } };
     let currentWeek = "default";
     let data = emptyData();
@@ -565,7 +567,6 @@
     let previewSource = null;
     let sessionOpen = false;
     let lastCloudOk = null;
-
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
     function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], sessions: [], diyProjects: [], lastSaved: null }; }
     function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", teacher:"", diy:"No", slip:"No", bucks:0, grade:"8", notes:"", source:"" }; }
@@ -674,9 +675,7 @@
       ];
     }
     function seedOfficialPowerIfEmpty() {
-      if (!Array.isArray(powerRoster) || powerRoster.length === 0) {
-        powerRoster = officialPowerRoster();
-      }
+      if (!Array.isArray(powerRoster) || powerRoster.length === 0) powerRoster = officialPowerRoster();
     }
     function loadOfficialPowerList() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
@@ -687,12 +686,11 @@
       renderRoster();
       safeSave();
       showToast("Official POWER list loaded (" + n + ")");
-    }
-    function emptySession() { return { id: "ss"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", className:"DIY", days:"", startTime:"", endTime:"", notes:"", studentIds: [] }; }
+    }    function emptySession() { return { id: "ss"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", className:"DIY", days:"", startTime:"", endTime:"", notes:"", studentIds: [] }; }
     function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
     function emptyBlock() {
       const d = {};
-      DAYS.forEach(day => d[day] = emptyDay());
+      DAYS.forEach(function (day) { d[day] = emptyDay(); });
       return d;
     }
     function migrateDay(d) {
@@ -709,14 +707,13 @@
       if (typeof d.canFocus !== "string") d.canFocus = d.canFocus || "";
       if (typeof d.weekNotes !== "string") d.weekNotes = d.weekNotes || "";
       if (!d.blocks) d.blocks = {};
-      Object.keys(BLOCKS).forEach(k => {
+      Object.keys(BLOCKS).forEach(function (k) {
         if (!d.blocks[k]) d.blocks[k] = emptyBlock();
-        DAYS.forEach(day => { d.blocks[k][day] = migrateDay(d.blocks[k][day] || emptyDay()); });
+        DAYS.forEach(function (day) { d.blocks[k][day] = migrateDay(d.blocks[k][day] || emptyDay()); });
       });
       return d;
     }
     function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
-
     function snapshotCurrentWeek() {
       collectFromDOM();
       return {
@@ -727,7 +724,6 @@
         savedAt: new Date().toLocaleString()
       };
     }
-
     function updateSaveMeta() {
       const el = document.getElementById("saveMeta");
       if (!el) return;
@@ -739,7 +735,6 @@
       const cloud = lastCloudOk === true ? "Cloud OK" : lastCloudOk === false ? "Device only" : "—";
       el.textContent = "Last saved: " + when + " · " + cloud;
     }
-
     function persistLocal() {
       try {
         if (sessionOpen && saveSystem.activeSlot) {
@@ -764,7 +759,6 @@
         return true;
       } catch (e) { return false; }
     }
-
     function loadLocal() {
       try {
         const raw = localStorage.getItem(LOCAL_KEY);
@@ -774,7 +768,7 @@
         saveSystem.slots = parsed.slots;
         saveSystem.activeSlot = null;
         sessionOpen = false;
-        [1,2,3].forEach(n => {
+        [1,2,3].forEach(function (n) {
           if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
           if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
           if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
@@ -786,7 +780,6 @@
         return true;
       } catch (e) { return false; }
     }
-
     function loadTemplates() {
       try {
         const raw = localStorage.getItem(TEMPLATE_KEY);
@@ -797,7 +790,6 @@
     function saveTemplatesStore() {
       try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
     }
-
     let cloudBusy = false;
     async function pushCloud() {
       if (cloudBusy) return;
@@ -818,23 +810,18 @@
         setStatus("• Saved on this device");
       } finally { cloudBusy = false; updateSaveMeta(); }
     }
-
     async function maybePullCloud() {
-      if ([1,2,3].some(n => hasContent(saveSystem.slots[n]))) return;
+      if ([1,2,3].some(function (n) { return hasContent(saveSystem.slots[n]); })) return;
       try {
         const res = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": MASTER_KEY } });
         if (!res.ok) return;
         const json = await res.json();
         const record = json.record || json;
-        if (record && record.slots && [1,2,3].some(n => hasContent(record.slots[n]))) {
+        if (record && record.slots && [1,2,3].some(function (n) { return hasContent(record.slots[n]); })) {
           saveSystem.slots = record.slots;
-          [1,2,3].forEach(n => {
+          [1,2,3].forEach(function (n) {
             if (!saveSystem.slots[n]) saveSystem.slots[n] = emptySlot();
             if (!saveSystem.slots[n].archive) saveSystem.slots[n].archive = {};
-            if (!Array.isArray(saveSystem.slots[n].roster)) saveSystem.slots[n].roster = [];
-            if (!Array.isArray(saveSystem.slots[n].powerRoster)) saveSystem.slots[n].powerRoster = [];
-            if (!Array.isArray(saveSystem.slots[n].sessions)) saveSystem.slots[n].sessions = [];
-            if (!Array.isArray(saveSystem.slots[n].diyProjects)) saveSystem.slots[n].diyProjects = [];
             saveSystem.slots[n].data = ensureBlocks(saveSystem.slots[n].data || emptyData());
           });
           persistLocal();
@@ -842,14 +829,12 @@
         }
       } catch (e) {}
     }
-
     function hasContent(slot) {
       if (!slot) return false;
       if (Object.keys(slot.archive || {}).length > 0) return true;
       if ((slot.roster || []).length > 0) return true;
       if ((slot.powerRoster || []).length > 0) return true;
       if ((slot.sessions || []).length > 0) return true;
-      if ((slot.diyProjects || []).length > 0) return true;
       const d = slot.data || {};
       if ((d.canFocus||"").trim() || (d.weekNotes||"").trim()) return true;
       for (const b of Object.values(d.blocks || {})) {
@@ -870,8 +855,8 @@
     }
     function countFilledDays(slot) {
       let n = 0;
-      Object.values(slot.data?.blocks || {}).forEach(block => {
-        DAYS.forEach(day => {
+      Object.values(slot.data && slot.data.blocks || {}).forEach(function (block) {
+        DAYS.forEach(function (day) {
           const e = block[day];
           if (e && !e.noSchool && (e.title||e.objective||e.activities||e.notes||(e.files&&e.files.length))) n++;
         });
@@ -884,9 +869,8 @@
       t.textContent = msg;
       t.classList.toggle("error", !!err);
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2500);
+      setTimeout(function () { t.classList.remove("show"); }, 2500);
     }
-
     function safeSave() {
       if (!sessionOpen || !saveSystem.activeSlot) return;
       if (document.getElementById("main-app").style.display === "none") return;
@@ -896,24 +880,21 @@
       updateDashboard();
       renderHistory();
     }
-
     function esc(s) {
       return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
-
     function countTemplateFields(t) {
       let n = 0;
       if ((t.canFocus||"").trim()) n++;
       if ((t.weekNotes||"").trim()) n++;
-      Object.values(t.blocks || {}).forEach(block => {
-        DAYS.forEach(day => {
+      Object.values(t.blocks || {}).forEach(function (block) {
+        DAYS.forEach(function (day) {
           const e = block[day] || {};
           if (e.title || e.objective || e.activities || e.notes || (e.files && e.files.length)) n++;
         });
       });
       return n;
     }
-
     function allStudents() {
       return (Array.isArray(roster) ? roster : []).concat(Array.isArray(powerRoster) ? powerRoster : []);
     }
@@ -955,9 +936,9 @@
       if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
       if (note) {
         note.textContent = rosterView === "power"
-          ? "POWER Program — entire program, separate from your 24. Teacher + grade distinguish homerooms. Track DIY and permission slips here. No computer numbers on this list."
+          ? "POWER Program — grouped by class / teacher. No computer numbers on this list."
           : rosterView === "sessions"
-          ? "Sessions — each one has its own class block and time frame. Pick students from either roster."
+          ? "Sessions — pick students grouped by class. Check a name to add or remove them."
           : "My 8th Grade Class — your own 24. Computer numbers stay on this list only.";
       }
       const help = document.getElementById("bulkHelp");
@@ -973,6 +954,51 @@
           : "Maria, Lopez - 8, C12\nJose, Ramirez - 8, C7, Yes";
       }
     }
+    function classSortKey(teacher) {
+      const t = (teacher || "").toLowerCase();
+      if (t.indexOf("esparza") !== -1) return "1-esparza";
+      if (t.indexOf("avelar") !== -1) return "2-avelar";
+      if (t.indexOf("soto") !== -1) return "3-soto";
+      if (t.indexOf("enciso") !== -1) return "4-enciso";
+      if (!t.trim()) return "9-none";
+      return "5-" + t;
+    }
+    function groupStudentsByClass(list) {
+      const groups = {};
+      (list || []).forEach(function (st) {
+        const key = (st.teacher || "").trim() || "No teacher assigned";
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(st);
+      });
+      return Object.keys(groups).sort(function (a, b) {
+        const ka = classSortKey(a);
+        const kb = classSortKey(b);
+        if (ka === kb) return a.localeCompare(b);
+        return ka < kb ? -1 : 1;
+      }).map(function (teacher) {
+        const students = groups[teacher].slice().sort(function (a, b) {
+          return (a.name || "").localeCompare(b.name || "");
+        });
+        return { teacher: teacher, students: students };
+      });
+    }
+    function studentRowHtml(st, showComp) {
+      return '<tr data-sid="' + esc(st.id) + '">' +
+        '<td><input data-rf="name" value="' + esc(st.name) + '" placeholder="Student name"></td>' +
+        '<td><input data-rf="teacher" value="' + esc(st.teacher || "") + '" placeholder="Teacher"></td>' +
+        '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '" placeholder="8"></td>' +
+        '<td><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></td>' +
+        '<td><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></td>' +
+        (showComp ? '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' : '') +
+        '<td><div class="bucks-cell">' +
+          '<button type="button" class="small" data-bucks="-1">−</button>' +
+          '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
+          '<button type="button" class="small" data-bucks="1">+</button>' +
+        '</div></td>' +
+        '<td><textarea data-rf="notes" rows="1" placeholder="Notes">' + esc(st.notes||"") + '</textarea></td>' +
+        '<td><button type="button" class="danger small" data-del-student>Remove</button></td>' +
+      '</tr>';
+    }
     function optSel(val, opts) {
       return opts.map(function (o) {
         return '<option value="' + o + '"' + (val === o ? " selected" : "") + ">" + o + "</option>";
@@ -981,9 +1007,9 @@
     function renderRoster() {
       updateRosterTabs();
       if (rosterView === "sessions") { renderSessions(); return; }
-      const body = document.getElementById("rosterBody");
+      const wrap = document.getElementById("rosterTables");
       const stats = document.getElementById("rosterStats");
-      if (!body || !stats) return;
+      if (!wrap || !stats) return;
       const list = activeRosterList();
       const q = ((document.getElementById("rosterSearch") || {}).value || "").toLowerCase().trim();
       const fDiy = (document.getElementById("rosterFilterDiy") || {}).value || "all";
@@ -1003,44 +1029,32 @@
         return [st.name, st.teacher, st.computer, st.notes, st.grade, st.diy, st.slip].join(" ").toLowerCase().indexOf(q) !== -1;
       });
       const showComp = rosterView === "class";
-      const head = document.getElementById("rosterHeadRow");
       const cols = showComp ? 9 : 8;
-      if (head) {
-        head.innerHTML =
-          '<th style="width:16%">Name</th>' +
-          '<th style="width:12%">Teacher</th>' +
-          '<th style="width:7%">Grade</th>' +
-          '<th style="width:11%">DIY</th>' +
-          '<th style="width:11%">Permission slip</th>' +
-          (showComp ? '<th style="width:10%">Computer #</th>' : '') +
-          '<th style="width:12%">POWER Bucks</th>' +
-          '<th>Notes</th>' +
-          '<th style="width:70px"></th>';
-      }
+      const headHtml =
+        '<th style="width:16%">Name</th>' +
+        '<th style="width:12%">Teacher</th>' +
+        '<th style="width:7%">Grade</th>' +
+        '<th style="width:11%">DIY</th>' +
+        '<th style="width:11%">Permission slip</th>' +
+        (showComp ? '<th style="width:10%">Computer #</th>' : '') +
+        '<th style="width:12%">POWER Bucks</th>' +
+        '<th>Notes</th>' +
+        '<th style="width:70px"></th>';
       if (!list.length) {
-        body.innerHTML = '<tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Click <strong>+ Add student</strong> or paste a bulk list.</td></tr>';
+        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Click <strong>+ Add student</strong> or Load official POWER list.</td></tr></tbody></table></div>';
         return;
       }
       if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr>';
+        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No matches.</td></tr></tbody></table></div>';
         return;
       }
-      body.innerHTML = rows.map(function (st) {
-        return '<tr data-sid="' + esc(st.id) + '">' +
-          '<td><input data-rf="name" value="' + esc(st.name) + '" placeholder="Student name"></td>' +
-          '<td><input data-rf="teacher" value="' + esc(st.teacher || "") + '" placeholder="Teacher"></td>' +
-          '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '" placeholder="8"></td>' +
-          '<td><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></td>' +
-          '<td><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></td>' +
-          (showComp ? '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' : '') +
-          '<td><div class="bucks-cell">' +
-            '<button type="button" class="small" data-bucks="-1">−</button>' +
-            '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
-            '<button type="button" class="small" data-bucks="1">+</button>' +
-          '</div></td>' +
-          '<td><textarea data-rf="notes" rows="1" placeholder="Notes">' + esc(st.notes||"") + '</textarea></td>' +
-          '<td><button type="button" class="danger small" data-del-student>Remove</button></td>' +
-        '</tr>';
+      const groups = groupStudentsByClass(rows);
+      wrap.innerHTML = groups.map(function (g) {
+        return '<div class="class-group">' +
+          '<div class="class-group-head">' + esc(g.teacher) + '<span>' + g.students.length + ' student' + (g.students.length === 1 ? "" : "s") + '</span></div>' +
+          '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody>' +
+          g.students.map(function (st) { return studentRowHtml(st, showComp); }).join("") +
+          '</tbody></table></div></div>';
       }).join("");
     }
     function findStudent(id) { return activeRosterList().find(function (st) { return st.id === id; }) || findAnyStudent(id); }
@@ -1055,7 +1069,253 @@
       setActiveRosterList(list);
       renderRoster();
       safeSave();
-    }    function addBulkStudents() {
+    }    const EHDW_CATALOG = [
+      { name: "Candy Dispenser", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Derby Car + Ramp", level: "Beginner", url: "https://www.ehdw.com/diy-derby-car-and-ramp" },
+      { name: "Fairy Light Bottle", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "LED Tea Light Candle Holder", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Name Sign", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Pin Art Board", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Spin Top", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Step Stool", level: "Beginner", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Tic-Tac-Toe", level: "Beginner", url: "https://www.ehdw.com/tic-tac-toe" },
+      { name: "Wall Clock", level: "Beginner", url: "https://www.ehdw.com/diy-wall-clock" },
+      { name: "Battle Sling", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Birdhouse", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Bookshelf", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Catapult", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Finger Basketball", level: "Intermediate", url: "https://www.ehdw.com/diy-finger-basketball" },
+      { name: "Hooked!", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Large Cajón Drum", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Lap Desk", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Planter Box", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Small Cajón Drum", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Toolbox", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Treasure Box", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Winter Snowman", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Projector", level: "Intermediate", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Balance Board", level: "Intermediate", url: "https://www.ehdw.com/diy-balance-board" },
+      { name: "Wooden Bluetooth Speaker", level: "Advanced", url: "https://www.ehdw.com/diy-wooden-bluetooth-speaker" },
+      { name: "Collapsible Organizer", level: "Advanced", url: "https://www.ehdw.com/collapsible-organizer" },
+      { name: "LED Light Frame", level: "Advanced", url: "https://www.ehdw.com/diy-led-light-frame" },
+      { name: "Lockbox", level: "Advanced", url: "https://www.ehdw.com/diy-lockbox" },
+      { name: "Black Iron Desk Lamp", level: "Advanced", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Wooden Desk Lamp", level: "Advanced", url: "https://www.ehdw.com/diy-woodworking-and-electrical-projects" },
+      { name: "Portable Stool", level: "Advanced", url: "https://www.ehdw.com/diy-portable-stool" }
+    ];
+    function emptyDiy() {
+      return { id: "d"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", level:"Advanced", startDate:"", endDate:"", status:"Planned", notes:"", url:"https://www.ehdw.com/diy-builders" };
+    }
+    function fillDiyCatalog() {
+      const sel = document.getElementById("diyCatalog");
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Choose an EHDW project…</option>' +
+        EHDW_CATALOG.map(function (pr) {
+          return '<option value="' + esc(pr.name) + '" data-level="' + esc(pr.level) + '" data-url="' + esc(pr.url) + '">' +
+            esc(pr.level) + " · " + esc(pr.name) + "</option>";
+        }).join("");
+    }
+    function renderDiy() {
+      fillDiyCatalog();
+      const body = document.getElementById("diyBody");
+      const stats = document.getElementById("diyStats");
+      if (!body || !stats) return;
+      if (!Array.isArray(diyProjects)) diyProjects = [];
+      const planned = diyProjects.filter(function (pr) { return pr.status === "Planned"; }).length;
+      const active = diyProjects.filter(function (pr) { return pr.status === "In progress"; }).length;
+      const done = diyProjects.filter(function (pr) { return pr.status === "Done"; }).length;
+      stats.innerHTML =
+        '<div class="roster-stat"><div class="n">' + diyProjects.length + '</div><div class="l">Projects</div></div>' +
+        '<div class="roster-stat"><div class="n">' + planned + '</div><div class="l">Planned</div></div>' +
+        '<div class="roster-stat"><div class="n">' + active + '</div><div class="l">In progress</div></div>' +
+        '<div class="roster-stat"><div class="n">' + done + '</div><div class="l">Done</div></div>';
+      if (!diyProjects.length) {
+        body.innerHTML = '<tr><td colspan="7" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No projects yet. Choose one from the EHDW catalog or type a custom name.</td></tr>';
+        return;
+      }
+      body.innerHTML = diyProjects.map(function (pr) {
+        const link = pr.url ? '<div style="font-size:0.72rem;margin-top:0.2rem;"><a href="' + esc(pr.url) + '" target="_blank" rel="noopener" style="color:var(--gold-light);">ehdw.com</a></div>' : "";
+        return '<tr data-did="' + esc(pr.id) + '">' +
+          '<td><input data-df="name" value="' + esc(pr.name) + '">' + link + "</td>" +
+          '<td><select data-df="level">' +
+            ["Beginner","Intermediate","Advanced","Custom"].map(function (lv) {
+              return '<option value="' + lv + '"' + (pr.level===lv?" selected":"") + ">" + lv + "</option>";
+            }).join("") +
+          "</select></td>" +
+          '<td><input data-df="startDate" type="date" value="' + esc(pr.startDate || "") + '"></td>' +
+          '<td><input data-df="endDate" type="date" value="' + esc(pr.endDate || "") + '"></td>' +
+          '<td><select data-df="status">' +
+            ["Planned","In progress","Done"].map(function (st) {
+              return '<option value="' + st + '"' + (pr.status===st?" selected":"") + ">" + st + "</option>";
+            }).join("") +
+          "</select></td>" +
+          '<td><textarea data-df="notes" rows="1">' + esc(pr.notes||"") + "</textarea></td>" +
+          '<td><button type="button" class="danger small" data-del-diy>Remove</button></td>' +
+        "</tr>";
+      }).join("");
+    }
+    function addDiyProject() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const sel = document.getElementById("diyCatalog");
+      const custom = (document.getElementById("diyCustomName").value || "").trim();
+      const picked = (sel && sel.value) ? sel.value : "";
+      const name = custom || picked;
+      if (!name) { alert("Choose a catalog project or type a name."); return; }
+      const item = emptyDiy();
+      item.name = name;
+      item.level = document.getElementById("diyLevel").value || "Advanced";
+      item.startDate = document.getElementById("diyStart").value || "";
+      item.endDate = document.getElementById("diyEnd").value || "";
+      const cat = EHDW_CATALOG.filter(function (c) { return c.name === picked; })[0];
+      if (cat && !custom) { item.level = cat.level; item.url = cat.url; }
+      diyProjects.push(item);
+      document.getElementById("diyCustomName").value = "";
+      if (sel) sel.value = "";
+      renderDiy();
+      safeSave();
+    }
+    function findDiy(id) { return diyProjects.find(function (pr) { return pr.id === id; }); }
+    function updateDiyField(id, field, value) {
+      const pr = findDiy(id);
+      if (!pr) return;
+      pr[field] = value;
+      safeSave();
+    }
+    function removeDiy(id) {
+      const pr = findDiy(id);
+      if (!pr) return;
+      if (!confirm('Remove project "' + (pr.name || "") + '"?')) return;
+      diyProjects = diyProjects.filter(function (x) { return x.id !== id; });
+      renderDiy();
+      safeSave();
+    }
+    function parseDiy(v) {
+      v = (v || "").trim().toLowerCase();
+      if (["yes","y","true","enrolled","diy yes","in diy"].indexOf(v) !== -1) return "Yes";
+      if (["pending","p","wait","waiting","maybe"].indexOf(v) !== -1) return "Pending";
+      if (["no","n","false","not enrolled","none"].indexOf(v) !== -1) return "No";
+      return null;
+    }
+    function looksLikeComputer(v) {
+      v = (v || "").trim();
+      if (!v) return false;
+      if (/^(comp(uter)?|pc|laptop|chromebook|#)?\s*[:#-]?\s*[a-z]{0,4}\s*-?\s*\d{1,4}$/i.test(v)) return true;
+      if (/^(c|lab|pc|cb|lt)[- ]?\d{1,4}$/i.test(v)) return true;
+      if (/^\d{1,3}$/.test(v) && Number(v) > 8 && Number(v) < 200) return true;
+      return false;
+    }
+    function looksLikeGrade(v) {
+      v = (v || "").trim().toLowerCase();
+      return /^(6|7|8|6th|7th|8th|sixth|seventh|eighth)$/.test(v);
+    }
+    function looksLikeBucks(v) {
+      v = (v || "").trim().toLowerCase().replace(/bucks?|pts?|points?/g, "").trim();
+      return /^\d{1,4}$/.test(v);
+    }
+    function looksLikeNameToken(v) {
+      v = (v || "").trim();
+      if (!v || v.length < 2) return false;
+      if (parseDiy(v)) return false;
+      if (typeof parseSlip === "function" && parseSlip(v)) return false;
+      if (looksLikeComputer(v) || looksLikeGrade(v) || looksLikeBucks(v)) return false;
+      if (/^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v)) return false;
+      return /[a-záéíóúñü]/i.test(v);
+    }
+    function cleanName(v) {
+      return (v || "").replace(/^\s*\d+[\.\)\-:]+\s*/, "").replace(/^[-*•]+\s*/, "").replace(/\s+/g, " ").trim();
+    }
+    function identifyName(parts) {
+      const tokens = parts.filter(Boolean);
+      if (!tokens.length) return { name: "", rest: [] };
+      if (tokens.length >= 2 && looksLikeNameToken(tokens[0]) && looksLikeNameToken(tokens[1]) &&
+          tokens[0].indexOf(" ") === -1 && tokens[1].indexOf(" ") === -1) {
+        return { name: tokens[1] + " " + tokens[0], rest: tokens.slice(2) };
+      }
+      if (looksLikeNameToken(tokens[0])) return { name: tokens[0], rest: tokens.slice(1) };
+      for (let i = 0; i < tokens.length; i++) {
+        if (looksLikeNameToken(tokens[i])) return { name: tokens[i], rest: tokens.slice(0, i).concat(tokens.slice(i + 1)) };
+      }
+      return { name: tokens[0], rest: tokens.slice(1) };
+    }
+    function parseSlip(v) {
+      v = (v || "").trim().toLowerCase();
+      if (["slip yes","permission yes","signed","turned in","in","returned","complete"].indexOf(v) !== -1) return "Yes";
+      if (["slip pending","permission pending","waiting slip"].indexOf(v) !== -1) return "Pending";
+      if (["slip no","permission no","missing","not signed","unsigned"].indexOf(v) !== -1) return "No";
+      if (v === "slip") return "Pending";
+      return null;
+    }
+    function looksLikeTeacher(v) {
+      v = (v || "").trim();
+      if (!v) return false;
+      return /^(mr\.?|ms\.?|mrs\.?|miss|mx\.?|coach|teacher)\b/i.test(v);
+    }
+    function parseBulkLine(line) {
+      line = (line || "").replace(/^\s*[-*•]+\s*/, "").replace(/^\s*\d+[\.\)\-:]+\s*/, "").trim();
+      if (!line) return null;
+      const s = emptyStudent();
+      s.source = rosterView === "power" ? "power" : "class";
+      if (rosterView === "class") s.teacher = "Mr. Enciso";
+      let rest = "";
+      let m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+)\s*,\s*([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
+      if (m) {
+        s.name = cleanName(m[1] + " " + m[2]);
+        s.grade = String(m[3]).replace(/th$/i, "");
+        rest = (m[4] || "").trim();
+      } else {
+        m = line.match(/^([A-Za-zÁÉÍÓÚÑÜáéíóúñü'’.\- ]+?)\s*[-–—]\s*(\d{1}|6th|7th|8th|6|7|8)\b\s*(.*)$/i);
+        if (m) {
+          s.name = cleanName(m[1].replace(/,/g, " "));
+          s.grade = String(m[2]).replace(/th$/i, "");
+          rest = (m[3] || "").trim();
+        }
+      }
+      if (!s.name) {
+        let parts = line.indexOf("\t") !== -1
+          ? line.split("\t").map(function (x) { return x.trim(); })
+          : line.split(",").map(function (x) { return x.trim(); });
+        parts = parts.filter(function (x) { return x !== ""; });
+        if (!parts.length) return null;
+        const identified = identifyName(parts);
+        s.name = cleanName(identified.name);
+        rest = identified.rest.join(", ");
+      }
+      if (!s.name) return null;
+      const extras = rest ? rest.split(/[,;\t]+/).map(function (x) { return x.trim(); }).filter(Boolean) : [];
+      extras.forEach(function (piece) {
+        const g = piece.replace(/^grade\s*/i, "").trim();
+        if (looksLikeGrade(g)) { s.grade = g.replace(/th$/i, ""); return; }
+        const diy = parseDiy(piece);
+        if (diy && s.diy === "No") { s.diy = diy; return; }
+        const slip = parseSlip(piece);
+        if (slip && s.slip === "No") { s.slip = slip; return; }
+        if (looksLikeTeacher(piece) && !s.teacher) { s.teacher = piece; return; }
+        if (rosterView === "class" && looksLikeComputer(piece) && !s.computer) {
+          s.computer = piece.replace(/^(computer|comp|pc|#)\s*[:#-]?\s*/i, "");
+          return;
+        }
+        if (looksLikeBucks(piece) && !s.bucks) { s.bucks = Math.max(0, parseInt(piece.replace(/[^\d]/g, ""), 10) || 0); return; }
+        if (!s.teacher && looksLikeNameToken(piece) && /[a-záéíóúñü]/i.test(piece)) { s.teacher = piece; return; }
+        s.notes = (s.notes ? s.notes + "; " : "") + piece;
+      });
+      return s;
+    }
+    function wipeActiveRoster() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
+      const label = rosterView === "power" ? "POWER Program roster" : "8th Grade Class roster";
+      const n = activeRosterList().length;
+      if (!n) { alert("This roster is already empty."); return; }
+      if (!confirm("Wipe the entire " + label + " (" + n + " student" + (n === 1 ? "" : "s") + ")?\nThis cannot be undone from here.")) return;
+      const gone = activeRosterList().map(function (st) { return st.id; });
+      setActiveRosterList([]);
+      sessions.forEach(function (sess) {
+        if (Array.isArray(sess.studentIds)) sess.studentIds = sess.studentIds.filter(function (id) { return gone.indexOf(id) === -1; });
+      });
+      renderRoster();
+      safeSave();
+    }
+    function addBulkStudents() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
       if (rosterView === "sessions") { alert("Switch to My 8th Grade Class or POWER Program first."); return; }
       const raw = (document.getElementById("bulkStudents").value || "");
@@ -1074,7 +1334,6 @@
     }
     function buildRosterPrintHtml() {
       const list = activeRosterList().slice();
-      list.sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); });
       const diyYes = list.filter(function (s) { return s.diy === "Yes"; }).length;
       const listTitle = rosterView === "power" ? "POWER Program" : "My 8th Grade Class";
       const slipYes = list.filter(function (s) { return s.slip === "Yes"; }).length;
@@ -1090,14 +1349,22 @@
         "<th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th>" +
         (showComp ? "<th>Computer #</th>" : "") +
         "<th>Notes</th></tr></thead><tbody>";
-      if (!list.length) html += '<tr><td colspan="' + (showComp ? 8 : 7) + '">No students on this roster.</td></tr>';
-      else list.forEach(function (s, i) {
-        html += "<tr><td>" + (i + 1) + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
-          "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
-          "</td><td>" + esc(s.slip || "No") + "</td>" +
-          (showComp ? "<td>" + esc(s.computer || "—") + "</td>" : "") +
-          "<td>" + esc(s.notes || "") + "</td></tr>";
-      });
+      if (!list.length) {
+        html += '<tr><td colspan="' + (showComp ? 8 : 7) + '">No students on this roster.</td></tr>';
+      } else {
+        let n = 0;
+        groupStudentsByClass(list).forEach(function (g) {
+          html += '<tr><td colspan="' + (showComp ? 8 : 7) + '" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>";
+          g.students.forEach(function (s) {
+            n += 1;
+            html += "<tr><td>" + n + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
+              "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
+              "</td><td>" + esc(s.slip || "No") + "</td>" +
+              (showComp ? "<td>" + esc(s.computer || "—") + "</td>" : "") +
+              "<td>" + esc(s.notes || "") + "</td></tr>";
+          });
+        });
+      }
       html += "</tbody></table>";
       html += '<div class="print-footer">POWER Program Roster · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>';
       return html;
@@ -1155,21 +1422,33 @@
       box.innerHTML = sessions.map(function (sess) {
         const kids = (sess.studentIds || []).map(findAnyStudent).filter(Boolean);
         const slipsIn = kids.filter(function (st) { return st.slip === "Yes"; }).length;
-        const picker = allStudents().slice().sort(function (a,b) { return (a.name||"").localeCompare(b.name||""); }).map(function (st) {
-          const on = (sess.studentIds || []).indexOf(st.id) !== -1;
-          const tag = (roster.some(function (x) { return x.id === st.id; }) ? "Class" : "POWER");
-          return '<label style="display:flex;gap:0.45rem;align-items:flex-start;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;">' +
-            '<input type="checkbox" data-pick-sess="' + esc(sess.id) + '" data-pick-stu="' + esc(st.id) + '"' + (on ? " checked" : "") + '>' +
-            '<span><strong>' + esc(st.name || "Unnamed") + '</strong> · ' + tag +
-            ' · Gr ' + esc(st.grade || "—") +
-            ' · ' + esc(st.teacher || "No teacher") +
-            ' · DIY ' + esc(st.diy || "No") +
-            ' · Slip ' + esc(st.slip || "No") + '</span></label>';
-        }).join("") || '<p style="color:var(--text-muted);">Add students to a roster first.</p>';
-        const rosterRows = kids.map(function (st) {
-          return '<tr><td>' + esc(st.name || "—") + '</td><td>' + esc(st.teacher || "—") + '</td><td>' + esc(st.grade || "—") +
-            '</td><td>' + esc(st.diy || "No") + '</td><td>' + esc(st.slip || "No") + '</td></tr>';
-        }).join("") || '<tr><td colspan="5" style="color:var(--text-muted);">Nobody picked yet.</td></tr>';
+        const pickerGroups = groupStudentsByClass(allStudents());
+        const picker = pickerGroups.length
+          ? pickerGroups.map(function (g) {
+              const picks = g.students.filter(function (st) { return (sess.studentIds || []).indexOf(st.id) !== -1; }).length;
+              return '<div class="sess-class-head">' + esc(g.teacher) + ' · ' + picks + '/' + g.students.length + ' selected</div>' +
+                g.students.map(function (st) {
+                  const on = (sess.studentIds || []).indexOf(st.id) !== -1;
+                  const tag = (roster.some(function (x) { return x.id === st.id; }) ? "My Class" : "POWER");
+                  return '<label style="display:flex;gap:0.45rem;align-items:flex-start;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;">' +
+                    '<input type="checkbox" data-pick-sess="' + esc(sess.id) + '" data-pick-stu="' + esc(st.id) + '"' + (on ? " checked" : "") + '>' +
+                    '<span><strong>' + esc(st.name || "Unnamed") + '</strong> · ' + tag +
+                    ' · Gr ' + esc(st.grade || "—") +
+                    ' · DIY ' + esc(st.diy || "No") +
+                    ' · Slip ' + esc(st.slip || "No") + '</span></label>';
+                }).join("");
+            }).join("")
+          : '<p style="color:var(--text-muted);">Add students to a roster first.</p>';
+        const assignedGroups = groupStudentsByClass(kids);
+        const rosterRows = assignedGroups.length
+          ? assignedGroups.map(function (g) {
+              return '<tr><td colspan="5" style="background:var(--navy-dark);color:var(--gold-light);font-weight:700;">' + esc(g.teacher) + ' · ' + g.students.length + '</td></tr>' +
+                g.students.map(function (st) {
+                  return '<tr><td>' + esc(st.name || "—") + '</td><td>' + esc(st.teacher || "—") + '</td><td>' + esc(st.grade || "—") +
+                    '</td><td>' + esc(st.diy || "No") + '</td><td>' + esc(st.slip || "No") + '</td></tr>';
+                }).join("");
+            }).join("")
+          : '<tr><td colspan="5" style="color:var(--text-muted);">Nobody picked yet.</td></tr>';
         return '<div class="bulk-box" data-sess-card="' + esc(sess.id) + '">' +
           '<div class="toolbar-row" style="margin:0 0 0.5rem;">' +
             '<input data-sf="name" data-sess="' + esc(sess.id) + '" value="' + esc(sess.name) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.55rem;border-radius:6px;min-width:180px;flex:1;">' +
@@ -1186,8 +1465,8 @@
             '<input type="time" data-sf="endTime" data-sess="' + esc(sess.id) + '" value="' + esc(sess.endTime || "") + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.4rem;border-radius:6px;">' +
             '<span style="font-size:0.8rem;color:var(--gold-light);">' + kids.length + ' students · ' + slipsIn + ' slips in</span>' +
           '</div>' +
-          '<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Pick from My Class and POWER Program. Check a name to add them to this session.</p>' +
-          '<div style="max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;background:var(--bg);">' + picker + '</div>' +
+          '<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Pick by class. Check a name to add or remove them from this session.</p>' +
+          '<div style="max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;background:var(--bg);">' + picker + '</div>' +
           '<div class="roster-table-wrap"><table class="roster-table" style="min-width:520px;"><thead><tr><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Slip</th></tr></thead><tbody>' + rosterRows + '</tbody></table></div>' +
         '</div>';
       }).join("");
@@ -1236,7 +1515,6 @@
       const sess = findSession(id);
       if (!sess) return;
       const kids = (sess.studentIds || []).map(findAnyStudent).filter(Boolean);
-      kids.sort(function (a,b) { return (a.name||"").localeCompare(b.name||""); });
       let html = "<h1>Mr. Enciso’s Scholastic Batch – Session</h1>" +
         '<div class="meta"><strong>Session:</strong> ' + esc(sess.name || "—") +
         "<br><strong>Class:</strong> " + esc(sess.className || "—") +
@@ -1244,12 +1522,19 @@
         "<br><strong>Printed:</strong> " + new Date().toLocaleString() + "</div>";
       html += '<table class="print-roster-table"><thead><tr><th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>List</th><th>DIY</th><th>Permission slip</th></tr></thead><tbody>';
       if (!kids.length) html += '<tr><td colspan="7">No students picked for this session.</td></tr>';
-      else kids.forEach(function (st, i) {
-        const tag = roster.some(function (x) { return x.id === st.id; }) ? "8th Grade Class" : "POWER Program";
-        html += "<tr><td>" + (i+1) + "</td><td>" + esc(st.name||"—") + "</td><td>" + esc(st.teacher||"—") +
-          "</td><td>" + esc(st.grade||"—") + "</td><td>" + tag + "</td><td>" + esc(st.diy||"No") +
-          "</td><td>" + esc(st.slip||"No") + "</td></tr>";
-      });
+      else {
+        let n = 0;
+        groupStudentsByClass(kids).forEach(function (g) {
+          html += '<tr><td colspan="7" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>";
+          g.students.forEach(function (st) {
+            n += 1;
+            const tag = roster.some(function (x) { return x.id === st.id; }) ? "8th Grade Class" : "POWER Program";
+            html += "<tr><td>" + n + "</td><td>" + esc(st.name||"—") + "</td><td>" + esc(st.teacher||"—") +
+              "</td><td>" + esc(st.grade||"—") + "</td><td>" + tag + "</td><td>" + esc(st.diy||"No") +
+              "</td><td>" + esc(st.slip||"No") + "</td></tr>";
+          });
+        });
+      }
       html += "</tbody></table>";
       html += '<div class="print-footer">Session roster · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>';
       const r = document.getElementById("printReport");
@@ -1772,8 +2057,8 @@
     }
     function updateDashboard() {
       const grid = document.getElementById("dashboardGrid");
-      grid.innerHTML = Object.entries(BLOCKS).map(function (pair) {
-        const k = pair[0]; const info = pair[1];
+      grid.innerHTML = Object.keys(BLOCKS).map(function (k) {
+        const info = BLOCKS[k];
         const bd = data.blocks[k] || emptyBlock();
         let filled = 0;
         DAYS.forEach(function (d) {
