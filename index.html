@@ -426,7 +426,14 @@
               <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
               <button type="button" id="btnPrintRoster">🖨 Print this list</button>
               <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
-              <button type="button" id="btnLoadOfficialPower">Load official POWER list</button>
+              <button type="button" id="btnLoadOfficialPower">Load all 86</button>
+            </div>
+            <div class="toolbar-row" id="powerClassLoadRow">
+              <span style="font-size:0.82rem;color:var(--text-muted);">Load one POWER class:</span>
+              <button type="button" class="small" data-load-class="esparza">Ms. Esparza / Rm. 8</button>
+              <button type="button" class="small" data-load-class="avelar">Miss Avelar / Rm. 30</button>
+              <button type="button" class="small" data-load-class="soto">Miss Soto / Rm. 4</button>
+              <button type="button" class="small" data-load-class="enciso">Mr. Enciso / Rm. 1</button>
             </div>
             <div class="bulk-box">
               <h3>Add many students at once</h3>
@@ -518,12 +525,27 @@
 
         <section id="page-preview" class="page">
           <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Cloud Backup</h2>
-          <div class="preview-banner">This page is the last full backup on JSONBin. Refresh it, preview each Save File, and load it onto this device only if you want that cloud copy.</div>
           <div class="toolbar-row">
-            <button type="button" class="primary" id="btnRefreshCloud">Refresh cloud backup</button>
-            <span id="previewTargetLabel" style="font-size:0.85rem;color:var(--text-muted);"></span>
+            <button type="button" class="primary" id="btnSaveCloudBackup">Save to this cloud file</button>
+            <button type="button" id="btnRefreshCloud">Refresh</button>
+            <button type="button" class="small" data-copy-cloud="1">→ File 1</button>
+            <button type="button" class="small" data-copy-cloud="2">→ File 2</button>
+            <button type="button" class="small" data-copy-cloud="3">→ File 3</button>
           </div>
-          <div class="preview-source-row" id="previewSourceButtons"></div>
+          <div class="bulk-box">
+            <h3>Upload a backup file onto a Save File</h3>
+            <p>Use a downloaded backup. Choose Save File 1, 2, or 3. That slot is replaced with everything in the file.</p>
+            <div class="toolbar-row" style="margin:0;">
+              <input type="file" id="backupFileInput" accept=".json,application/json" />
+              <select id="backupUploadSlot" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                <option value="1">Save File 1</option>
+                <option value="2">Save File 2</option>
+                <option value="3">Save File 3</option>
+              </select>
+              <button type="button" class="primary" id="btnUploadBackupFile">Upload onto selected Save File</button>
+            </div>
+          </div>
+          <div id="backupHistoryList" class="history-list"></div>
           <div id="previewPanel"></div>
         </section>
       </main>
@@ -564,8 +586,11 @@
     let rosterView = "class";
     let diyProjects = [];
     let previewSource = null;
+    let selectedBackupId = null;
+    let backupHistory = [];
     let sessionOpen = false;
     let lastCloudOk = null;
+    let cloudBackups = { 1: null, 2: null, 3: null };
 
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
     function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], sessions: [], diyProjects: [], templates: {}, lastSaved: null }; }
@@ -679,15 +704,38 @@
         powerRoster = officialPowerRoster();
       }
     }
+    function officialPowerClassKey(teacher) {
+      const t = (teacher || "").toLowerCase();
+      if (t.indexOf("esparza") !== -1) return "esparza";
+      if (t.indexOf("avelar") !== -1) return "avelar";
+      if (t.indexOf("soto") !== -1) return "soto";
+      if (t.indexOf("enciso") !== -1) return "enciso";
+      return "";
+    }
+    function officialPowerByClass(key) {
+      return officialPowerRoster().filter(function (st) { return officialPowerClassKey(st.teacher) === key; });
+    }
     function loadOfficialPowerList() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
       const n = officialPowerRoster().length;
-      if (powerRoster.length && !confirm("Replace the POWER Program list with the official " + n + " students (teachers and rooms included)?")) return;
+      if (powerRoster.length && !confirm("Replace the POWER Program list with all " + n + " students?")) return;
       powerRoster = officialPowerRoster();
       rosterView = "power";
       renderRoster();
       safeSave();
-      showToast("Official POWER list loaded (" + n + ")");
+    }
+    function loadOfficialPowerClass(key) {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const incoming = officialPowerByClass(key);
+      if (!incoming.length) return;
+      const label = incoming[0].teacher || key;
+      const keep = (powerRoster || []).filter(function (st) { return officialPowerClassKey(st.teacher) !== key; });
+      if ((powerRoster || []).some(function (st) { return officialPowerClassKey(st.teacher) === key; }) &&
+          !confirm("Replace only " + label + " on the POWER list? Other classes stay.")) return;
+      powerRoster = keep.concat(incoming);
+      rosterView = "power";
+      renderRoster();
+      safeSave();
     }
     function emptySession() { return { id: "ss"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", className:"DIY", days:"", startTime:"", endTime:"", notes:"", studentIds: [] }; }
     function emptyDay() { return { title:"", objective:"", activities:"", notes:"", noSchool:false, files: [] }; }
@@ -786,6 +834,8 @@
           activeSlot: null,
           slots: saveSystem.slots,
           templates: templates,
+          backups: cloudBackups,
+          backupHistory: backupHistory,
           savedAt: new Date().toISOString()
         }));
         try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
@@ -806,6 +856,8 @@
         sessionOpen = false;
         [1,2,3].forEach(function (n) { saveSystem.slots[n] = normalizeSlot(saveSystem.slots[n]); });
         if (parsed.templates && typeof parsed.templates === "object") templates = parsed.templates;
+        if (parsed.backups && typeof parsed.backups === "object") cloudBackups = parsed.backups;
+        if (Array.isArray(parsed.backupHistory)) backupHistory = parsed.backupHistory;
         return true;
       } catch (e) { return false; }
     }
@@ -829,6 +881,7 @@
       return {
         slots: saveSystem.slots,
         templates: templates,
+        backupHistory: backupHistory,
         savedAt: new Date().toISOString()
       };
     }
@@ -886,7 +939,11 @@
         const localSlot = normalizeSlot(saveSystem.slots[n]);
         const cloudHas = hasContent(cloudSlot) || slotStamp(cloudSlot) > 0;
         const localHas = hasContent(localSlot) || slotStamp(localSlot) > 0;
-        if (cloudHas && (!localHas || slotStamp(cloudSlot) > slotStamp(localSlot))) {
+        const cloudW = slotWeight(cloudSlot);
+        const localW = slotWeight(localSlot);
+        if (localHas && cloudW < localW) {
+          saveSystem.slots[n] = localSlot;
+        } else if (cloudHas && (!localHas || slotStamp(cloudSlot) > slotStamp(localSlot))) {
           saveSystem.slots[n] = cloudSlot;
           changed = true;
         } else {
@@ -901,6 +958,10 @@
           changed = true;
         }
       }
+      if (Array.isArray(record.backupHistory) && record.backupHistory.length) {
+        backupHistory = mergeBackupHistory(backupHistory, record.backupHistory);
+        changed = true;
+      }
       return changed;
     }
     async function pullCloud(forceApply) {
@@ -914,7 +975,7 @@
         const changed = mergeCloudRecord(record);
         lastCloudOk = true;
         if (changed) {
-          try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, savedAt: new Date().toISOString() })); } catch (e) {}
+          try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, backupHistory: backupHistory, savedAt: new Date().toISOString() })); } catch (e) {}
           try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
           renderTitleSlots();
           if (sessionOpen && saveSystem.activeSlot) {
@@ -982,12 +1043,13 @@
       setTimeout(() => t.classList.remove("show"), 2500);
     }
 
-    function safeSave() {
+    function safeSave(recordHistory) {
       if (!sessionOpen || !saveSystem.activeSlot) return;
       if (document.getElementById("main-app").style.display === "none") return;
       collectFromDOM();
       persistLocal();
-      pushCloud();
+      if (recordHistory) saveCloudBackup();
+      else pushCloud();
       updateDashboard();
       renderHistory();
     }
@@ -1050,6 +1112,8 @@
       if (ss) ss.className = rosterView === "sessions" ? "primary" : "";
       if (people) people.style.display = rosterView === "sessions" ? "none" : "block";
       if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
+      const classRow = document.getElementById("powerClassLoadRow");
+      if (classRow) classRow.style.display = rosterView === "power" ? "flex" : "none";
       if (note) {
         note.textContent = rosterView === "power"
           ? "POWER Program — grouped by class / teacher. No computer numbers on this list."
@@ -2150,69 +2214,206 @@
       const nav = document.querySelector('.nav-item[data-page="' + id + '"]');
       if (page) page.classList.add("active");
       if (nav) nav.classList.add("active");
-      if (id === "preview") { renderPreviewPage(); refreshCloudPreview(); }
+      if (id === "preview") { renderPreviewPage(); }
       if (id === "templates") renderTemplates();
       if (id === "roster") renderRoster();
       if (id === "diy") renderDiy();
     }
 
-    function cloudSlotSummary(n) {
-      const rec = lastCloudRecord || {};
-      const slot = normalizeSlot((rec.slots && rec.slots[n]) || emptySlot());
-      const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
-      return { slot: slot, week: week };
+    function snapshotFullSaveFile() {
+      collectFromDOM();
+      if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
+      const n = saveSystem.activeSlot || 1;
+      const slot = normalizeSlot(deepClone(saveSystem.slots[n] || emptySlot()));
+      return {
+        currentWeek: slot.currentWeek,
+        data: deepClone(slot.data || emptyData()),
+        archive: deepClone(slot.archive || {}),
+        roster: deepClone(slot.roster || []),
+        powerRoster: deepClone(slot.powerRoster || []),
+        sessions: deepClone(slot.sessions || []),
+        diyProjects: deepClone(slot.diyProjects || []),
+        templates: deepClone(slot.templates && Object.keys(slot.templates).length ? slot.templates : templates || {}),
+        lastSaved: slot.lastSaved || new Date().toISOString()
+      };
+    }
+    function backupFingerprint(snap) {
+      try {
+        return JSON.stringify({
+          currentWeek: snap.currentWeek,
+          data: snap.data,
+          archive: snap.archive,
+          roster: snap.roster,
+          powerRoster: snap.powerRoster,
+          sessions: snap.sessions,
+          diyProjects: snap.diyProjects,
+          templates: snap.templates
+        });
+      } catch (e) { return String(Date.now()); }
+    }
+    function mergeBackupHistory(a, b) {
+      const list = (Array.isArray(a) ? a : []).concat(Array.isArray(b) ? b : []);
+      const byId = {};
+      const byFp = {};
+      list.forEach(function (item) {
+        if (!item || !item.snapshot) return;
+        const fp = item.fingerprint || backupFingerprint(item.snapshot);
+        item.fingerprint = fp;
+        if (byFp[fp] && byId[item.id]) return;
+        if (byFp[fp]) return;
+        if (!item.id) item.id = "bk-" + (item.savedAt || Date.now());
+        byId[item.id] = item;
+        byFp[fp] = item;
+      });
+      return Object.keys(byId).map(function (k) { return byId[k]; }).sort(function (x, y) {
+        return String(y.savedAt || "").localeCompare(String(x.savedAt || ""));
+      }).slice(0, 50);
+    }
+    function backupCounts(snap) {
+      const builders = (snap.diyProjects || []).reduce(function (n, pr) { return n + ((pr.studentIds || []).length); }, 0);
+      return {
+        week: (snap.currentWeek && snap.currentWeek !== "default") ? snap.currentWeek : "Empty",
+        days: countFilledDays(snap),
+        archives: Object.keys(snap.archive || {}).length,
+        classN: (snap.roster || []).length,
+        powerN: (snap.powerRoster || []).length,
+        sessN: (snap.sessions || []).length,
+        diyN: (snap.diyProjects || []).length,
+        builders: builders,
+        tplN: Object.keys(snap.templates || {}).length
+      };
+    }
+    function saveCloudBackup(destSlot) {
+      if (!sessionOpen || !saveSystem.activeSlot) return;
+      const slotNo = Number(destSlot || saveSystem.activeSlot);
+      const snap = snapshotFullSaveFile();
+      const fp = slotNo + "::" + backupFingerprint(snap);
+      const same = backupHistory.find(function (b) { return (b.fingerprint || "") === fp; });
+      if (same) {
+        selectedBackupId = same.id;
+        if (document.getElementById("page-preview") && document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
+        return same;
+      }
+      const entry = {
+        id: "bk-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        savedAt: new Date().toISOString(),
+        slot: slotNo,
+        week: snap.currentWeek || "",
+        fingerprint: fp,
+        snapshot: snap
+      };
+      backupHistory = mergeBackupHistory([entry], backupHistory);
+      selectedBackupId = entry.id;
+      persistLocal();
+      pushCloud();
+      if (document.getElementById("page-preview") && document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
+      return entry;
+    }
+    function mergeArchives(keep, incoming) {
+      const out = deepClone(keep || {});
+      Object.keys(incoming || {}).forEach(function (name) {
+        const next = incoming[name];
+        if (!out[name]) out[name] = deepClone(next);
+      });
+      return out;
+    }
+    function applySnapshotSafely(n, snap) {
+      n = Number(n);
+      const incoming = normalizeSlot(deepClone(snap || emptySlot()));
+      const existing = normalizeSlot(deepClone(saveSystem.slots[n] || emptySlot()));
+      incoming.archive = mergeArchives(existing.archive, incoming.archive);
+      if (!(incoming.roster || []).length && (existing.roster || []).length) incoming.roster = existing.roster;
+      if (!(incoming.powerRoster || []).length && (existing.powerRoster || []).length) incoming.powerRoster = existing.powerRoster;
+      if (!(incoming.sessions || []).length && (existing.sessions || []).length) incoming.sessions = existing.sessions;
+      if (!(incoming.diyProjects || []).length && (existing.diyProjects || []).length) incoming.diyProjects = existing.diyProjects;
+      if (!Object.keys(incoming.templates || {}).length && Object.keys(existing.templates || {}).length) incoming.templates = existing.templates;
+      saveSystem.slots[n] = incoming;
+      return incoming;
+    }
+    function uploadBackupToCloudSlot(n, backup) {
+      n = Number(n);
+      if (n < 1 || n > 3) return;
+      const b = backup || (selectedBackupId ? findBackup(selectedBackupId) : null);
+      if (!b || !b.snapshot) { alert("Save or preview a backup first."); return; }
+      if (!confirm("Upload this backup onto Cloud Save File " + n + "?\nArchives and student lists already on that file are kept.")) return;
+      applySnapshotSafely(n, b.snapshot);
+      if (sessionOpen && saveSystem.activeSlot === n) applySlotToWorking(n);
+      persistLocal();
+      pushCloud();
+      renderTitleSlots();
+      renderPreviewPage();
+    }
+    function copyCurrentToCloudFile(n) {
+      n = Number(n);
+      if (!sessionOpen || !saveSystem.activeSlot) { alert("Open a Save File first."); return; }
+      if (n < 1 || n > 3) return;
+      collectFromDOM();
+      writeWorkingIntoSlot();
+      const src = deepClone(normalizeSlot(saveSystem.slots[saveSystem.activeSlot]));
+      if (n !== Number(saveSystem.activeSlot)) {
+        if (!confirm("Copy everything on Save File " + saveSystem.activeSlot + " onto Cloud File " + n + "?\nFile " + n + " will match this file (plans, archives, rosters, sessions, DIY).")) return;
+        saveSystem.slots[n] = src;
+      }
+      saveCloudBackup(n);
+      persistLocal();
+      pushCloud();
+      renderTitleSlots();
+    }
+    function findBackup(id) {
+      return (backupHistory || []).find(function (b) { return b.id === id; });
     }
     function renderPreviewPage() {
-      const label = document.getElementById("previewTargetLabel");
-      if (label) label.textContent = lastCloudOk === true
-        ? ("Cloud backup " + (lastCloudRecord && lastCloudRecord.savedAt ? lastCloudRecord.savedAt : "loaded"))
-        : (lastCloudRecord ? "Showing last fetched backup" : "No cloud backup loaded yet");
-      document.getElementById("previewSourceButtons").innerHTML = [1,2,3].map(function (n) {
-        return '<button type="button" class="source-btn' + (previewSource===n?" active":"") + '" data-preview-src="' + n + '">Cloud Save File ' + n + "</button>";
-      }).join("");
+      const list = document.getElementById("backupHistoryList");
       const panel = document.getElementById("previewPanel");
-      if (!lastCloudRecord || !lastCloudRecord.slots) {
-        panel.innerHTML = '<p style="color:var(--text-muted);">Click <strong>Refresh cloud backup</strong> to pull the full save from JSONBin.</p>';
-        return;
+      if (list) {
+        const groups = { 1: [], 2: [], 3: [] };
+        (backupHistory || []).forEach(function (b) {
+          const n = Number(b.slot || 1);
+          if (groups[n]) groups[n].push(b);
+        });
+        list.innerHTML = [1, 2, 3].map(function (n) {
+          const rows = groups[n];
+          if (!rows.length && n !== 1 && !hasContent(saveSystem.slots[n])) return "";
+          const items = rows.length ? rows.map(function (b) {
+            const c = backupCounts(b.snapshot || {});
+            const when = b.savedAt ? new Date(b.savedAt).toLocaleString() : "";
+            return '<div class="history-item' + (selectedBackupId === b.id ? '" style="border-color:var(--gold);' : "") + '"><div><h3>' + esc(c.week) + "</h3>" +
+              '<p class="meta">' + esc(when) + (c.archives ? " · " + c.archives + " archives" : "") + (c.powerN ? " · " + c.powerN + " POWER" : "") + "</p></div>" +
+              '<div class="history-actions"><button type="button" class="primary small" data-backup-preview="' + esc(b.id) + '">Preview</button><button type="button" class="small" data-backup-load="' + esc(b.id) + '">Load</button></div></div>';
+          }).join("") : '<p style="color:var(--text-muted);font-size:0.85rem;">None yet</p>';
+          return '<div class="class-group" style="margin-bottom:1.25rem;"><div class="class-group-head">Cloud File ' + n + (Number(saveSystem.activeSlot) === n ? " · current" : "") + "</div>" + items + "</div>";
+        }).join("");
       }
-      if (!previewSource) {
-        panel.innerHTML = '<p style="color:var(--text-muted);">Pick a Cloud Save File above to preview it. Load it only if this device should match that backup.</p>';
-        return;
-      }
-      const info = cloudSlotSummary(previewSource);
-      const slot = info.slot;
-      const builders = (slot.diyProjects || []).reduce(function (n, pr) { return n + ((pr.studentIds || []).length); }, 0);
+      if (!panel) return;
+      const b = selectedBackupId ? findBackup(selectedBackupId) : null;
+      if (!b) { panel.innerHTML = ""; return; }
+      const c = backupCounts(b.snapshot || {});
       panel.innerHTML =
-        '<div class="preview-card"><h3>Cloud Save File ' + previewSource + "</h3>" +
-        '<p class="meta"><strong>Week:</strong> ' + esc(info.week) + "</p>" +
-        '<p class="meta"><strong>Days with content:</strong> ' + countFilledDays(slot) + "</p>" +
-        '<p class="meta"><strong>Archives:</strong> ' + Object.keys(slot.archive||{}).length + "</p>" +
-        '<p class="meta"><strong>8th Grade Class:</strong> ' + ((slot.roster||[]).length) + "</p>" +
-        '<p class="meta"><strong>POWER Program:</strong> ' + ((slot.powerRoster||[]).length) + "</p>" +
-        '<p class="meta"><strong>Sessions:</strong> ' + ((slot.sessions||[]).length) + "</p>" +
-        '<p class="meta"><strong>DIY projects / builders:</strong> ' + ((slot.diyProjects||[]).length) + " / " + builders + "</p>" +
-        '<p class="meta"><strong>Templates:</strong> ' + Object.keys(slot.templates||{}).length + "</p>" +
-        "<p class=\"meta\">This is the cloud copy. Loading it replaces Save File " + previewSource + " on this device only.</p></div>" +
-        '<div class="preview-actions"><button type="button" class="primary" id="btnTransferPreview">Load cloud Save File ' + previewSource + " onto this device</button></div>";
+        '<div class="preview-card"><h3>' + esc(c.week) + " · File " + esc(String(b.slot || "")) + "</h3>" +
+        '<p class="meta">' + esc(b.savedAt ? new Date(b.savedAt).toLocaleString() : "") +
+        " · " + c.days + " days · " + c.archives + " archives · " + c.classN + " class · " + c.powerN + " POWER · " + c.diyN + " DIY</p></div>" +
+        '<div class="preview-actions"><button type="button" class="primary" id="btnTransferPreview">Load</button></div>';
     }
     async function refreshCloudPreview() {
-      setStatus("• Checking cloud…");
       await pullCloud(false);
       renderPreviewPage();
     }
-    function transferPreviewToCurrent() {
-      if (!lastCloudRecord || !lastCloudRecord.slots || !previewSource) {
-        alert("Refresh the cloud backup first.");
-        return;
+    function transferPreviewToCurrent(slotNum) {
+      const b = selectedBackupId ? findBackup(selectedBackupId) : null;
+      if (!b || !b.snapshot) { alert("Preview a backup first."); return; }
+      const n = Number(slotNum || saveSystem.activeSlot || b.slot || 1);
+      if (n < 1 || n > 3) return;
+      if (!confirm("Upload this backup into Save File " + n + "?\nThat Save File on this device will be replaced with the full copy from " + (b.savedAt ? new Date(b.savedAt).toLocaleString() : "that backup") + ".")) return;
+      if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) {
+        collectFromDOM();
+        writeWorkingIntoSlot();
       }
-      const n = Number(previewSource);
-      const cloudSlot = normalizeSlot(deepClone(lastCloudRecord.slots[n] || emptySlot()));
-      if (!confirm("Load Cloud Save File " + n + " onto this device?\nThis replaces Save File " + n + " here with the cloud backup (plans, rosters, sessions, DIY builders, archives, templates).")) return;
-      saveSystem.slots[n] = cloudSlot;
-      if (sessionOpen && saveSystem.activeSlot === n) applySlotToWorking(n);
-      else if (!sessionOpen) { saveSystem.activeSlot = n; sessionOpen = true; applySlotToWorking(n); }
-      if (lastCloudRecord.templates && typeof lastCloudRecord.templates === "object") templates = deepClone(lastCloudRecord.templates);
+      applySnapshotSafely(n, b.snapshot);
+      saveSystem.activeSlot = n;
+      sessionOpen = true;
+      applySlotToWorking(n);
       persistLocal();
+      pushCloud();
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
@@ -2539,6 +2740,8 @@
       if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster")) { printRoster(); return; }
       if (t.id === "btnWipeRoster" || t.closest("#btnWipeRoster")) { wipeActiveRoster(); return; }
       if (t.id === "btnLoadOfficialPower" || t.closest("#btnLoadOfficialPower")) { loadOfficialPowerList(); return; }
+      const loadClass = t.closest("[data-load-class]");
+      if (loadClass) { loadOfficialPowerClass(loadClass.getAttribute("data-load-class")); return; }
       if (t.id === "btnAddDiy" || t.closest("#btnAddDiy")) { addDiyProject(); return; }
       const prDiy = t.closest("[data-print-diy]");
       if (prDiy) { printDiy(prDiy.getAttribute("data-print-diy")); return; }
@@ -2598,6 +2801,17 @@
       if (psrc) { previewSource = Number(psrc.getAttribute("data-preview-src")); renderPreviewPage(); return; }
       if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) { transferPreviewToCurrent(); return; }
       if (t.id === "btnRefreshCloud" || t.closest("#btnRefreshCloud")) { refreshCloudPreview(); return; }
+      if (t.id === "btnSaveCloudBackup" || t.closest("#btnSaveCloudBackup")) { saveCloudBackup(); return; }
+      const saveUp = t.closest("[data-save-upload]");
+      if (saveUp) { copyCurrentToCloudFile(saveUp.getAttribute("data-save-upload")); return; }
+      const copyCloud = t.closest("[data-copy-cloud]");
+      if (copyCloud) { copyCurrentToCloudFile(copyCloud.getAttribute("data-copy-cloud")); return; }
+      const upBk = t.closest("[data-upload-backup]");
+      if (upBk) { uploadBackupToCloudSlot(upBk.getAttribute("data-upload-backup")); return; }
+      const bkPrev = t.closest("[data-backup-preview]");
+      if (bkPrev) { selectedBackupId = bkPrev.getAttribute("data-backup-preview"); renderPreviewPage(); return; }
+      const bkLoad = t.closest("[data-backup-load]");
+      if (bkLoad) { selectedBackupId = bkLoad.getAttribute("data-backup-load"); transferPreviewToCurrent(); return; }
 
       const ns = t.closest("[data-noschool]");
       if (ns) { const p = ns.getAttribute("data-noschool").split("|"); toggleNoSchool(p[0], p[1]); return; }
@@ -2679,7 +2893,7 @@
       handleFile(p[0], p[1], ev.dataTransfer.files);
     });
 
-    document.getElementById("btnSave").onclick = () => safeSave();
+    document.getElementById("btnSave").onclick = function () { safeSave(true); };
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
     document.getElementById("btnNewWeek").onclick = startNewWeek;
     document.getElementById("btnPrintReport").onclick = generatePrintReport;
