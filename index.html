@@ -171,6 +171,54 @@
     }
     .toast.show { opacity: 1; }
     .toast.error { background: #b91c1c; }
+    .cloud-page-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:1.15rem; padding-bottom:0.85rem; border-bottom:3px solid var(--gold); }
+    .cloud-page-head .brand { display:flex; gap:0.75rem; align-items:flex-start; }
+    .cloud-page-head .mini-logo { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--gold); box-shadow:0 0 16px rgba(212,175,55,0.35); }
+    .cloud-page-head h2 { margin:0; color:var(--gold-light); font-size:1.45rem; letter-spacing:0.01em; }
+    .cloud-page-head .sub { color:var(--text-muted); font-size:0.88rem; max-width:540px; margin-top:0.35rem; line-height:1.45; }
+    .status-chip { display:inline-flex; align-items:center; gap:0.4rem; background:rgba(212,175,55,0.1); border:1px solid var(--gold); color:var(--gold-light); font-size:0.75rem; padding:0.28rem 0.65rem; border-radius:999px; }
+    .status-chip .pulse { width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 8px var(--gold); }
+    .status-chip.syncing .pulse { animation: pulseGold 1s ease-in-out infinite; }
+    @keyframes pulseGold { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+    .vault-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.85rem; margin-bottom:1.15rem; }
+    .vault-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem 1.05rem; box-shadow:var(--shadow); position:relative; }
+    .vault-card.ready { border-color:var(--gold); }
+    .vault-card.empty { opacity:0.72; }
+    .vault-card .dot { position:absolute; top:0.85rem; right:0.85rem; width:8px; height:8px; border-radius:50%; background:var(--border); }
+    .vault-card .dot.amber { background:#F59E0B; box-shadow:0 0 8px #F59E0B; }
+    .vault-card .dot.green { background:var(--success); box-shadow:0 0 8px var(--success); }
+    .vault-card h3 { color:var(--gold-light); font-size:1.02rem; margin-bottom:0.25rem; padding-right:1rem; }
+    .vault-card .v-meta { font-size:0.78rem; color:var(--text-muted); line-height:1.45; }
+    .vault-meter { display:flex; gap:0.28rem; margin:0.65rem 0 0.35rem; }
+    .vault-meter i { flex:1; height:5px; border-radius:99px; background:#334155; display:block; }
+    .vault-meter i.on { background:var(--gold); }
+    .vault-meter-label { font-size:0.68rem; color:var(--text-muted); margin-bottom:0.7rem; letter-spacing:0.04em; text-transform:uppercase; }
+    .vault-actions { display:flex; flex-wrap:wrap; gap:0.4rem; }
+    .cloud-split { display:grid; grid-template-columns:1.15fr 0.85fr; gap:1rem; margin-bottom:1.15rem; }
+    .preview-pane, .timeline-pane { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem; min-height:280px; box-shadow:var(--shadow); }
+    .source-tabs { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.85rem; }
+    .source-tabs button.active { background:var(--navy); border-color:var(--gold); color:var(--gold-light); }
+    .empty-cloud { text-align:center; padding:2.2rem 1rem; color:var(--text-muted); }
+    .empty-cloud .ring { width:64px; height:64px; border-radius:50%; border:3px solid var(--gold); margin:0 auto 0.85rem; box-shadow:0 0 18px rgba(212,175,55,0.28); display:flex; align-items:center; justify-content:center; color:var(--gold-light); font-size:1.4rem; }
+    .day-chips { display:flex; flex-wrap:wrap; gap:0.35rem; margin:0.65rem 0; }
+    .day-chips span { font-size:0.72rem; border:1px solid var(--border); border-radius:999px; padding:0.18rem 0.5rem; color:var(--text-muted); }
+    .day-chips span.on { border-color:var(--gold); color:var(--gold-light); background:rgba(212,175,55,0.08); }
+    .timeline { border-left:2px solid var(--gold); margin:0.4rem 0 0 0.4rem; padding-left:0.9rem; }
+    .timeline-item { margin-bottom:0.95rem; position:relative; }
+    .timeline-item:before { content:""; position:absolute; left:-1.18rem; top:0.35rem; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 8px var(--gold); }
+    .timeline-item h4 { color:var(--gold-light); font-size:0.88rem; font-weight:600; }
+    .timeline-item p { font-size:0.75rem; color:var(--text-muted); }
+    .upload-well { border:2px dashed rgba(212,175,55,0.45); background:rgba(31,78,121,0.18); border-radius:12px; padding:1.1rem 1.15rem; text-align:center; }
+    .upload-well.dragover { border-color:var(--gold); background:rgba(212,175,55,0.08); }
+    .upload-well h3 { color:var(--gold-light); font-size:0.95rem; margin-bottom:0.3rem; }
+    .upload-well p { color:var(--text-muted); font-size:0.8rem; margin-bottom:0.7rem; }
+    .cloud-skel { height:12px; border-radius:6px; background:linear-gradient(90deg,#1E293B,#334155,#1E293B); background-size:200% 100%; animation: shimmer 1.1s linear infinite; margin:0.4rem 0; }
+    @keyframes shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+    @media (max-width: 900px) {
+      .vault-grid, .cloud-split { grid-template-columns:1fr; }
+      .cloud-page-head .toolbar-row { width:100%; }
+      .cloud-page-head .toolbar-row .primary { flex:1; }
+    }
     .preview-banner {
       background: rgba(212,175,55,0.12); border: 1px solid var(--gold); border-radius: 8px;
       padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--gold-light);
@@ -525,29 +573,51 @@
         </section>
 
         <section id="page-preview" class="page">
-          <h2 style="margin-bottom:0.75rem; color:var(--gold-light);">Cloud Backup</h2>
-          <div class="toolbar-row">
-            <button type="button" class="primary" id="btnSaveCloudBackup">Save to this cloud file</button>
-            <button type="button" id="btnRefreshCloud">Refresh</button>
-            <button type="button" class="small" data-copy-cloud="1">→ File 1</button>
-            <button type="button" class="small" data-copy-cloud="2">→ File 2</button>
-            <button type="button" class="small" data-copy-cloud="3">→ File 3</button>
+          <div class="cloud-page-head">
+            <div class="brand">
+              <img class="mini-logo" src="assets/xe-logo.jpg" alt="XE" />
+              <div>
+                <h2>Cloud Backup</h2>
+                <p class="sub">Last full snapshot on JSONBin. Refresh, preview, then load onto this device only if you want that copy.</p>
+              </div>
+            </div>
+            <div class="toolbar-row" style="margin:0;justify-content:flex-end;">
+              <span class="status-chip" id="cloudChip"><span class="pulse"></span><span id="cloudChipText">Ready</span></span>
+              <button type="button" class="primary" id="btnSaveCloudBackup">Save to this cloud file</button>
+              <button type="button" id="btnRefreshCloud">Refresh</button>
+              <button type="button" class="small" id="btnDownloadBackupFile">Download .json</button>
+            </div>
           </div>
-          <div class="bulk-box">
-            <h3>Upload a backup file onto a Save File</h3>
-            <p>Use a downloaded backup. Choose Save File 1, 2, or 3. That slot is replaced with everything in the file.</p>
-            <div class="toolbar-row" style="margin:0;">
+          <div class="vault-grid" id="vaultGrid"></div>
+          <div class="cloud-split">
+            <div class="preview-pane">
+              <div class="source-tabs">
+                <button type="button" class="small" data-preview-src="1">Cloud File 1</button>
+                <button type="button" class="small" data-preview-src="2">Cloud File 2</button>
+                <button type="button" class="small" data-preview-src="3">Cloud File 3</button>
+                <button type="button" class="small" data-preview-src="0">This device</button>
+              </div>
+              <div id="previewPanel"></div>
+            </div>
+            <div class="timeline-pane">
+              <h3 style="color:var(--gold-light);font-size:0.95rem;margin-bottom:0.7rem;">History</h3>
+              <div id="backupHistoryList" class="timeline"></div>
+            </div>
+          </div>
+          <div class="upload-well">
+            <h3>Drop a downloaded backup .json</h3>
+            <p>That slot is replaced with everything in the file.</p>
+            <p id="uploadFileMeta" class="v-meta" style="margin-bottom:0.55rem;"></p>
+            <div class="toolbar-row" style="margin:0;justify-content:center;">
               <input type="file" id="backupFileInput" accept=".json,application/json" />
               <select id="backupUploadSlot" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
                 <option value="1">Save File 1</option>
                 <option value="2">Save File 2</option>
                 <option value="3">Save File 3</option>
               </select>
-              <button type="button" class="primary" id="btnUploadBackupFile">Upload onto selected Save File</button>
+              <button type="button" class="primary" id="btnUploadBackupFile">Replace slot</button>
             </div>
           </div>
-          <div id="backupHistoryList" class="history-list"></div>
-          <div id="previewPanel"></div>
         </section>
       </main>
     </div>
@@ -1088,7 +1158,12 @@
       });
       return n;
     }
-    function setStatus(msg) { const el = document.getElementById("cloudStatus"); if (el) el.textContent = msg; }
+    function setStatus(msg) {
+      const el = document.getElementById("cloudStatus");
+      if (el) el.textContent = msg;
+      const chip = document.getElementById("cloudChipText");
+      if (chip) chip.textContent = (msg || "").replace(/^•\s*/, "") || "Ready";
+    }
     function showToast(msg, err) {
       const t = document.getElementById("toast");
       t.textContent = msg;
@@ -2419,40 +2494,146 @@
     function findBackup(id) {
       return (backupHistory || []).find(function (b) { return b.id === id; });
     }
+    function blockFillFlags(slot) {
+      const d = (slot && slot.data && slot.data.blocks) || {};
+      return Object.keys(BLOCKS).map(function (k) {
+        const bd = d[k] || {};
+        return DAYS.some(function (day) {
+          const e = bd[day] || {};
+          return !!(e.title || e.objective || e.activities || e.notes || (e.files && e.files.length));
+        });
+      });
+    }
     function renderPreviewPage() {
+      const chip = document.getElementById("cloudChipText");
+      if (chip) {
+        chip.textContent = lastCloudOk === true ? "Cloud synced" : lastCloudOk === false ? "Offline / last known copy" : "Ready";
+      }
+      const grid = document.getElementById("vaultGrid");
+      if (grid) {
+        grid.innerHTML = [1, 2, 3].map(function (n) {
+          const slot = normalizeSlot(saveSystem.slots[n]);
+          const has = hasContent(slot);
+          const week = (slot.currentWeek && slot.currentWeek !== "default") ? slot.currentWeek : "Empty";
+          const when = slot.lastSaved ? new Date(slot.lastSaved).toLocaleString() : "—";
+          const archives = Object.keys(slot.archive || {}).length;
+          const rosterN = (slot.roster || []).length + (slot.powerRoster || []).length;
+          const flags = blockFillFlags(slot);
+          const cloudTs = lastCloudRecord && lastCloudRecord.slots && lastCloudRecord.slots[n] ? slotStamp(lastCloudRecord.slots[n]) : 0;
+          const localTs = slotStamp(slot);
+          let dot = "";
+          if (has && localTs > cloudTs && cloudTs) dot = "amber";
+          else if (has && cloudTs > localTs) dot = "green";
+          const cls = has ? "vault-card ready" : "vault-card empty";
+          return '<div class="' + cls + '"><span class="dot' + (dot ? " " + dot : "") + '"></span><h3>Save File ' + n + (Number(saveSystem.activeSlot) === n ? " · current" : "") + "</h3>" +
+            '<p class="v-meta">' + esc(week) + "<br>" + esc(when) + "<br>" + archives + " archives · " + rosterN + " students</p>" +
+            '<div class="vault-meter">' + flags.map(function (on) { return "<i class=\"" + (on ? "on" : "") + "\"></i>"; }).join("") + "</div>" +
+            '<div class="vault-meter-label">SEL · Intervention · Enrichment · SPARK</div>' +
+            '<div class="vault-actions">' +
+            '<button type="button" class="small" data-preview-src="' + n + '">Preview</button>' +
+            '<button type="button" class="primary small" data-vault-load="' + n + '">Load onto this device</button>' +
+            '<button type="button" class="small" data-copy-cloud="' + n + '">Copy cloud → this slot</button>' +
+            "</div></div>";
+        }).join("");
+      }
+      document.querySelectorAll(".source-tabs [data-preview-src]").forEach(function (btn) {
+        const v = Number(btn.getAttribute("data-preview-src"));
+        btn.classList.toggle("active", previewSource === v || (previewSource == null && v === Number(saveSystem.activeSlot || 1)));
+      });
       const list = document.getElementById("backupHistoryList");
       const panel = document.getElementById("previewPanel");
       if (list) {
-        const groups = { 1: [], 2: [], 3: [] };
-        (backupHistory || []).forEach(function (b) {
-          const n = Number(b.slot || 1);
-          if (groups[n]) groups[n].push(b);
-        });
-        list.innerHTML = [1, 2, 3].map(function (n) {
-          const rows = groups[n];
-          if (!rows.length && n !== 1 && !hasContent(saveSystem.slots[n])) return "";
-          const items = rows.length ? rows.map(function (b) {
+        if (!(backupHistory || []).length) {
+          list.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No history yet.</p>';
+        } else {
+          list.innerHTML = backupHistory.map(function (b) {
             const c = backupCounts(b.snapshot || {});
             const when = b.savedAt ? new Date(b.savedAt).toLocaleString() : "";
-            return '<div class="history-item' + (selectedBackupId === b.id ? '" style="border-color:var(--gold);' : "") + '"><div><h3>' + esc(c.week) + "</h3>" +
-              '<p class="meta">' + esc(when) + (c.archives ? " · " + c.archives + " archives" : "") + (c.powerN ? " · " + c.powerN + " POWER" : "") + "</p></div>" +
-              '<div class="history-actions"><button type="button" class="primary small" data-backup-preview="' + esc(b.id) + '">Preview</button><button type="button" class="small" data-backup-load="' + esc(b.id) + '">Load</button></div></div>';
-          }).join("") : '<p style="color:var(--text-muted);font-size:0.85rem;">None yet</p>';
-          return '<div class="class-group" style="margin-bottom:1.25rem;"><div class="class-group-head">Cloud File ' + n + (Number(saveSystem.activeSlot) === n ? " · current" : "") + "</div>" + items + "</div>";
-        }).join("");
+            return '<div class="timeline-item"><h4>Saved to cloud · File ' + esc(String(b.slot || "")) + "</h4>" +
+              "<p>" + esc(when) + " · " + esc(c.week) + "<br>" + c.days + " days · " + c.classN + " class · " + c.powerN + " POWER</p>" +
+              '<div class="vault-actions"><button type="button" class="primary small" data-backup-preview="' + esc(b.id) + '">Preview</button>' +
+              '<button type="button" class="small" data-backup-load="' + esc(b.id) + '">Load onto this device</button></div></div>';
+          }).join("");
+        }
       }
       if (!panel) return;
       const b = selectedBackupId ? findBackup(selectedBackupId) : null;
-      if (!b) { panel.innerHTML = ""; return; }
-      const c = backupCounts(b.snapshot || {});
+      const srcSlot = previewSource === 0 ? normalizeSlot(saveSystem.slots[saveSystem.activeSlot || 1]) : null;
+      const snap = b ? (b.snapshot || {}) : (srcSlot || null);
+      if (!snap || (!b && previewSource !== 0 && !hasContent(saveSystem.slots[previewSource || 1]))) {
+        panel.innerHTML = '<div class="empty-cloud"><div class="ring">☁</div>No snapshot yet. Save to this cloud file from the toolbar.</div>';
+        return;
+      }
+      const useSnap = b ? b.snapshot : snapshotFullSaveFile();
+      const c = backupCounts(useSnap || {});
+      const can = ((useSnap.data || {}).canFocus || "").toString().trim();
+      const notes = ((useSnap.data || {}).weekNotes || "").toString().trim();
+      const flags = blockFillFlags(useSnap);
+      const labels = ["Mon","Tue","Wed","Thu","Fri"];
       panel.innerHTML =
-        '<div class="preview-card"><h3>' + esc(c.week) + " · File " + esc(String(b.slot || "")) + "</h3>" +
-        '<p class="meta">' + esc(b.savedAt ? new Date(b.savedAt).toLocaleString() : "") +
-        " · " + c.days + " days · " + c.archives + " archives · " + c.classN + " class · " + c.powerN + " POWER · " + c.diyN + " DIY</p></div>" +
-        '<div class="preview-actions"><button type="button" class="primary" id="btnTransferPreview">Load</button></div>';
+        "<h3 style=\"color:var(--gold-light);margin-bottom:0.35rem;\">" + esc(c.week) + (b ? " · File " + esc(String(b.slot || "")) : " · this device") + "</h3>" +
+        '<p class="v-meta">' + esc(b && b.savedAt ? new Date(b.savedAt).toLocaleString() : (useSnap.lastSaved ? new Date(useSnap.lastSaved).toLocaleString() : "")) + "</p>" +
+        (can ? '<p class="v-meta" style="margin-top:0.55rem;"><strong style="color:var(--gold-light);">C.A.N.</strong> ' + esc(can.length > 160 ? can.slice(0,160) + "…" : can) + "</p>" : "") +
+        (notes ? '<p class="v-meta"><strong style="color:var(--gold-light);">Notes</strong> ' + esc(notes.length > 120 ? notes.slice(0,120) + "…" : notes) + "</p>" : "") +
+        '<div class="day-chips">' + labels.map(function (lb, i) { return "<span class=\"" + (flags[i % 4] ? "on" : "") + "\">" + lb + "</span>"; }).join("") + "</div>" +
+        '<p class="v-meta" style="margin-top:0.45rem;">' + c.days + " days · " + c.archives + " archives · " + c.classN + " class · " + c.powerN + " POWER · " + c.diyN + " DIY</p>" +
+        (b ? '<div class="preview-actions"><button type="button" class="primary" id="btnTransferPreview">Load onto this device</button></div>' : "");
+    }
+    let pendingUploadSnap = null;
+    function parseBackupFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          const parsed = JSON.parse(reader.result);
+          pendingUploadSnap = parsed.snapshot || parsed;
+          const week = (pendingUploadSnap.currentWeek && pendingUploadSnap.currentWeek !== "default") ? pendingUploadSnap.currentWeek : "Unnamed week";
+          const meta = document.getElementById("uploadFileMeta");
+          if (meta) meta.textContent = file.name + " · " + Math.round((file.size || 0) / 1024) + " KB · " + week;
+        } catch (e) {
+          pendingUploadSnap = null;
+          alert("That file is not a valid backup.");
+        }
+      };
+      reader.readAsText(file);
+    }
+    function applyUploadedBackup() {
+      if (!pendingUploadSnap) { alert("Choose a backup .json first."); return; }
+      const n = Number((document.getElementById("backupUploadSlot") || {}).value || 1);
+      if (!confirm("This will replace everything on this device’s Save File " + n + " with the file copy. Local work not in the file will be lost.")) return;
+      applySnapshotSafely(n, pendingUploadSnap);
+      if (sessionOpen && saveSystem.activeSlot === n) applySlotToWorking(n);
+      persistLocal();
+      pushCloud();
+      renderTitleSlots();
+      renderPreviewPage();
+      applyUI();
+    }
+    function loadVaultSlotToDevice(n) {
+      n = Number(n);
+      const fromHist = (backupHistory || []).find(function (b) { return Number(b.slot) === n && b.snapshot; });
+      const snap = fromHist ? fromHist.snapshot : (saveSystem.slots[n] || emptySlot());
+      if (!confirm("This will replace everything on this device’s Save File " + n + " with the cloud copy. Local work not in the cloud will be lost.")) return;
+      applySnapshotSafely(n, snap);
+      enterSlot(n);
+      persistLocal();
+      pushCloud();
+    }
+    function downloadBackupJson() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const snap = snapshotFullSaveFile();
+      const blob = new Blob([JSON.stringify({ snapshot: snap, savedAt: new Date().toISOString(), slot: saveSystem.activeSlot }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "scholastic-batch-file-" + saveSystem.activeSlot + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
     }
     async function refreshCloudPreview() {
+      const chip = document.getElementById("cloudChip");
+      if (chip) chip.classList.add("syncing");
       await pullCloud(false);
+      if (chip) chip.classList.remove("syncing");
       renderPreviewPage();
     }
     function transferPreviewToCurrent(slotNum) {
@@ -2460,7 +2641,7 @@
       if (!b || !b.snapshot) { alert("Preview a backup first."); return; }
       const n = Number(slotNum || saveSystem.activeSlot || b.slot || 1);
       if (n < 1 || n > 3) return;
-      if (!confirm("Upload this backup into Save File " + n + "?\nThat Save File on this device will be replaced with the full copy from " + (b.savedAt ? new Date(b.savedAt).toLocaleString() : "that backup") + ".")) return;
+      if (!confirm("This will replace everything on this device’s Save File " + n + " with the cloud copy. Local work not in the cloud will be lost.")) return;
       if (sessionOpen && saveSystem.activeSlot && saveSystem.activeSlot !== n) {
         collectFromDOM();
         writeWorkingIntoSlot();
@@ -2860,6 +3041,10 @@
       if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) { transferPreviewToCurrent(); return; }
       if (t.id === "btnRefreshCloud" || t.closest("#btnRefreshCloud")) { refreshCloudPreview(); return; }
       if (t.id === "btnSaveCloudBackup" || t.closest("#btnSaveCloudBackup")) { saveCloudBackup(); return; }
+      if (t.id === "btnUploadBackupFile" || t.closest("#btnUploadBackupFile")) { applyUploadedBackup(); return; }
+      const vaultLoad = t.closest("[data-vault-load]");
+      if (vaultLoad) { loadVaultSlotToDevice(vaultLoad.getAttribute("data-vault-load")); return; }
+      if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile")) { downloadBackupJson(); return; }
       const saveUp = t.closest("[data-save-upload]");
       if (saveUp) { copyCurrentToCloudFile(saveUp.getAttribute("data-save-upload")); return; }
       const copyCloud = t.closest("[data-copy-cloud]");
@@ -2922,6 +3107,7 @@
         return;
       }
       if (input && input.type === "file") {
+        if (input.id === "backupFileInput") { parseBackupFile(input.files && input.files[0]); return; }
         const drop = input.closest("[data-drop]");
         if (drop) {
           const p = drop.getAttribute("data-drop").split("|");
@@ -2943,6 +3129,13 @@
       if (drop) drop.classList.remove("dragover");
     });
     document.addEventListener("drop", function (ev) {
+      const well = ev.target.closest(".upload-well");
+      if (well) {
+        ev.preventDefault();
+        well.classList.remove("dragover");
+        parseBackupFile(ev.dataTransfer.files && ev.dataTransfer.files[0]);
+        return;
+      }
       const drop = ev.target.closest("[data-drop]");
       if (!drop) return;
       ev.preventDefault();
@@ -2950,6 +3143,9 @@
       const p = drop.getAttribute("data-drop").split("|");
       handleFile(p[0], p[1], ev.dataTransfer.files);
     });
+    document.addEventListener("dragover", function (ev) {
+      if (ev.target.closest(".upload-well")) { ev.preventDefault(); ev.target.closest(".upload-well").classList.add("dragover"); }
+    }, true);
 
     document.getElementById("btnSave").onclick = function () { safeSave(true); };
     document.getElementById("btnArchive").onclick = archiveCurrentWeek;
@@ -2978,6 +3174,13 @@
       safeSave();
     };
 
+    document.addEventListener("keydown", function (ev) {
+      if (!sessionOpen) return;
+      const tag = (ev.target && ev.target.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (ev.key === "r" || ev.key === "R") { ev.preventDefault(); refreshCloudPreview(); }
+      if (ev.key === "s" || ev.key === "S") { ev.preventDefault(); saveCloudBackup(); }
+    });
     setInterval(() => { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") pullCloud(false);
