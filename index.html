@@ -269,11 +269,20 @@
     .text-block-panel textarea { min-height:280px; font-family:ui-monospace,Consolas,monospace; font-size:0.82rem; }
     .class-group-head { cursor:pointer; }
     .class-group.collapsed .roster-table-wrap { display:none; }
+    .class-group.collapsed .roster-mobile { display:none; }
     @media (max-width: 820px) {
       .roster-table { min-width:0; }
       .roster-desktop { display:none; }
       .roster-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem; margin-bottom:0.55rem; }
-      .roster-card h4 { color:var(--gold-light); margin-bottom:0.25rem; }
+      .roster-card h4 { color:var(--gold-light); margin-bottom:0.4rem; }
+      .roster-card .card-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.45rem; }
+      .roster-card label { font-size:0.68rem; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:0.15rem; }
+      .roster-card input, .roster-card select, .roster-card textarea {
+        width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
+        border-radius:6px; padding:0.45rem 0.5rem; font-size:0.9rem; min-height:44px; font-family:inherit;
+      }
+      .roster-card .span2 { grid-column:1 / -1; }
+      .roster-card .bucks-cell button { min-width:44px; min-height:44px; }
     }
     @media (min-width: 821px) { .roster-mobile { display:none; } }
     .roster-table { width:100%; border-collapse:collapse; min-width:820px; background:var(--surface); }
@@ -1244,6 +1253,9 @@
       if (!st) return emptyStudent();
       if (!st.teacher) st.teacher = "";
       if (!st.slip) st.slip = "No";
+      if (!st.diy) st.diy = "No";
+      if (st.bucks == null || st.bucks === "") st.bucks = 0;
+      st.bucks = Math.max(0, parseInt(st.bucks, 10) || 0);
       if (!st.source) st.source = "";
       if (st.notes) {
         st.notes = String(st.notes)
@@ -1545,6 +1557,36 @@
       a.download = (rosterView === "power" ? "power-roster" : "class-roster") + ".csv";
       a.click();
     }
+    function studentCardHtml(st, showComp) {
+      return '<div class="roster-card" data-sid="' + esc(st.id) + '" data-id="' + esc(st.id) + '">' +
+        '<div class="card-grid">' +
+        '<div class="span2"><label>Name</label><input data-rf="name" value="' + esc(st.name) + '" placeholder="Student name"></div>' +
+        '<div><label>Teacher</label><input data-rf="teacher" value="' + esc(st.teacher || "") + '"></div>' +
+        '<div><label>Grade</label><input data-rf="grade" value="' + esc(st.grade || "8") + '"></div>' +
+        '<div><label>DIY</label><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></div>' +
+        '<div><label>Permission slip</label><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></div>' +
+        (showComp ? '<div class="span2"><label>Computer #</label><input data-rf="computer" value="' + esc(st.computer || "") + '"></div>' : "") +
+        '<div class="span2"><label>POWER Bucks</label><div class="bucks-cell">' +
+          '<button type="button" class="small" data-bucks="-1">−</button>' +
+          '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
+          '<button type="button" class="small" data-bucks="1">+</button></div></div>' +
+        '<div class="span2"><label>Notes</label><textarea data-rf="notes" rows="2">' + esc(st.notes||"") + '</textarea></div>' +
+        '<div class="span2"><button type="button" class="danger small" data-del-student>Remove</button></div>' +
+        "</div></div>";
+    }
+    function updateRosterStats() {
+      const stats = document.getElementById("rosterStats");
+      if (!stats) return;
+      const list = activeRosterList();
+      const diyYes = list.filter(function (st) { return st.diy === "Yes"; }).length;
+      const slipYes = list.filter(function (st) { return st.slip === "Yes"; }).length;
+      const slipNo = list.filter(function (st) { return st.slip !== "Yes"; }).length;
+      stats.innerHTML =
+        '<div class="roster-stat" data-stat-filter="all"><div class="n">' + list.length + '</div><div class="l">Students</div></div>' +
+        '<div class="roster-stat" data-stat-diy="Yes"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
+        '<div class="roster-stat" data-stat-slip="Yes"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
+        '<div class="roster-stat" data-stat-slip="missing"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
+    }
     function studentRowHtml(st, showComp) {
       return '<tr data-sid="' + esc(st.id) + '" data-id="' + esc(st.id) + '">' +
         '<td><input data-rf="name" value="' + esc(st.name) + '" placeholder="Student name"></td>' +
@@ -1624,11 +1666,7 @@
           '<div class="roster-table-wrap roster-desktop"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody>' +
           g.students.map(function (st) { return studentRowHtml(st, showComp); }).join("") +
           '</tbody></table></div>' +
-          '<div class="roster-mobile">' + g.students.map(function (st) {
-            return '<div class="roster-card" data-sid="' + esc(st.id) + '"><h4>' + highlightHit(st.name, q) + " · " + esc(st.grade || "") + "</h4>" +
-              '<p class="v-meta">' + esc(st.teacher || "") + " · DIY " + esc(st.diy || "No") + " · Slip " + esc(st.slip || "No") + " · " + (Number(st.bucks)||0) + " bucks</p>" +
-              (st.notes ? '<p class="v-meta">' + highlightHit(st.notes, q) + "</p>" : "") + "</div>";
-          }).join("") + "</div></div>";
+          '<div class="roster-mobile">' + g.students.map(function (st) { return studentCardHtml(st, showComp); }).join("") + "</div></div>";
       }).join("");
       restoreRosterUi(snap);
     }
@@ -2105,9 +2143,13 @@
     function updateStudentField(id, field, value) {
       const s = findStudent(id) || findAnyStudent(id);
       if (!s) return;
+      if (field === "diy" || field === "slip") {
+        if (["No","Yes","Pending"].indexOf(value) === -1) value = "No";
+      }
       if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
       else s[field] = value;
       if (field === "slip") pruneDiyAssignments();
+      updateRosterStats();
       debounceRosterSave();
     }
     function applyStatusToVisible(field, value, bucksDelta) {
@@ -2124,10 +2166,10 @@
       safeSave();
     }
     function removeStudent(id) {
-      const s = findStudent(id);
+      const s = findStudent(id) || findAnyStudent(id);
       if (!s) return;
-      if (!confirm('Remove ' + (s.name || "this student") + ' from the roster?')) return;
-      setActiveRosterList(activeRosterList().filter(x => x.id !== id));
+      if (!confirm("Remove " + (s.name || "this student") + " from the roster?")) return;
+      setActiveRosterList(activeRosterList().filter(function (x) { return x.id !== id; }));
       sessions.forEach(function (sess) {
         if (Array.isArray(sess.studentIds)) sess.studentIds = sess.studentIds.filter(function (sid) { return sid !== id; });
       });
@@ -2136,7 +2178,9 @@
         pr.studentIds = (pr.studentIds || []).filter(function (sid) { return sid !== id; });
       });
       renderRoster();
+      renderDiy();
       safeSave();
+      showToast("Removed " + (s.name || "student"));
     }
 
     function formatSessTime(sess) {
@@ -3293,11 +3337,13 @@
       if (bucksBtn) {
         const tr = bucksBtn.closest("[data-sid]");
         if (tr) {
-          const s = findStudent(tr.getAttribute("data-sid"));
+          const id = tr.getAttribute("data-sid");
+          const s = findStudent(id) || findAnyStudent(id);
           if (s) {
             s.bucks = Math.max(0, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks")));
-            renderRoster();
-            safeSave();
+            tr.querySelectorAll('[data-rf="bucks"]').forEach(function (inp) { inp.value = s.bucks; });
+            updateRosterStats();
+            debounceRosterSave();
           }
         }
         return;
