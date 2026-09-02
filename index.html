@@ -511,6 +511,26 @@
               <button type="button" class="small" data-load-class="soto">Miss Soto / Rm. 4</button>
               <button type="button" class="small" data-load-class="enciso">Mr. Enciso / Rm. 1</button>
             </div>
+            <div class="toolbar-row" id="rosterStatusRow">
+              <span style="font-size:0.82rem;color:var(--text-muted);">Set visible students:</span>
+              <select id="bulkDiySet" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">
+                <option value="">DIY…</option>
+                <option value="Yes">DIY Yes</option>
+                <option value="Pending">DIY Pending</option>
+                <option value="No">DIY No</option>
+              </select>
+              <button type="button" class="small" id="btnApplyBulkDiy">Apply DIY</button>
+              <select id="bulkSlipSet" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">
+                <option value="">Slip…</option>
+                <option value="Yes">Slip Yes</option>
+                <option value="Pending">Slip Pending</option>
+                <option value="No">Slip No</option>
+              </select>
+              <button type="button" class="small" id="btnApplyBulkSlip">Apply slip</button>
+              <input id="bulkBucksSet" type="number" value="1" min="0" step="1" style="width:64px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.4rem;border-radius:6px;text-align:center;" />
+              <button type="button" class="small" id="btnAddBulkBucks">+ Bucks</button>
+              <button type="button" class="small" id="btnSubBulkBucks">− Bucks</button>
+            </div>
             <div class="bulk-box text-block-panel" id="textBlockPanel" style="display:none;">
               <h3>Giant text block</h3>
               <p id="bulkHelp">[#id] First Name, Last Name - Grade, computer, DIY Pending, slip Yes, notes. Lines without [#id] are new students. Apply replaces only this section.</p>
@@ -2102,12 +2122,25 @@
       }, 400);
     }
     function updateStudentField(id, field, value) {
-      const s = findStudent(id);
+      const s = findStudent(id) || findAnyStudent(id);
       if (!s) return;
       if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
       else s[field] = value;
       if (field === "slip") pruneDiyAssignments();
       debounceRosterSave();
+    }
+    function applyStatusToVisible(field, value, bucksDelta) {
+      const rows = filteredRosterRows(activeRosterList());
+      if (!rows.length) return;
+      const label = bucksDelta != null ? ((bucksDelta > 0 ? "+" : "") + bucksDelta + " POWER Bucks") : (field + " = " + value);
+      if (!confirm("Apply " + label + " to " + rows.length + " visible student(s) on this list?")) return;
+      rows.forEach(function (st) {
+        if (bucksDelta != null) st.bucks = Math.max(0, (Number(st.bucks) || 0) + bucksDelta);
+        else st[field] = value;
+      });
+      if (field === "slip") pruneDiyAssignments();
+      renderRoster();
+      safeSave();
     }
     function removeStudent(id) {
       const s = findStudent(id);
@@ -3237,6 +3270,24 @@
       if (t.id === "btnTextClear" || t.closest("#btnTextClear")) { document.getElementById("bulkStudents").value = ""; return; }
       if (t.id === "btnCsvRoster" || t.closest("#btnCsvRoster")) { exportRosterCsv(); return; }
       if (t.id === "btnClearHits" || t.closest("#btnClearHits")) { clearFilterHits(); return; }
+      if (t.id === "btnApplyBulkDiy" || t.closest("#btnApplyBulkDiy")) {
+        const v = (document.getElementById("bulkDiySet") || {}).value;
+        if (v) applyStatusToVisible("diy", v);
+        return;
+      }
+      if (t.id === "btnApplyBulkSlip" || t.closest("#btnApplyBulkSlip")) {
+        const v = (document.getElementById("bulkSlipSet") || {}).value;
+        if (v) applyStatusToVisible("slip", v);
+        return;
+      }
+      if (t.id === "btnAddBulkBucks" || t.closest("#btnAddBulkBucks")) {
+        applyStatusToVisible("bucks", null, Math.max(0, parseInt((document.getElementById("bulkBucksSet") || {}).value, 10) || 0));
+        return;
+      }
+      if (t.id === "btnSubBulkBucks" || t.closest("#btnSubBulkBucks")) {
+        applyStatusToVisible("bucks", null, -Math.max(0, parseInt((document.getElementById("bulkBucksSet") || {}).value, 10) || 0));
+        return;
+      }
       const clearClass = t.closest("[data-clear-class]");
       if (clearClass) { ev.stopPropagation(); clearPowerClass(clearClass.getAttribute("data-clear-class")); return; }
       const togG = t.closest("[data-toggle-group]");
