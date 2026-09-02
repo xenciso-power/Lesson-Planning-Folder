@@ -423,6 +423,7 @@
                 <option value="No">Slip missing</option>
                 <option value="Pending">Slip pending</option>
               </select>
+              <button type="button" class="small" id="btnLoadMyClass">Load my 8th grade class</button>
               <button type="button" class="primary" id="btnAddStudent">+ Add student</button>
               <button type="button" id="btnPrintRoster">🖨 Print this list</button>
               <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
@@ -605,6 +606,45 @@
       s.notes = waitlisted ? "Waitlist (W)" : "";
       return s;
     }
+    function officialClassRoster() {
+      const room = "Mr. Enciso / Rm. 1";
+      const rows = [
+        ["Roman Mojarro Nunez", "32", "Pending", 0, "47515 - computer is Power2-32 and the label is highlighted from previous years"],
+        ["Adolfo Ruiz", "29", "Pending", 0, "49457 Computer is Power 1-29"],
+        ["Aiden Zapien", "", "Pending", 0, "50037"],
+        ["Aimerie Martin", "", "Pending", 0, "48011"],
+        ["Anthony Lopez Hernandez", "32", "Pending", 0, "47369"],
+        ["Anthony Salazar", "", "Pending", 0, "47683"],
+        ["Camden Gutierrez", "26", "Pending", 0, "47574"],
+        ["Cyriss Navarrette", "12", "Pending", 2, "47611- Computer is Power 1-12"],
+        ["Devin West", "31", "Pending", 0, "50695"],
+        ["Elizabeth Larios", "7", "Pending", 0, "47547"],
+        ["Emma Gonzalez", "20", "Pending", 0, "47785"],
+        ["Gene Salgado Corral", "23", "Pending", 0, "47765- computer is Power2-23"],
+        ["Harsh Kaur", "25", "Pending", 0, "47442- Computer is Power2-25"],
+        ["Heidi Hernandez", "8", "Pending", 0, "47920"],
+        ["Jeremiah Rendon", "25", "Pending", 0, "47337"],
+        ["Jonny Pineda", "27", "Pending", 12, "48015"],
+        ["Kaylee Perez", "24", "Pending", 4, "47449"],
+        ["Malaya Membreve", "", "Pending", 0, "49569"],
+        ["Mateo Ramos", "29", "Pending", 0, "47678 - Computer is Power2-29"],
+        ["Noemi Felix", "12", "Pending", 0, "55012"],
+        ["Ramon Lopez", "32", "Pending", 2, "46325"],
+        ["Rayne Patawaran", "10", "Pending", 0, "47642"],
+        ["Rhianne Retamal", "", "Pending", 0, "46131"],
+        ["Sonia Santiago", "", "Pending", 0, "46070"]
+      ];
+      return rows.map(function (row) {
+        const s = officialPowerStudent(row[0], 8, room, false);
+        s.id = "cls-" + row[0].toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        s.source = "class";
+        s.computer = row[1];
+        s.diy = row[2];
+        s.bucks = row[3];
+        s.notes = row[4];
+        return s;
+      });
+    }
     function officialPowerRoster() {
       const esparza = "Ms. Esparza / Rm. 8";
       const avelar = "Miss Avelar (Long-Term Sub) / Rm. 30";
@@ -703,6 +743,20 @@
       if (!Array.isArray(powerRoster) || powerRoster.length === 0) {
         powerRoster = officialPowerRoster();
       }
+    }
+    function seedOfficialClassIfEmpty() {
+      if (!Array.isArray(roster) || roster.length === 0) {
+        roster = officialClassRoster();
+      }
+    }
+    function loadOfficialClassList() {
+      if (!sessionOpen) { alert("Open a Save File first."); return; }
+      const n = officialClassRoster().length;
+      if (roster.length && !confirm("Replace My 8th Grade Class with the official " + n + " students?")) return;
+      roster = officialClassRoster();
+      rosterView = "class";
+      renderRoster();
+      safeSave();
     }
     function officialPowerClassKey(teacher) {
       const t = (teacher || "").toLowerCase();
@@ -1114,6 +1168,8 @@
       if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
       const classRow = document.getElementById("powerClassLoadRow");
       if (classRow) classRow.style.display = rosterView === "power" ? "flex" : "none";
+      const loadMine = document.getElementById("btnLoadMyClass");
+      if (loadMine) loadMine.style.display = rosterView === "class" ? "inline-block" : "none";
       if (note) {
         note.textContent = rosterView === "power"
           ? "POWER Program — grouped by class / teacher. No computer numbers on this list."
@@ -2161,6 +2217,7 @@
       sessions = deepClone(slot.sessions || []);
       diyProjects = deepClone(slot.diyProjects || []);
       seedOfficialPowerIfEmpty();
+      seedOfficialClassIfEmpty();
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -2730,6 +2787,7 @@
       // TEMPLATE APPLY / DELETE
       const rview = t.closest("[data-roster-view]");
       if (rview) { rosterView = rview.getAttribute("data-roster-view") || "class"; renderRoster(); return; }
+      if (t.id === "btnLoadMyClass" || t.closest("#btnLoadMyClass")) { loadOfficialClassList(); return; }
       if (t.id === "btnAddStudent" || t.closest("#btnAddStudent")) { addStudent(); return; }
       if (t.id === "btnAddSession" || t.closest("#btnAddSession")) { addSession(); return; }
       const delSess = t.closest("[data-del-sess]");
