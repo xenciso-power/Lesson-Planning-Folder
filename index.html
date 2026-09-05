@@ -129,6 +129,12 @@
       background: rgba(34,197,94,0.12); border: 1px solid #22c55e55; border-radius: 6px;
       padding: 0.5rem 0.65rem; font-size: 0.8rem; margin-top: 0.35rem;
     }
+    .attached-file.failed { background: rgba(239,68,68,0.12); border-color: #ef444455; }
+    .attached-file.uploading { background: rgba(212,175,55,0.1); border-color: #D4AF3755; }
+    .type-badge { font-size:0.65rem; letter-spacing:0.04em; border:1px solid var(--border); border-radius:4px; padding:0.05rem 0.35rem; color:var(--gold-light); }
+    .drop-zone.busy { opacity:0.55; pointer-events:none; }
+    .inbox-list { display:flex; flex-direction:column; gap:0.4rem; margin-top:0.6rem; }
+    .inbox-item { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:0.55rem 0.7rem; font-size:0.82rem; display:flex; justify-content:space-between; gap:0.5rem; align-items:center; }
     .attached-file .af-name { color: #86efac; font-weight: 600; margin-bottom: 0.3rem; }
     .attached-file .af-preview img {
       max-width: 100%; max-height: 140px; border-radius: 4px; border: 1px solid var(--border); display: block; margin-bottom: 0.35rem;
@@ -421,6 +427,11 @@
           </div>
           <h2 style="margin-bottom:1rem; color:var(--gold-light);">Week Overview</h2>
           <div class="dashboard-grid" id="dashboardGrid"></div>
+          <div class="notes-box" style="margin-top:1.15rem;">
+            <h3>Attachments inbox</h3>
+            <p class="notice" style="margin-top:0;">Every worksheet on this week. Jump to the day to edit.</p>
+            <div id="attachmentInbox" class="inbox-list"></div>
+          </div>
         </section>
 
         <section id="page-sel" class="page">
@@ -679,7 +690,8 @@
     const LOCAL_KEY = "XE_SCHOLASTIC_SAVES_V3";
     const TEMPLATE_KEY = "XE_SCHOLASTIC_TEMPLATES_V1";
     const ROSTER_KEY = "XE_SCHOLASTIC_ROSTER_V1";
-    const MAX_FILES = 3;
+    const MAX_FILES = 6;
+    const MAX_FILE_BYTES = 10 * 1024 * 1024;
     const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
     const BLOCKS = {
       sel: { name: "SEL / CHECK-IN", time: "2:52 – 3:00" },
@@ -703,6 +715,7 @@
     let backupHistory = [];
     let sessionOpen = false;
     let lastCloudOk = null;
+    const uploadBusy = {};
     let cloudBackups = { 1: null, 2: null, 3: null };
 
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
@@ -914,9 +927,22 @@
       if (!d) return emptyDay();
       if (!Array.isArray(d.files)) {
         d.files = [];
-        if (d.fileName || d.fileUrl) d.files.push({ fileName: d.fileName||"", fileUrl: d.fileUrl||"", publicId: d.publicId||"" });
+        if (d.fileName || d.fileUrl) d.files.push({ fileName: d.fileName||"", fileUrl: d.fileUrl||"", publicId: d.publicId||"", caption:"", resourceType:"", status:"done" });
       }
-      if (d.files.length > MAX_FILES) d.files = d.files.slice(0, MAX_FILES);
+      d.files = (d.files || []).map(function (f) {
+        if (!f) return null;
+        return {
+          fileName: f.fileName || "",
+          fileUrl: f.fileUrl || "",
+          publicId: f.publicId || "",
+          caption: f.caption || "",
+          resourceType: f.resourceType || "",
+          status: f.status || (f.fileUrl ? "done" : "failed")
+        };
+      }).filter(Boolean);
+      const keep = d.files.filter(function (f) { return f.status === "uploading"; });
+      const rest = d.files.filter(function (f) { return f.status !== "uploading"; });
+      d.files = rest.slice(0, MAX_FILES).concat(keep);
       return d;
     }
     function ensureBlocks(d) {
@@ -1008,7 +1034,11 @@
         try { localStorage.setItem(ROSTER_KEY + "_" + (saveSystem.activeSlot||0), JSON.stringify(roster)); } catch (e) {}
         updateSaveMeta();
         return true;
-      } catch (e) { return false; }
+      } catch (e) {
+        const quota = /quota|full|exceeded/i.test(String(e && e.name) + " " + String(e && e.message));
+        if (quota) showToast("Device storage is full. Download .json from Cloud Backup so files are not lost.", true);
+        return false;
+      }
     }
 
     function loadLocal() {
@@ -2501,6 +2531,7 @@
         'Your week name will stay the same.';
 
       if (!confirm(msg)) return;
+      const replaceFiles = !confirm("Keep the worksheets already attached to this week?\n\nOK = keep existing files\nCancel = replace files from the template");
 
       // Optional: archive current before overwrite if it has content
       collectFromDOM();
@@ -2519,12 +2550,28 @@
         }
       }
 
-      // APPLY FULL WEEK from template
+      const keptFiles = {};
+      if (!replaceFiles) {
+        Object.keys(BLOCKS).forEach(function (k) {
+          keptFiles[k] = {};
+          DAYS.forEach(function (day) {
+            keptFiles[k][day] = deepClone(((data.blocks[k] || {})[day] || {}).files || []);
+          });
+        });
+      }
       data.canFocus = (t.canFocus || "").toString();
       data.weekNotes = (t.weekNotes || "").toString();
       data.blocks = deepClone(t.blocks || {});
       data.showAttachments = true;
       ensureBlocks(data);
+      if (!replaceFiles) {
+        Object.keys(BLOCKS).forEach(function (k) {
+          DAYS.forEach(function (day) {
+            if (!data.blocks[k][day]) data.blocks[k][day] = emptyDay();
+            data.blocks[k][day].files = keptFiles[k][day] || [];
+          });
+        });
+      }
 
       // Keep week name — do not reset currentWeek
       document.getElementById("canFocus").value = data.canFocus;
@@ -2621,7 +2668,12 @@
       const to = document.getElementById("dupTo-" + block).value;
       if (from === to) { alert("Pick two different days."); return; }
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
-      data.blocks[block][to] = cloneDay(data.blocks[block][from]);
+      const src = cloneDay(data.blocks[block][from]);
+      const targetHas = ((data.blocks[block][to] || {}).files || []).length;
+      if (targetHas && !confirm("Replace files on " + to + " with files from " + from + "?\nCancel keeps " + to + " worksheets.")) {
+        src.files = deepClone(data.blocks[block][to].files || []);
+      }
+      data.blocks[block][to] = src;
       renderAllDayGrids(); safeSave(); showToast(from + " → " + to);
     }
     function copyDayToAllInBlock(block) {
@@ -2629,8 +2681,14 @@
       collectFromDOM();
       const from = document.getElementById("dupFrom-" + block).value;
       if (!data.blocks[block]) data.blocks[block] = emptyBlock();
-      const src = cloneDay(data.blocks[block][from]);
-      DAYS.forEach(d => { if (d !== from) data.blocks[block][d] = cloneDay(src); });
+      const overwriteFiles = confirm("Also copy attached files onto every other day?\nOK = copy files\nCancel = keep each day's current files");
+      DAYS.forEach(d => {
+        if (d === from) return;
+        const keep = overwriteFiles ? null : deepClone(((data.blocks[block][d] || {}).files) || []);
+        const copy = cloneDay(data.blocks[block][from]);
+        if (keep) copy.files = keep;
+        data.blocks[block][d] = copy;
+      });
       renderAllDayGrids(); safeSave(); showToast(from + " applied to all days");
     }
 
@@ -3147,7 +3205,11 @@
         if (!data.blocks[block]) data.blocks[block] = emptyBlock();
         grid.querySelectorAll(".day-card").forEach(card => {
           const day = card.dataset.day;
-          const existing = data.blocks[block][day] || emptyDay();
+          const existing = migrateDay(data.blocks[block][day] || emptyDay());
+          card.querySelectorAll("[data-fcaption]").forEach(function (inp) {
+            const i = Number(inp.getAttribute("data-fcaption"));
+            if (existing.files[i]) existing.files[i].caption = inp.value || "";
+          });
           data.blocks[block][day] = {
             title: card.querySelector('[data-field="title"]')?.value || "",
             objective: card.querySelector('[data-field="objective"]')?.value || "",
@@ -3168,6 +3230,11 @@
 
     function isImageName(n,u){ return /\.(jpe?g|png|gif|webp)$/i.test(n||"") || /\.(jpe?g|png|gif|webp)(\?|$)/i.test(u||""); }
     function isPdfName(n,u){ return /\.pdf$/i.test(n||"") || /\.pdf(\?|$)/i.test(u||""); }
+    function fileKind(name, url, mime) {
+      if (isPdfName(name, url) || mime === "application/pdf") return "PDF";
+      if (isImageName(name, url) || (mime || "").indexOf("image/") === 0) return "IMG";
+      return "";
+    }
     function pdfPageUrl(publicId, page) {
       if (!publicId) return null;
       return "https://res.cloudinary.com/" + CLOUD_NAME + "/image/upload/f_auto,q_auto,pg_" + page + "/" + publicId;
@@ -3181,37 +3248,103 @@
       } catch (e) { return ""; }
     }
 
-    async function handleFile(b, d, fileList) {
-      const files = Array.from(fileList || []);
-      if (!files.length) return;
-      if (!data.blocks[b]) data.blocks[b] = emptyBlock();
-      const day = data.blocks[b][d];
-      day.files = day.files || [];
-      for (const file of files) {
-        if (day.files.length >= MAX_FILES) { alert("Max " + MAX_FILES + " files per day."); break; }
-        const name = file.name || "";
-        if (!isImageName(name) && !isPdfName(name)) { alert("Images (JPG/PNG) or PDF only."); continue; }
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("upload_preset", UPLOAD_PRESET);
-        fd.append("folder", "scholastic-batch");
-        try {
-          const res = await fetch(CLOUDINARY_URL, { method: "POST", body: fd });
-          if (!res.ok) throw new Error("fail");
-          const r = await res.json();
-          day.files.push({
-            fileName: r.original_filename || file.name,
-            fileUrl: r.secure_url,
-            publicId: r.public_id || publicIdFromUrl(r.secure_url) || ""
-          });
-        } catch (e) { showToast("Upload failed", true); }
+    async function uploadOneToCloudinary(file) {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", UPLOAD_PRESET);
+      fd.append("folder", "scholastic-batch");
+      const res = await fetch(CLOUDINARY_URL, { method: "POST", body: fd });
+      let body = {};
+      try { body = await res.json(); } catch (e) { body = {}; }
+      if (!res.ok) {
+        const msg = body.error && body.error.message ? body.error.message : ("HTTP " + res.status);
+        throw new Error(msg);
       }
-      renderAllDayGrids(); safeSave();
+      return body;
+    }
+    async function handleFile(b, d, fileList) {
+      if (!sessionOpen) { showToast("Open a Save File first", true); return; }
+      const incoming = Array.from(fileList || []);
+      if (!incoming.length) return;
+      if (!data.blocks[b]) data.blocks[b] = emptyBlock();
+      const day = migrateDay(data.blocks[b][d] || emptyDay());
+      data.blocks[b][d] = day;
+      const key = b + "|" + d;
+      if (uploadBusy[key]) { showToast("This day is already uploading"); return; }
+      const skipped = [];
+      const queue = [];
+      incoming.forEach(function (file) {
+        const name = file.name || "file";
+        const kind = fileKind(name, "", file.type);
+        if (!kind) { skipped.push(name + " (not PDF/JPG/PNG/WEBP/GIF — HEIC not allowed)"); return; }
+        if (file.size > MAX_FILE_BYTES) { skipped.push(name + " (over 10 MB)"); return; }
+        const live = day.files.filter(function (f) { return f.status !== "failed"; }).length;
+        if (live + queue.length >= MAX_FILES) { skipped.push(name + " (day already at " + MAX_FILES + ")"); return; }
+        queue.push(file);
+      });
+      if (!queue.length) {
+        showToast(skipped[0] || "Nothing to upload", true);
+        return;
+      }
+      uploadBusy[key] = true;
+      renderAllDayGrids();
+      for (const file of queue) {
+        const pending = { fileName: file.name, fileUrl: "", publicId: "", caption: "", resourceType: "", status: "uploading", _file: file };
+        day.files.push(pending);
+        renderAllDayGrids();
+        try {
+          const r = await uploadOneToCloudinary(file);
+          pending.fileName = r.original_filename || file.name;
+          pending.fileUrl = r.secure_url || "";
+          pending.publicId = r.public_id || publicIdFromUrl(r.secure_url) || "";
+          pending.resourceType = r.resource_type || "";
+          pending.status = "done";
+          delete pending._file;
+        } catch (err) {
+          pending.status = "failed";
+          pending.error = String(err && err.message ? err.message : err);
+        }
+        renderAllDayGrids();
+      }
+      uploadBusy[key] = false;
+      persistLocal();
+      scheduleCloudPush();
+      renderAllDayGrids();
+      renderAttachmentInbox();
+      if (skipped.length) showToast("Added " + queue.length + ". Skipped: " + skipped.length);
+    }
+    async function retryFile(b, d, idx) {
+      const day = data.blocks[b] && data.blocks[b][d];
+      if (!day || !day.files || !day.files[idx]) return;
+      const item = day.files[idx];
+      if (item.status !== "failed") return;
+      if (item._file) { item.status = "uploading"; renderAllDayGrids();
+        try {
+          const r = await uploadOneToCloudinary(item._file);
+          item.fileUrl = r.secure_url || "";
+          item.publicId = r.public_id || "";
+          item.resourceType = r.resource_type || "";
+          item.status = "done";
+          item.error = "";
+          delete item._file;
+        } catch (err) { item.status = "failed"; item.error = String(err.message || err); }
+        renderAllDayGrids(); persistLocal(); scheduleCloudPush();
+        return;
+      }
+      showToast("Re-attach that file — the original was not kept after refresh", true);
     }
     function removeFile(b, d, idx) {
       if (!data.blocks[b]?.[d]?.files) return;
       data.blocks[b][d].files.splice(idx, 1);
-      renderAllDayGrids(); safeSave();
+      renderAllDayGrids(); renderAttachmentInbox(); safeSave();
+    }
+    function moveFile(b, d, idx, dir) {
+      const files = data.blocks[b] && data.blocks[b][d] && data.blocks[b][d].files;
+      if (!files) return;
+      const j = idx + dir;
+      if (j < 0 || j >= files.length) return;
+      const t = files[idx]; files[idx] = files[j]; files[j] = t;
+      renderAllDayGrids(); persistLocal();
     }
 
     function renderDayCard(b, day) {
@@ -3222,18 +3355,34 @@
           '<button type="button" class="day-close" data-noschool="' + b + '|' + day + '">✕</button></div>' +
           '<div class="no-school-message"><strong>No School</strong>There was no session this day due to a holiday or event.</div></div>';
       }
+      const busy = !!uploadBusy[b + "|" + day];
       let filesHtml = (e.files || []).map((f, i) => {
-        const isImg = isImageName(f.fileName, f.fileUrl);
-        const preview = isImg && f.fileUrl
+        const kind = fileKind(f.fileName, f.fileUrl);
+        const st = f.status || "done";
+        const cls = st === "failed" ? "attached-file failed" : (st === "uploading" ? "attached-file uploading" : "attached-file");
+        const preview = (kind === "IMG" && f.fileUrl)
           ? '<div class="af-preview"><img src="' + esc(f.fileUrl) + '" alt=""></div>'
-          : (isPdfName(f.fileName, f.fileUrl) ? '<div class="af-name">PDF — prints as pages</div>' : "");
-        return '<div class="attached-file"><div class="af-name">📎 ' + esc(f.fileName) + "</div>" + preview +
-          '<div class="af-actions"><button type="button" class="danger small" data-rmfile="' + b + "|" + day + "|" + i + '">Remove</button></div></div>';
+          : (kind === "PDF" && st === "done" ? '<div class="af-name">PDF — prints as pages</div>' : "");
+        const statusLine = st === "uploading" ? '<div class="af-name">Uploading… ' + esc(f.fileName) + "</div>"
+          : (st === "failed" ? '<div class="af-name">Failed: ' + esc(f.error || "upload error") + " · " + esc(f.fileName) + "</div>"
+          : '<div class="af-name">📎 ' + esc(f.fileName) + ' <span class="type-badge">' + kind + "</span></div>");
+        return '<div class="' + cls + '">' + statusLine + preview +
+          '<input data-fcaption="' + i + '" placeholder="Caption (e.g. Monday Intervention worksheet)" value="' + esc(f.caption || "") + '">' +
+          '<div class="af-actions">' +
+          (f.fileUrl ? '<a class="small" href="' + esc(f.fileUrl) + '" target="_blank" rel="noopener">Open</a>' : "") +
+          (f.fileUrl ? '<button type="button" class="small" data-copyurl="' + esc(f.fileUrl) + '">Copy URL</button>' : "") +
+          '<button type="button" class="small" data-movefile="' + b + "|" + day + "|" + i + '|-1">↑</button>' +
+          '<button type="button" class="small" data-movefile="' + b + "|" + day + "|" + i + '|1">↓</button>' +
+          (st === "failed" ? '<button type="button" class="small primary" data-retryfile="' + b + "|" + day + "|" + i + '">Retry</button>' : "") +
+          '<button type="button" class="danger small" data-rmfile="' + b + "|" + day + "|" + i + '">Remove</button></div></div>';
       }).join("");
-      const canAdd = (e.files || []).length < MAX_FILES;
-      const drop = canAdd
-        ? '<div class="drop-zone" data-drop="' + b + "|" + day + '"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" multiple />📄 Add image/PDF (' + (e.files||[]).length + "/" + MAX_FILES + ")</div>"
-        : '<div class="files-cap">File limit reached (' + MAX_FILES + ")</div>";
+      const liveCount = (e.files || []).filter(function (f) { return f.status !== "failed"; }).length;
+      const canAdd = liveCount < MAX_FILES && !busy;
+      const drop = busy
+        ? '<div class="drop-zone busy">Uploading…</div>'
+        : (canAdd
+        ? '<div class="drop-zone" data-drop="' + b + "|" + day + '"><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,application/pdf,image/*" multiple />📄 Add image/PDF (' + liveCount + "/" + MAX_FILES + ")</div>"
+        : '<div class="files-cap">File limit reached (' + liveCount + "/" + MAX_FILES + ")</div>");
 
       return '<div class="day-card" data-day="' + day + '">' +
         '<div class="day-card-header"><span>' + day + '</span>' +
@@ -3267,6 +3416,29 @@
         return '<div class="dash-card" data-goto="' + k + '"><h3>' + info.name + "</h3>" +
           '<div class="time">' + info.time + '</div><div class="status ' + (filled?"filled":"") + '">' +
           (filled ? filled + " of 5 days planned" : "No lessons yet") + "</div></div>";
+      }).join("");
+      renderAttachmentInbox();
+    }
+    function renderAttachmentInbox() {
+      const box = document.getElementById("attachmentInbox");
+      if (!box) return;
+      const items = [];
+      Object.keys(BLOCKS).forEach(function (k) {
+        DAYS.forEach(function (day) {
+          (((data.blocks[k] || {})[day] || {}).files || []).forEach(function (f) {
+            if (!f || (!f.fileName && !f.fileUrl)) return;
+            items.push({ block: k, day: day, f: f });
+          });
+        });
+      });
+      if (!items.length) {
+        box.innerHTML = '<p style="color:var(--text-muted);font-size:0.82rem;">No worksheets on this week yet.</p>';
+        return;
+      }
+      box.innerHTML = items.map(function (it) {
+        return '<div class="inbox-item"><div><strong>' + esc(it.f.caption || it.f.fileName || "File") + "</strong><div class=\"v-meta\">" +
+          esc(BLOCKS[it.block].name) + " · " + esc(it.day) + (it.f.status === "failed" ? " · failed" : "") + "</div></div>" +
+          '<button type="button" class="small" data-goto="' + esc(it.block) + '">Open day</button></div>';
       }).join("");
     }
 
@@ -3480,6 +3652,12 @@
       if (ns) { const p = ns.getAttribute("data-noschool").split("|"); toggleNoSchool(p[0], p[1]); return; }
       const rf = t.closest("[data-rmfile]");
       if (rf) { const p = rf.getAttribute("data-rmfile").split("|"); removeFile(p[0], p[1], Number(p[2])); return; }
+      const retry = t.closest("[data-retryfile]");
+      if (retry) { const p = retry.getAttribute("data-retryfile").split("|"); retryFile(p[0], p[1], Number(p[2])); return; }
+      const mv = t.closest("[data-movefile]");
+      if (mv) { const p = mv.getAttribute("data-movefile").split("|"); moveFile(p[0], p[1], Number(p[2]), Number(p[3])); return; }
+      const cu = t.closest("[data-copyurl]");
+      if (cu) { copyText(cu.getAttribute("data-copyurl"), cu); return; }
 
       const drop = t.closest("[data-drop]");
       if (drop && !t.matches("input")) { const input = drop.querySelector('input[type="file"]'); if (input) input.click(); return; }
