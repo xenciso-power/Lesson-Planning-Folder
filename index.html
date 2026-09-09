@@ -254,11 +254,17 @@
     .print-block-time { font-size: 0.8rem; color: #64748b; margin-bottom: 0.4rem; }
     .print-field { font-size: 0.9rem; margin-bottom: 0.25rem; }
     .print-field strong { color: #334155; }
-    .print-attachment { margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .print-attachment { margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; page-break-inside: avoid; break-inside: avoid; }
     .print-attachment strong { color: #1F4E79; display: block; margin-bottom: 0.5rem; }
     .print-doc-preview img {
-      max-width: 100%; max-height: 480px; border: 1px solid #cbd5e1; border-radius: 4px;
-      display: block; margin: 0.35rem 0; page-break-inside: avoid;
+      max-width: 100%; width: 100%; height: auto; border: 1px solid #cbd5e1; border-radius: 4px;
+      display: block; margin: 0.35rem 0; page-break-inside: avoid; break-inside: avoid;
+    }
+    @media print {
+      .print-attachment, .print-doc-preview, .print-doc-preview img { display: block !important; visibility: visible !important; }
+      .print-attachment { page-break-before: auto; page-break-inside: avoid; }
+      .print-pdf-page { page-break-before: always; }
+      .print-pdf-page:first-child { page-break-before: auto; }
     }
     .print-doc-preview .page-label { font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; }
     .print-no-school-note { background: #fef2f2; color: #991b1b; padding: 0.75rem 1rem; font-size: 0.9rem; font-style: italic; }
@@ -1082,12 +1088,76 @@
       if (/Windows/.test(ua)) return "Windows";
       return "Device";
     }
-    function cloudPayload() {
+    function stripFileBlobs(files) {
+      return (files || []).map(function (f) {
+        if (!f) return f;
+        const o = {
+          fileName: f.fileName || "",
+          fileUrl: f.fileUrl || "",
+          publicId: f.publicId || "",
+          caption: f.caption || "",
+          resourceType: f.resourceType || "",
+          status: f.status === "uploading" ? "failed" : (f.status || "done")
+        };
+        return o;
+      }).filter(function (f) { return f.fileUrl || f.publicId || f.fileName; });
+    }
+    function compactSlot(slot) {
+      const s = normalizeSlot(deepClone(slot || emptySlot()));
+      Object.keys(s.data.blocks || {}).forEach(function (k) {
+        DAYS.forEach(function (day) {
+          if (s.data.blocks[k] && s.data.blocks[k][day]) {
+            s.data.blocks[k][day].files = stripFileBlobs(s.data.blocks[k][day].files);
+          }
+        });
+      });
+      Object.keys(s.archive || {}).forEach(function (name) {
+        const ent = s.archive[name];
+        if (!ent || !ent.blocks) return;
+        Object.keys(ent.blocks).forEach(function (k) {
+          DAYS.forEach(function (day) {
+            if (ent.blocks[k] && ent.blocks[k][day]) {
+              ent.blocks[k][day].files = stripFileBlobs(ent.blocks[k][day].files);
+            }
+          });
+        });
+      });
+      return s;
+    }
+    function compactHistory(list, withSnap) {
+      return (list || []).slice(0, withSnap ? 12 : 40).map(function (b) {
+        const row = {
+          id: b.id,
+          savedAt: b.savedAt,
+          slot: b.slot,
+          week: b.week,
+          device: b.device || "",
+          fingerprint: b.fingerprint || ""
+        };
+        if (withSnap && b.snapshot) {
+          row.snapshot = {
+            currentWeek: b.snapshot.currentWeek,
+            lastSaved: b.snapshot.lastSaved,
+            data: b.snapshot.data,
+            archive: {},
+            roster: b.snapshot.roster || [],
+            powerRoster: b.snapshot.powerRoster || [],
+            sessions: b.snapshot.sessions || [],
+            diyProjects: b.snapshot.diyProjects || [],
+            templates: {}
+          };
+        }
+        return row;
+      });
+    }
+    function cloudPayload(compact) {
       if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
+      const slots = {};
+      [1, 2, 3].forEach(function (n) { slots[n] = compactSlot(saveSystem.slots[n]); });
       return {
-        slots: saveSystem.slots,
+        slots: slots,
         templates: templates,
-        backupHistory: backupHistory,
+        backupHistory: compactHistory(backupHistory, !compact),
         savedAt: new Date().toISOString()
       };
     }
@@ -1096,25 +1166,45 @@
       clearTimeout(pushTimer);
       pushTimer = setTimeout(function () { pushCloud(); }, 800);
     }
+    async function putCloudRecord(payload) {
+      const res = await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
+        body: JSON.stringify(payload)
+      });
+      let body = {};
+      try { body = await res.json(); } catch (e) { body = {}; }
+      return { ok: res.ok, status: res.status, body: body };
+    }
     async function pushCloud() {
       if (cloudBusy) { cloudAgain = true; return; }
       cloudBusy = true;
       persistLocal();
       try {
         setStatus("Syncing…");
-        const payload = cloudPayload();
-        const res = await fetch(API_URL, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error("fail");
+        let payload = cloudPayload(false);
+        let result = await putCloudRecord(payload);
+        const sizeErr = !result.ok && /100kb|size|exceed|too large|free users cannot/i.test(JSON.stringify(result.body || {}));
+        if (!result.ok && (result.status === 400 || result.status === 413 || sizeErr)) {
+          payload = cloudPayload(true);
+          result = await putCloudRecord(payload);
+        }
+        if (!result.ok) {
+          const msg = (result.body && (result.body.message || result.body.error)) || ("HTTP " + result.status);
+          throw new Error(msg);
+        }
         lastCloudRecord = deepClone(payload);
         lastCloudOk = true;
         setStatus("Cloud synced " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
       } catch (e) {
         lastCloudOk = false;
-        setStatus("Offline — will sync when online");
+        const raw = String(e && e.message ? e.message : e);
+        if (/100kb|size|exceed|too large|free users cannot/i.test(raw)) {
+          setStatus("Cloud bin at size limit — plans still saved on this device");
+          showToast("Cloud bin is at JSONBin’s size cap. Plans stay on this device. Download .json as backup.", true);
+        } else {
+          setStatus("Offline — will sync when online");
+        }
       } finally {
         cloudBusy = false;
         updateSaveMeta();
@@ -3239,6 +3329,10 @@
       if (!publicId) return null;
       return "https://res.cloudinary.com/" + CLOUD_NAME + "/image/upload/f_auto,q_auto,pg_" + page + "/" + publicId;
     }
+    function cloudImageUrl(publicId) {
+      if (!publicId) return "";
+      return "https://res.cloudinary.com/" + CLOUD_NAME + "/image/upload/f_auto,q_auto/" + publicId;
+    }
     function publicIdFromUrl(url) {
       if (!url) return "";
       try {
@@ -3443,20 +3537,47 @@
     }
 
     function printAttachmentHtml(e) {
-      const files = e.files || [];
+      const files = (e.files || []).filter(function (f) { return f && f.status !== "uploading" && f.status !== "failed"; });
       if (!files.length) return "";
       let html = "";
-      files.forEach(f => {
-        html += '<div class="print-attachment"><strong>Worksheet: ' + esc(f.fileName || "Document") + '</strong><div class="print-doc-preview">';
+      files.forEach(function (f) {
+        const label = f.caption ? (f.caption + " · " + (f.fileName || "Document")) : (f.fileName || "Document");
+        html += '<div class="print-attachment"><strong>Worksheet: ' + esc(label) + '</strong><div class="print-doc-preview">';
         const url = f.fileUrl || "";
+        if (url.indexOf("blob:") === 0) {
+          html += "<em>Attachment still uploading — save first, then print.</em></div></div>";
+          return;
+        }
         const pid = f.publicId || publicIdFromUrl(url);
-        if (isImageName(f.fileName, url) && url) html += '<img src="' + esc(url) + '" alt="">';
-        else if (isPdfName(f.fileName, url) && pid) {
-          for (let p = 1; p <= 3; p++) html += '<div class="page-label">Page ' + p + '</div><img src="' + pdfPageUrl(pid,p) + '" alt="" onerror="this.style.display=\'none\'">';
-        } else if (url) html += "<em>" + esc(f.fileName) + "</em>";
+        const kind = fileKind(f.fileName, url);
+        if (kind === "IMG" && (pid || url)) {
+          const src = pid ? cloudImageUrl(pid) : url;
+          html += '<img src="' + esc(src) + '" alt="' + esc(f.fileName || "") + '" crossorigin="anonymous" onerror="this.outerHTML=\'<em>Attachment could not be embedded — open ' + esc(f.fileName || "file") + (url ? " · " + esc(url) : "") + "</em>'\">";
+        } else if (kind === "PDF" && pid) {
+          const cap = 12;
+          for (let p = 1; p <= cap; p++) {
+            html += '<div class="print-pdf-page"><div class="page-label">Page ' + p + "</div>" +
+              '<img src="' + esc(pdfPageUrl(pid, p)) + '" alt="Page ' + p + '" crossorigin="anonymous" onerror="this.parentNode.style.display=\'none\'"></div>';
+          }
+        } else if (url) {
+          html += "<em>Attachment could not be embedded — open " + esc(f.fileName || "file") + " · " + esc(url) + "</em>";
+        }
         html += "</div></div>";
       });
       return html;
+    }
+    function waitForPrintImages(root) {
+      const imgs = Array.prototype.slice.call((root || document).querySelectorAll("img"));
+      if (!imgs.length) return Promise.resolve();
+      return Promise.all(imgs.map(function (img) {
+        if (img.complete && img.naturalWidth) return Promise.resolve();
+        return new Promise(function (resolve) {
+          const done = function () { resolve(); };
+          img.addEventListener("load", done, { once: true });
+          img.addEventListener("error", done, { once: true });
+          setTimeout(done, 8000);
+        });
+      }));
     }
 
     function buildPrintHtml() {
@@ -3497,12 +3618,14 @@
       return html;
     }
 
-    function generatePrintReport() {
+    async function generatePrintReport() {
       if (!sessionOpen) return;
       const r = document.getElementById("printReport");
       r.innerHTML = buildPrintHtml();
       r.style.display = "block";
-      setTimeout(() => { window.print(); setTimeout(() => r.style.display="none", 2000); }, 900);
+      await waitForPrintImages(r);
+      window.print();
+      setTimeout(function () { r.style.display = "none"; }, 2000);
     }
 
     async function downloadPdf() {
@@ -3511,6 +3634,7 @@
       const r = document.getElementById("printReport");
       r.innerHTML = buildPrintHtml();
       r.style.display = "block";
+      await waitForPrintImages(r);
       const week = (document.getElementById("weekOf").value.trim() || currentWeek || "week").replace(/[^\w\-]+/g, "_");
       try {
         await html2pdf().set({
@@ -3518,11 +3642,11 @@
           image: { type: "jpeg", quality: 0.95 },
           html2canvas: { scale: 2, useCORS: true, logging: false },
           jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-          pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+          pagebreak: { mode: ["css", "legacy"] }
         }).from(r).save();
         showToast("PDF downloaded");
       } catch (e) { showToast("PDF failed — try Print", true); }
-      finally { setTimeout(() => { r.style.display = "none"; }, 500); }
+      finally { setTimeout(function () { r.style.display = "none"; }, 500); }
     }
 
     // Single click handler
