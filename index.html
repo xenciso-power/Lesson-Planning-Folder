@@ -1373,6 +1373,36 @@
       persistLocal();
     }
     function binUrl(id) { return "https://api.jsonbin.io/v3/b/" + id; }
+    function allBinIds() {
+      return [BIN_POOL[1], BIN_POOL[2], BIN_POOL[3], BIN_POOL.history].concat(BIN_FLEET);
+    }
+    function isSizeLimit(result) {
+      const raw = JSON.stringify((result && result.body) || {}) + " " + (result && result.status);
+      return !result.ok && /100kb|size|exceed|too large|free users cannot|413/i.test(raw);
+    }
+    async function emptyBin(binId) {
+      try {
+        await fetch(binUrl(binId), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
+          body: JSON.stringify({ kind: "empty", clearedAt: new Date().toISOString(), payload: {} })
+        });
+      } catch (e) {}
+    }
+    async function putCloudWithFailover(payload, preferredId) {
+      const order = [preferredId].concat(allBinIds().filter(function (id) { return id !== preferredId; }));
+      let last = { ok: false, status: 0, body: {} };
+      for (let i = 0; i < order.length; i++) {
+        last = await putCloudRecord(payload, order[i]);
+        if (last.ok) {
+          last.binId = order[i];
+          if (order[i] !== preferredId) setStatus("Cloud moved to a bin with space");
+          return last;
+        }
+        if (!isSizeLimit(last)) return last;
+      }
+      return last;
+    }
     async function putCloudRecord(payload, binId) {
       const res = await fetch(binUrl(binId || BIN_ID), {
         method: "PUT",
@@ -1399,17 +1429,15 @@
         const compact = false;
         const results = [];
         for (let n = 1; n <= 3; n++) {
-          const piece = { kind: "slot", slot: n, slotData: compactSlot(saveSystem.slots[n]), templates: templates, savedAt: new Date().toISOString() };
-          let result = await putCloudRecord(piece, BIN_POOL[n]);
-          if (!result.ok) {
-            piece.slotData = compactSlot(saveSystem.slots[n]);
-            result = await putCloudRecord(piece, BIN_POOL[n]);
-          }
+          const live = compactSlot(saveSystem.slots[n]);
+          live.archive = {};
+          const piece = { kind: "slot", slot: n, slotData: live, templates: templates, savedAt: new Date().toISOString() };
+          let result = await putCloudWithFailover(piece, BIN_POOL[n]);
           results.push(result);
           if (!result.ok) throw new Error((result.body && (result.body.message || result.body.error)) || ("slot " + n));
         }
         const hist = { kind: "history", backupHistory: compactHistory(backupHistory, false), savedAt: new Date().toISOString() };
-        const histRes = await putCloudRecord(hist, BIN_POOL.history);
+        const histRes = await putCloudWithFailover(hist, BIN_POOL.history);
         if (!histRes.ok) throw new Error((histRes.body && histRes.body.message) || "history");
         const packs = BIN_FLEET.map(function () { return { kind: "fleet-archive", archives: { 1: {}, 2: {}, 3: {} } }; });
         [1, 2, 3].forEach(function (n) {
@@ -1420,8 +1448,21 @@
           });
         });
         for (let i = 0; i < BIN_FLEET.length; i++) {
-          const r = await putCloudRecord(packs[i], BIN_FLEET[i]);
-          if (!r.ok) throw new Error("fleet " + i);
+          let r = await putCloudWithFailover(packs[i], BIN_FLEET[i]);
+          if (r.ok) continue;
+          if (!isSizeLimit(r)) throw new Error("fleet " + i);
+          const weeks = [];
+          [1, 2, 3].forEach(function (n) {
+            Object.keys(packs[i].archives[n] || {}).forEach(function (week) {
+              weeks.push({ n: n, week: week, entry: packs[i].archives[n][week] });
+            });
+          });
+          for (let w = 0; w < weeks.length; w++) {
+            const one = { kind: "fleet-archive", archives: { 1: {}, 2: {}, 3: {} } };
+            one.archives[weeks[w].n][weeks[w].week] = weeks[w].entry;
+            const wr = await putCloudWithFailover(one, BIN_FLEET[(i + w + 1) % BIN_FLEET.length]);
+            if (!wr.ok) throw new Error("archive " + weeks[w].week);
+          }
         }
         lastCloudRecord = cloudPayload(true);
         lastCloudOk = true;
