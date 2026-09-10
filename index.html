@@ -67,10 +67,22 @@
     .print-sheet label.check { display: flex; gap: 0.45rem; align-items: center; font-size: 0.88rem; margin: 0.28rem 0; }
     .print-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: flex-end; margin-top: 0.9rem; }
     @media (max-width: 900px) {
-      .header { align-items: flex-start; }
-      .header-actions { width: 100%; margin-left: 0; flex-wrap: wrap; }
+      .header { align-items: center; padding: 0.5rem 0.75rem; }
+      .header-actions { width: 100%; margin-left: 0; }
       .action-group { border-left: none; padding-left: 0; }
     }
+    @media (max-width: 430px) {
+      .header { position: sticky; top: 0; flex-wrap: nowrap; }
+      .logo-img { width: 36px; height: 36px; }
+      .header-text h1 { font-size: 0.92rem; line-height: 1.2; }
+      .header-text p { display: none; }
+      .action-group { display: none; }
+      .action-group.phone-core { display: flex; }
+      .more-menu { position: fixed; left: 0.7rem; right: 0.7rem; top: 3.6rem; }
+      .week-bar { padding: 0.55rem 0.65rem; }
+      .content { padding: 0.75rem; }
+    }
+    .plan-chrome.hide { display: none; }
     button {
       background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px;
       padding: 0.45rem 0.9rem; font-size: 0.85rem; cursor: pointer; font-weight: 500;
@@ -328,6 +340,9 @@
     .wait-badge { display:inline-block; margin-left:0.4rem; font-size:0.68rem; color:#F0D78C; border:1px solid var(--gold); border-radius:999px; padding:0 0.4rem; }
     .text-block-panel textarea { min-height:280px; font-family:ui-monospace,Consolas,monospace; font-size:0.82rem; }
     .class-group-head { cursor:pointer; }
+    .rolo-letters { display:flex; flex-wrap:wrap; gap:0.28rem; margin:0.4rem 0 0.75rem; }
+    .rolo-letters button { min-width:32px; padding:0.25rem 0.4rem; }
+    .rolo-letters button.on { background:var(--navy); border-color:var(--gold); color:var(--gold-light); }
     .class-group.collapsed .roster-table-wrap { display:none; }
     .class-group.collapsed .roster-mobile { display:none; }
     @media (max-width: 820px) {
@@ -423,7 +438,7 @@
         </p>
       </div>
       <div class="header-actions">
-        <div class="action-group">
+        <div class="action-group phone-core">
           <button type="button" id="btnSave" class="primary">Save</button>
           <button type="button" id="btnKeepProgress">Keep progress</button>
         </div>
@@ -432,7 +447,7 @@
           <button type="button" id="btnPrintReport">Print…</button>
           <button type="button" id="btnPdfReport" class="primary">PDF…</button>
         </div>
-        <div class="action-group more-wrap">
+        <div class="action-group more-wrap phone-core">
           <button type="button" id="btnMoreHeader">More ▾</button>
           <div class="more-menu" id="moreHeaderMenu">
             <button type="button" id="btnNewWeek">New week</button>
@@ -460,6 +475,7 @@
       </nav>
 
       <main class="content">
+        <div id="planChrome" class="plan-chrome">
         <div class="week-bar">
           <label for="weekOf">Week of:</label>
           <input type="text" id="weekOf" placeholder="e.g. Aug 25 – Aug 29, 2026" />
@@ -478,6 +494,7 @@
           </div>
           <textarea id="canFocus" placeholder="Enter the weekly C.A.N. standards focus…"></textarea>
           <p class="notice">Times are subject to change. Templates fill every day block for this week.</p>
+        </div>
         </div>
 
         <section id="page-dashboard" class="page active">
@@ -545,7 +562,10 @@
 
 
         <section id="page-roster" class="page">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;flex-wrap:wrap;">
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">Rosters</h2>
+          <button type="button" class="primary" id="btnPrintRosterTop">Print roster</button>
+          </div>
           <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
             Three distinct year-round tools on this Save File: your 8th grade class, the full POWER program, and sessions you staff by picking students.
           </p>
@@ -643,7 +663,10 @@
           </div>
         </section>
         <section id="page-diy" class="page">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;flex-wrap:wrap;">
           <h2 style="margin-bottom:0.5rem; color:var(--gold-light);">DIY Builders™ Projects</h2>
+          <button type="button" class="primary" id="btnPrintDiyAll">Print DIY</button>
+          </div>
           <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:0.85rem;">
             Catalog from <a href="https://www.ehdw.com/diy-woodworking-and-electrical-projects" target="_blank" rel="noopener" style="color:var(--gold-light);">Elemental Hardware Enrichment (ehdw.com)</a>.
             Assign students to a project for its full date range. Only students with a <strong>Yes</strong> permission slip appear in the picker.
@@ -1659,7 +1682,11 @@
     }
     function rosterCollapseKey(teacher) { return "xe-roster-collapse:" + teacher; }
     function isGroupCollapsed(teacher) {
-      try { return sessionStorage.getItem(rosterCollapseKey(teacher)) === "1"; } catch (e) { return false; }
+      try {
+        const v = sessionStorage.getItem(rosterCollapseKey(teacher));
+        if (v === null) return true;
+        return v === "1";
+      } catch (e) { return true; }
     }
     function toggleGroupCollapsed(teacher) {
       try {
@@ -1958,7 +1985,17 @@
         return;
       }
       const groups = groupStudentsByClass(rows);
-      wrap.innerHTML = groups.map(function (g) {
+      const letters = {};
+      rows.forEach(function (st) {
+        const ch = ((st.name || "?").replace(/[^a-zA-Z]/g, " ").trim()[0] || "?").toUpperCase();
+        letters[ch] = true;
+      });
+      const rolo = '<div class="rolo-letters">' +
+        '<button type="button" class="small" data-rolo-letter="">All</button>' +
+        Object.keys(letters).sort().map(function (L) {
+          return '<button type="button" class="small" data-rolo-letter="' + L + '">' + L + "</button>";
+        }).join("") + "</div>";
+      wrap.innerHTML = rolo + groups.map(function (g) {
         const key = officialPowerClassKey(g.teacher);
         const wait = g.students.some(function (st) { return /waitlist/i.test(st.notes || ""); });
         const collapsed = isGroupCollapsed(g.teacher);
@@ -2185,6 +2222,26 @@
       if (!on && i !== -1) pr.studentIds.splice(i, 1);
       renderDiy();
       safeSave();
+    }
+    function printAllDiy() {
+      if (!sessionOpen) return;
+      if (!diyProjects.length) { showToast("No DIY projects to print", true); return; }
+      const r = document.getElementById("printReport");
+      r.innerHTML = diyProjects.map(function (pr) {
+        migrateDiy(pr);
+        const kids = (pr.studentIds || []).map(findAnyStudent).filter(Boolean);
+        let html = "<h1>DIY · " + esc(pr.name || "Project") + "</h1>" +
+          '<div class="meta">' + esc(pr.level || "") + " · " + esc(pr.status || "") + " · " + esc(formatDiyDates(pr)) + "</div>";
+        html += '<table class="print-roster-table"><thead><tr><th>Name</th><th>Teacher</th><th>Grade</th><th>Slip</th></tr></thead><tbody>';
+        if (!kids.length) html += "<tr><td colspan='4'>No builders assigned</td></tr>";
+        else kids.forEach(function (st) {
+          html += "<tr><td>" + esc(st.name) + "</td><td>" + esc(st.teacher) + "</td><td>" + esc(st.grade) + "</td><td>" + esc(st.slip) + "</td></tr>";
+        });
+        html += "</tbody></table>";
+        return html;
+      }).join('<div style="page-break-after:always;"></div>');
+      r.style.display = "block";
+      setTimeout(function () { window.print(); setTimeout(function () { r.style.display = "none"; }, 2000); }, 400);
     }
     function printDiy(id) {
       const pr = findDiy(id);
@@ -2998,6 +3055,9 @@
       const nav = document.querySelector('.nav-item[data-page="' + id + '"]');
       if (page) page.classList.add("active");
       if (nav) nav.classList.add("active");
+      const plan = ["dashboard","sel","intervention","enrichment","spark"].indexOf(id) !== -1;
+      const chrome = document.getElementById("planChrome");
+      if (chrome) chrome.classList.toggle("hide", !plan);
       if (id === "preview") { renderPreviewPage(); }
       if (id === "templates") renderTemplates();
       if (id === "roster") renderRoster();
@@ -3884,7 +3944,20 @@
       const prSess = t.closest("[data-print-sess]");
       if (prSess) { printSession(prSess.getAttribute("data-print-sess")); return; }
       if (t.id === "btnBulkAdd" || t.closest("#btnBulkAdd")) { addBulkStudents(); return; }
-      if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster")) { printRoster(); return; }
+      if (t.id === "btnPrintRoster" || t.closest("#btnPrintRoster") || t.id === "btnPrintRosterTop" || t.closest("#btnPrintRosterTop")) { printRoster(); return; }
+      if (t.id === "btnPrintDiyAll" || t.closest("#btnPrintDiyAll")) { printAllDiy(); return; }
+      const rolo = t.closest("[data-rolo-letter]");
+      if (rolo) {
+        const letter = rolo.getAttribute("data-rolo-letter") || "";
+        const box = document.getElementById("rosterSearch");
+        if (box) {
+          box.value = letter ? ("^" + letter) : "";
+          if (!letter) { renderRoster(); return; }
+          box.value = letter;
+          renderRoster();
+        }
+        return;
+      }
       if (t.id === "btnWipeRoster" || t.closest("#btnWipeRoster")) { wipeActiveRoster(); return; }
       if (t.id === "btnLoadOfficialPower" || t.closest("#btnLoadOfficialPower")) { loadOfficialPowerList(); return; }
       const loadClass = t.closest("[data-load-class]");
