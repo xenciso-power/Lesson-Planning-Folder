@@ -816,6 +816,30 @@
       </div>
     </div>
   </div>
+  <div class="print-modal" id="rosterPrintModal">
+    <div class="print-sheet">
+      <h2>Print this roster?</h2>
+      <p class="lead">Nothing prints until you confirm. Uncheck columns you do not want on paper.</p>
+      <div class="print-cols">
+        <div>
+          <label class="check"><input type="checkbox" id="rpTeacher" checked> Teacher / class</label>
+          <label class="check"><input type="checkbox" id="rpGrade" checked> Grade</label>
+          <label class="check"><input type="checkbox" id="rpDiy" checked> DIY</label>
+          <label class="check"><input type="checkbox" id="rpSlip" checked> Permission slip</label>
+        </div>
+        <div>
+          <label class="check"><input type="checkbox" id="rpComp" checked> Computer # (class list)</label>
+          <label class="check"><input type="checkbox" id="rpBucks" checked> POWER Bucks</label>
+          <label class="check"><input type="checkbox" id="rpNotes" checked> Notes</label>
+          <label class="check"><input type="checkbox" id="rpCap" checked> Class bucks cap summary</label>
+        </div>
+      </div>
+      <div class="print-actions">
+        <button type="button" id="btnRosterPrintCancel">Cancel</button>
+        <button type="button" class="primary" id="btnRosterPrintConfirm">Confirm print</button>
+      </div>
+    </div>
+  </div>
   <div class="print-report" id="printReport"></div>
   <div class="toast" id="toast"></div>
 
@@ -2730,13 +2754,25 @@
       safeSave();
       showToast("Added " + added.length + " student" + (added.length === 1 ? "" : "s"));
     }
-    function buildRosterPrintHtml() {
-      const list = activeRosterList().slice();
-      list.sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); });
+    function rosterPrintOpts() {
+      function on(id) { const el = document.getElementById(id); return !el || el.checked; }
+      return {
+        teacher: on("rpTeacher"), grade: on("rpGrade"), diy: on("rpDiy"), slip: on("rpSlip"),
+        comp: on("rpComp"), bucks: on("rpBucks"), notes: on("rpNotes"), cap: on("rpCap")
+      };
+    }
+    function buildRosterPrintHtml(opts) {
+      opts = opts || rosterPrintOpts();
+      const list = filteredRosterRows(activeRosterList()).slice().sort(compareStudentsByLast);
       const diyYes = list.filter(function (s) { return s.diy === "Yes"; }).length;
       const bucks = list.reduce(function (a, s) { return a + (Number(s.bucks) || 0); }, 0);
       const listTitle = rosterView === "power" ? "POWER Program" : "My 8th Grade Class";
       const slipYes = list.filter(function (s) { return s.slip === "Yes"; }).length;
+      const showComp = rosterView === "class" && opts.comp !== false;
+      const showBucks = opts.bucks !== false;
+      const showCap = rosterView === "class" && opts.cap !== false;
+      const limit = classBucksLimit();
+      const used = classBucksUsed();
       let html = "<h1>Mr. Enciso’s Scholastic Batch – " + listTitle + "</h1>" +
         '<div class="meta"><strong>School:</strong> La Viña Middle School<br>' +
         "<strong>List:</strong> " + listTitle + "<br>" +
@@ -2744,42 +2780,69 @@
         "<br><strong>Printed:</strong> " + new Date().toLocaleString() +
         "<br><strong>Students:</strong> " + list.length +
         " · <strong>DIY enrolled:</strong> " + diyYes +
-        " · <strong>Slips in:</strong> " + slipYes + "</div>";
-      const showComp = rosterView === "class";
-      html += '<table class="print-roster-table"><thead><tr>' +
-        "<th>#</th><th>Name</th><th>Teacher</th><th>Grade</th><th>DIY</th><th>Permission slip</th>" +
-        (showComp ? "<th>Computer #</th>" : "") +
-        "<th>Notes</th></tr></thead><tbody>";
+        " · <strong>Slips in:</strong> " + slipYes;
+      if (showCap) {
+        html += "<br><strong>Class POWER Bucks cap:</strong> " + (limit == null ? "No cap" : limit) +
+          " · <strong>Used:</strong> " + used +
+          " · <strong>Remaining:</strong> " + (limit == null ? "—" : Math.max(0, limit - used));
+      } else if (showBucks && rosterView === "class") {
+        html += " · <strong>Class POWER Bucks used:</strong> " + used;
+      }
+      html += "</div>";
+      const cols = ["#", "Name"];
+      if (opts.teacher !== false) cols.push("Teacher / class");
+      if (opts.grade !== false) cols.push("Grade");
+      if (opts.diy !== false) cols.push("DIY");
+      if (opts.slip !== false) cols.push("Permission slip");
+      if (showComp) cols.push("Computer #");
+      if (showBucks) cols.push("POWER Bucks");
+      if (opts.notes !== false) cols.push("Notes");
+      html += '<table class="print-roster-table"><thead><tr>' + cols.map(function (c) { return "<th>" + c + "</th>"; }).join("") + "</tr></thead><tbody>";
       if (!list.length) {
-        html += '<tr><td colspan="' + (showComp ? 8 : 7) + '">No students on this roster.</td></tr>';
+        html += '<tr><td colspan="' + cols.length + '">No students on this roster.</td></tr>';
       } else {
         let n = 0;
-        groupStudentsByClass(list).forEach(function (g) {
-          html += '<tr><td colspan="' + (showComp ? 8 : 7) + '" style="background:#1F4E79;color:#fff;font-weight:700;">' + esc(g.teacher) + " · " + g.students.length + "</td></tr>";
+        const groups = rosterView === "power" ? groupStudentsByLastLetter(list) : groupStudentsByClass(list);
+        groups.forEach(function (g) {
+          html += '<tr><td colspan="' + cols.length + '" style="background:#1F4E79;color:#fff;font-weight:700;">' +
+            esc(g.letter || g.teacher) + " · " + g.students.length + "</td></tr>";
           g.students.forEach(function (s) {
             n += 1;
-            html += "<tr><td>" + n + "</td><td>" + esc(s.name || "—") + "</td><td>" + esc(s.teacher || "—") +
-              "</td><td>" + esc(s.grade || "8") + "</td><td>" + esc(s.diy || "No") +
-              "</td><td>" + esc(s.slip || "No") + "</td>" +
-              (showComp ? "<td>" + esc(s.computer || "—") + "</td>" : "") +
-              "<td>" + esc(s.notes || "") + "</td></tr>";
+            const p = parsePersonName(s.name);
+            let row = "<tr><td>" + n + "</td><td>" + esc(p.display || s.name || "—") + "</td>";
+            if (opts.teacher !== false) row += "<td>" + esc(s.teacher || "—") + "</td>";
+            if (opts.grade !== false) row += "<td>" + esc(s.grade || "—") + "</td>";
+            if (opts.diy !== false) row += "<td>" + esc(s.diy || "No") + "</td>";
+            if (opts.slip !== false) row += "<td>" + esc(s.slip || "No") + "</td>";
+            if (showComp) row += "<td>" + esc(s.computer || "—") + "</td>";
+            if (showBucks) row += "<td>" + (Number(s.bucks) || 0) + "</td>";
+            if (opts.notes !== false) row += "<td>" + esc(s.notes || "") + "</td>";
+            html += row + "</tr>";
           });
         });
       }
       html += "</tbody></table>";
-      html += '<div class="print-footer">POWER Program Roster · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>';
+      html += '<div class="print-footer">' + listTitle + " · La Viña Middle School · Mr. Enciso’s Scholastic Batch</div>";
       return html;
     }
     function printRoster() {
-      if (!sessionOpen) return;
+      if (!sessionOpen) { showToast("Open a Save File first", true); return; }
       if (rosterView === "sessions") { alert("Open a session and use Print session."); return; }
+      document.getElementById("rosterPrintModal").classList.add("open");
+    }
+    function closeRosterPrint() {
+      document.getElementById("rosterPrintModal").classList.remove("open");
+    }
+    function confirmRosterPrint() {
+      closeRosterPrint();
       const r = document.getElementById("printReport");
-      r.innerHTML = buildRosterPrintHtml();
+      r.innerHTML = buildRosterPrintHtml(rosterPrintOpts());
       r.style.display = "block";
       setTimeout(function () {
         window.print();
         setTimeout(function () { r.style.display = "none"; }, 2000);
       }, 400);
+    }
     }
     function classBucksUsed() {
       return (roster || []).reduce(function (a, s) { return a + (Number(s.bucks) || 0); }, 0);
@@ -4420,6 +4483,8 @@
       if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile") || t.id === "btnKeepProgress" || t.closest("#btnKeepProgress") || t.id === "btnKeepProgressMenu" || t.closest("#btnKeepProgressMenu")) { downloadBackupJson(); return; }
       if (t.id === "btnPdfReportMenu" || t.closest("#btnPdfReportMenu")) { downloadPdf(); return; }
       if (t.id === "btnPrintCancel" || t.closest("#btnPrintCancel")) { closePrintChooser(); return; }
+      if (t.id === "btnRosterPrintCancel" || t.closest("#btnRosterPrintCancel")) { closeRosterPrint(); return; }
+      if (t.id === "btnRosterPrintConfirm" || t.closest("#btnRosterPrintConfirm")) { confirmRosterPrint(); return; }
       if (t.id === "btnPrintConfirm" || t.closest("#btnPrintConfirm")) { confirmPrintNow(); return; }
       if (t.id === "btnPdfConfirm" || t.closest("#btnPdfConfirm")) { confirmPdfNow(); return; }
       if (t.id === "btnMoreHeader" || t.closest("#btnMoreHeader")) {
