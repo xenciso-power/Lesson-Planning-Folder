@@ -360,7 +360,7 @@
     <div class="title-welcome">Welcome, X</div>
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
-    <div class="title-footer">Open a Save File first. Templates apply to the entire current week.</div>
+    <div class="title-footer">Open a Save File first. Use Keep progress to download a .json you can put in Google Drive so a week is never only on this browser.</div>
   </div>
 
   <div id="main-app">
@@ -376,6 +376,7 @@
       </div>
       <div class="header-actions">
         <button type="button" id="btnSave" class="primary">💾 Save Now</button>
+        <button type="button" id="btnKeepProgress">⬇ Keep progress</button>
         <button type="button" id="btnArchive">📦 Archive Week</button>
         <button type="button" id="btnNewWeek">🆕 New Week</button>
         <button type="button" id="btnPrintReport">🖨 Print</button>
@@ -637,7 +638,7 @@
               <img class="mini-logo" src="assets/xe-logo.jpg" alt="XE" />
               <div>
                 <h2>Cloud Backup</h2>
-                <p class="sub">Last full snapshot on JSONBin. Refresh, preview, then load onto this device only if you want that copy.</p>
+                <p class="sub">Last snapshot on JSONBin. Export a .json first, then recycle or trash the bin so it has room again. Put the file in Google Drive → Scholastic Batch Backups.</p>
               </div>
             </div>
             <div class="toolbar-row" style="margin:0;justify-content:flex-end;">
@@ -645,6 +646,8 @@
               <button type="button" class="primary" id="btnSaveCloudBackup">Save to this cloud file</button>
               <button type="button" id="btnRefreshCloud">Refresh</button>
               <button type="button" class="small" id="btnDownloadBackupFile">Download .json</button>
+              <button type="button" class="small" id="btnRecycleCloud">Recycle cloud</button>
+              <button type="button" class="danger small" id="btnTrashCloud">Trash cloud waste</button>
             </div>
           </div>
           <div class="vault-grid" id="vaultGrid"></div>
@@ -694,6 +697,7 @@
     const UPLOAD_PRESET = "scholastic-batch";
     const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload";
     const LOCAL_KEY = "XE_SCHOLASTIC_SAVES_V3";
+    const MIRROR_KEY = "XE_SCHOLASTIC_PROGRESS_MIRROR_V1";
     const TEMPLATE_KEY = "XE_SCHOLASTIC_TEMPLATES_V1";
     const ROSTER_KEY = "XE_SCHOLASTIC_ROSTER_V1";
     const MAX_FILES = 6;
@@ -1028,14 +1032,16 @@
     function persistLocal() {
       try {
         if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
-        localStorage.setItem(LOCAL_KEY, JSON.stringify({
+        const pack = {
           activeSlot: null,
           slots: saveSystem.slots,
           templates: templates,
           backups: cloudBackups,
           backupHistory: backupHistory,
           savedAt: new Date().toISOString()
-        }));
+        };
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(pack));
+        try { localStorage.setItem(MIRROR_KEY, JSON.stringify(pack)); } catch (e) {}
         try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
         try { localStorage.setItem(ROSTER_KEY + "_" + (saveSystem.activeSlot||0), JSON.stringify(roster)); } catch (e) {}
         updateSaveMeta();
@@ -1049,7 +1055,8 @@
 
     function loadLocal() {
       try {
-        const raw = localStorage.getItem(LOCAL_KEY);
+        let raw = localStorage.getItem(LOCAL_KEY);
+        if (!raw) raw = localStorage.getItem(MIRROR_KEY);
         if (!raw) return false;
         const parsed = JSON.parse(raw);
         if (!parsed || !parsed.slots) return false;
@@ -3135,6 +3142,7 @@
         try {
           const parsed = JSON.parse(reader.result);
           pendingUploadSnap = parsed.snapshot || parsed;
+          pendingUploadSnap._allSlots = parsed.slots || null;
           const week = (pendingUploadSnap.currentWeek && pendingUploadSnap.currentWeek !== "default") ? pendingUploadSnap.currentWeek : "Unnamed week";
           const meta = document.getElementById("uploadFileMeta");
           if (meta) meta.textContent = file.name + " · " + Math.round((file.size || 0) / 1024) + " KB · " + week;
@@ -3150,6 +3158,11 @@
       const n = Number((document.getElementById("backupUploadSlot") || {}).value || 1);
       if (!confirm("This will replace everything on this device’s Save File " + n + " with the file copy. Local work not in the file will be lost.")) return;
       applySnapshotSafely(n, pendingUploadSnap);
+      if (pendingUploadSnap._allSlots) {
+        [1, 2, 3].forEach(function (i) {
+          if (pendingUploadSnap._allSlots[i]) saveSystem.slots[i] = normalizeSlot(pendingUploadSnap._allSlots[i]);
+        });
+      }
       if (sessionOpen && saveSystem.activeSlot === n) applySlotToWorking(n);
       persistLocal();
       pushCloud();
@@ -3167,15 +3180,62 @@
       persistLocal();
       pushCloud();
     }
+    async function recycleCloudBin() {
+      if (!confirm("Recycle the cloud bin?\n\n1) This device downloads a full .json first.\n2) JSONBin is rewritten as a slim copy (your 3 Save Files stay, old history snapshots are dropped).\n\nPut the downloaded file in Google Drive → Scholastic Batch Backups.")) return;
+      downloadBackupJson();
+      backupHistory = compactHistory(backupHistory, false);
+      persistLocal();
+      try {
+        const payload = cloudPayload(true);
+        payload.backupHistory = [];
+        const result = await putCloudRecord(payload);
+        if (!result.ok) throw new Error((result.body && (result.body.message || result.body.error)) || "recycle failed");
+        backupHistory = [];
+        persistLocal();
+        lastCloudOk = true;
+        setStatus("Cloud recycled");
+        renderPreviewPage();
+        showToast("Cloud recycled. Keep the .json in Drive.");
+      } catch (e) {
+        showToast("Recycle failed — the .json download is still your copy", true);
+      }
+    }
+    async function trashCloudWaste() {
+      if (!confirm("Trash cloud waste?\n\nThis deletes the JSONBin history list only (the extra copies that fill the 100 KB cap). Save Files 1–3 on this device are not wiped.\n\nDownload .json first if you have not.")) return;
+      downloadBackupJson();
+      backupHistory = [];
+      persistLocal();
+      try {
+        const payload = cloudPayload(true);
+        payload.backupHistory = [];
+        const result = await putCloudRecord(payload);
+        if (!result.ok) throw new Error("trash failed");
+        lastCloudOk = true;
+        setStatus("Cloud waste trashed");
+        renderPreviewPage();
+        showToast("History waste removed from the bin.");
+      } catch (e) {
+        showToast("Could not trash the bin. Your .json download is the backup.", true);
+      }
+    }
     function downloadBackupJson() {
-      if (!sessionOpen) { alert("Open a Save File first."); return; }
-      const snap = snapshotFullSaveFile();
-      const blob = new Blob([JSON.stringify({ snapshot: snap, savedAt: new Date().toISOString(), slot: saveSystem.activeSlot }, null, 2)], { type: "application/json" });
+      if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
+      const pack = {
+        snapshot: sessionOpen ? snapshotFullSaveFile() : (saveSystem.slots[1] || emptySlot()),
+        slots: saveSystem.slots,
+        templates: templates,
+        backupHistory: compactHistory(backupHistory, false),
+        savedAt: new Date().toISOString(),
+        slot: saveSystem.activeSlot || 1
+      };
+      const blob = new Blob([JSON.stringify(pack, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "scholastic-batch-file-" + saveSystem.activeSlot + ".json";
+      const week = ((document.getElementById("weekOf") || {}).value || currentWeek || "progress").replace(/[^\w\-]+/g, "_");
+      a.download = "scholastic-batch-" + week + "-file-" + (saveSystem.activeSlot || "all") + ".json";
       a.click();
       URL.revokeObjectURL(a.href);
+      try { localStorage.setItem("XE_LAST_PROGRESS_DOWNLOAD", new Date().toISOString()); } catch (e) {}
     }
     async function refreshCloudPreview() {
       const chip = document.getElementById("cloudChip");
@@ -3760,7 +3820,9 @@
       if (t.id === "btnUploadBackupFile" || t.closest("#btnUploadBackupFile")) { applyUploadedBackup(); return; }
       const vaultLoad = t.closest("[data-vault-load]");
       if (vaultLoad) { loadVaultSlotToDevice(vaultLoad.getAttribute("data-vault-load")); return; }
-      if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile")) { downloadBackupJson(); return; }
+      if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile") || t.id === "btnKeepProgress" || t.closest("#btnKeepProgress")) { downloadBackupJson(); return; }
+      if (t.id === "btnRecycleCloud" || t.closest("#btnRecycleCloud")) { recycleCloudBin(); return; }
+      if (t.id === "btnTrashCloud" || t.closest("#btnTrashCloud")) { trashCloudWaste(); return; }
       const saveUp = t.closest("[data-save-upload]");
       if (saveUp) { copyCurrentToCloudFile(saveUp.getAttribute("data-save-upload")); return; }
       const copyCloud = t.closest("[data-copy-cloud]");
