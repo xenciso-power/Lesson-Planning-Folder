@@ -615,19 +615,12 @@
               <button type="button" id="btnPrintRoster">🖨 Print</button>
               <button type="button" id="btnToggleTextBlock">Text block</button>
               <button type="button" class="small" id="btnCsvRoster">CSV</button>
-              <button type="button" class="small" id="btnLoadMyClass">Load my class</button>
               <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
               <button type="button" class="danger small" id="btnClearHits">Clear hits</button>
-              <button type="button" id="btnLoadOfficialPower">Seed missing official names</button>
+              
             </div>
             </div>
-            <div class="toolbar-row" id="powerClassLoadRow">
-              <span style="font-size:0.82rem;color:var(--text-muted);">Seed official names (merge by id):</span>
-              <button type="button" class="small" data-load-class="esparza">Fill Esparza</button>
-              <button type="button" class="small" data-load-class="avelar">Fill Avelar</button>
-              <button type="button" class="small" data-load-class="soto">Fill Soto</button>
-              <button type="button" class="small" data-load-class="enciso">Fill Enciso</button>
-            </div>
+            <div class="toolbar-row" id="powerClassLoadRow" style="display:none;"></div>
             <div id="powerClassStrip" class="rolo-letters" style="margin-bottom:0.75rem;"></div>
             <div class="toolbar-row" id="powerBulkBar" style="display:none;">
               <span style="font-size:0.82rem;color:var(--text-muted);">Checked students:</span>
@@ -1022,16 +1015,8 @@
         officialPowerStudent("Aiden Zapien", 8, enciso, false)
       ];
     }
-    function seedOfficialPowerIfEmpty() {
-      if (!Array.isArray(powerRoster) || powerRoster.length === 0) {
-        powerRoster = officialPowerRoster();
-      }
-    }
-    function seedOfficialClassIfEmpty() {
-      if (!Array.isArray(roster) || roster.length === 0) {
-        roster = officialClassRoster();
-      }
-    }
+    function seedOfficialPowerIfEmpty() {}
+    function seedOfficialClassIfEmpty() {}
     function loadOfficialClassList() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
       const n = officialClassRoster().length;
@@ -1699,9 +1684,7 @@
       if (people) people.style.display = rosterView === "sessions" ? "none" : "block";
       if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
       const classRow = document.getElementById("powerClassLoadRow");
-      if (classRow) classRow.style.display = rosterView === "power" ? "flex" : "none";
-      const loadMine = document.getElementById("btnLoadMyClass");
-      if (loadMine) loadMine.style.display = rosterView === "class" ? "inline-block" : "none";
+      if (classRow) classRow.style.display = "none";
       if (note) {
         note.textContent = rosterView === "power"
           ? "POWER Program — grouped by class / teacher. No computer numbers on this list."
@@ -2082,7 +2065,7 @@
           const mix = (c.grades || []).join("–") || "mixed";
           return '<span class="class-chip' + (powerClassFilter === c.key ? " on" : "") + '">' +
             '<button type="button" class="small" data-power-filter="' + esc(c.key) + '">' + esc(c.label) + " · " + n + " · " + mix + "</button>" +
-            (c.key !== "unassigned" ? ' - <button type="button" class="small" data-rename-class="' + esc(c.key) + '">Rename</button> - <button type="button" class="danger small" data-del-class="' + esc(c.key) + '">Delete</button>' : "") +
+            (c.key !== "unassigned" ? ' - <button type="button" class="small" data-rename-class="' + esc(c.key) + '">Edit</button> - <button type="button" class="danger small" data-del-class="' + esc(c.key) + '">Delete</button>' : "") +
             "</span>";
         }).join("") +
         '<button type="button" class="small primary" id="btnAddPowerClass">+ Class</button>';
@@ -2148,7 +2131,7 @@
         '<th>Notes</th>' +
         '<th style="width:70px"></th>';
       if (!list.length) {
-        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Use <strong>Load my class</strong> or <strong>Load all 86</strong>.</td></tr></tbody></table></div>';
+        wrap.innerHTML = '<div class="roster-table-wrap"><table class="roster-table"><thead><tr>' + headHtml + '</tr></thead><tbody><tr><td colspan="' + cols + '" style="padding:1.5rem;color:var(--text-muted);text-align:center;">No students on this list yet. Use + Student or Text block.</td></tr></tbody></table></div>';
         restoreRosterUi(snap);
         return;
       }
@@ -3172,8 +3155,7 @@
       (powerRoster || []).forEach(migratePowerStudent);
       sessions = deepClone(slot.sessions || []);
       diyProjects = deepClone(slot.diyProjects || []);
-      seedOfficialPowerIfEmpty();
-      seedOfficialClassIfEmpty();
+      
       document.getElementById("activeSlotLabel").textContent = "Save File " + n;
       document.getElementById("title-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
@@ -4091,7 +4073,7 @@
       // TEMPLATE APPLY / DELETE
       const rview = t.closest("[data-roster-view]");
       if (rview) { rosterView = rview.getAttribute("data-roster-view") || "class"; renderRoster(); return; }
-      if (t.id === "btnLoadMyClass" || t.closest("#btnLoadMyClass")) { loadOfficialClassList(); return; }
+      
       if (t.id === "btnToggleTextBlock" || t.closest("#btnToggleTextBlock")) { rosterTextOpen = !rosterTextOpen; renderRoster(); return; }
       if (t.id === "btnTextLoad" || t.closest("#btnTextLoad")) { loadTextBlockFromSection(); return; }
       if (t.id === "btnTextApply" || t.closest("#btnTextApply")) { applyRosterTextBlock("replace"); return; }
@@ -4126,9 +4108,15 @@
         const key = ren.getAttribute("data-rename-class");
         const cls = classByKey(key);
         if (!cls) return;
-        const label = prompt("Rename class:", cls.label);
-        if (!label) return;
-        cls.label = label.trim();
+        const label = prompt("Class label:", cls.label);
+        if (label === null) return;
+        const room = prompt("Room:", cls.room || "");
+        if (room === null) return;
+        const grades = prompt("Grades this teacher teaches (comma: 6,7,8):", (cls.grades || []).join(","));
+        if (grades === null) return;
+        cls.label = (label || cls.label).trim();
+        cls.room = (room || "").trim();
+        cls.grades = String(grades).split(/[,\s]+/).map(function (g) { return g.replace(/\D/g, ""); }).filter(function (g) { return g === "6" || g === "7" || g === "8"; });
         powerRoster.forEach(function (st) { if (st.classKey === key) st.teacher = cls.label; });
         renderRoster(); safeSave(); return;
       }
@@ -4190,7 +4178,7 @@
         return;
       }
       if (t.id === "btnWipeRoster" || t.closest("#btnWipeRoster")) { wipeActiveRoster(); return; }
-      if (t.id === "btnLoadOfficialPower" || t.closest("#btnLoadOfficialPower")) { loadOfficialPowerList(); return; }
+      
       const loadClass = t.closest("[data-load-class]");
       if (loadClass) { loadOfficialPowerClass(loadClass.getAttribute("data-load-class")); return; }
       if (t.id === "btnAddDiy" || t.closest("#btnAddDiy")) { addDiyProject(); return; }
