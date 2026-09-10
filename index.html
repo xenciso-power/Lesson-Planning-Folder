@@ -71,13 +71,13 @@
       .header-actions { width: 100%; margin-left: 0; }
       .action-group { border-left: none; padding-left: 0; }
     }
+    .hide-phone { display: flex; }
     @media (max-width: 430px) {
-      .header { position: sticky; top: 0; flex-wrap: nowrap; }
+      .header { position: sticky; top: 0; flex-wrap: wrap; }
       .logo-img { width: 36px; height: 36px; }
       .header-text h1 { font-size: 0.92rem; line-height: 1.2; }
       .header-text p { display: none; }
-      .action-group { display: none; }
-      .action-group.phone-core { display: flex; }
+      .hide-phone { display: none !important; }
       .more-menu { position: fixed; left: 0.7rem; right: 0.7rem; top: 3.6rem; }
       .week-bar { padding: 0.55rem 0.65rem; }
       .content { padding: 0.75rem; }
@@ -102,7 +102,10 @@
     .content { max-width: 1280px; }
     .page-title { font-size: 1.15rem; color: var(--gold-light); margin: 0 0 0.35rem; }
     .page-lead { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; }
-    .header-actions button { white-space: nowrap; }
+    .header-actions button { white-space: nowrap; height: 36px; }
+    @media (max-width: 430px) {
+      .header-actions button { height: 32px; }
+    }
     @media (max-width: 960px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 0.55rem; gap: 0.25rem; }
@@ -441,19 +444,21 @@
       </div>
       <div class="header-actions">
         <div class="action-group phone-core">
-          <button type="button" id="btnSave" class="primary">Save</button>
-          <button type="button" id="btnKeepProgress">Keep progress</button>
+          <button type="button" id="btnSave" class="primary" title="Save this week to the current Save File">Save</button>
         </div>
-        <div class="action-group">
-          <button type="button" id="btnArchive">Archive week</button>
-          <button type="button" id="btnPrintReport">Print…</button>
-          <button type="button" id="btnPdfReport" class="primary">PDF…</button>
+        <div class="action-group hide-phone">
+          <button type="button" id="btnKeepProgress" title="Download a JSON backup of all Save Files">Backup</button>
+          <button type="button" id="btnPdfReport" title="Download a PDF of this week">PDF</button>
         </div>
         <div class="action-group more-wrap phone-core">
-          <button type="button" id="btnMoreHeader">More ▾</button>
+          <button type="button" id="btnMoreHeader" title="More actions">More ▾</button>
           <div class="more-menu" id="moreHeaderMenu">
-            <button type="button" id="btnNewWeek">New week</button>
-            <button type="button" id="btnTitleScreen">Change Save File</button>
+            <button type="button" id="btnKeepProgressMenu" title="Download a JSON backup of all Save Files">Backup / Export JSON</button>
+            <button type="button" id="btnPrintReport" title="Print selected days and blocks">Print</button>
+            <button type="button" id="btnPdfReportMenu" title="Download a PDF of this week">PDF</button>
+            <button type="button" id="btnArchive" title="Archive this week in the current Save File">Archive this week</button>
+            <button type="button" id="btnNewWeek" title="Start a blank week">New week</button>
+            <button type="button" id="btnTitleScreen" title="Return to Save File 1 / 2 / 3">Switch save file</button>
           </div>
         </div>
       </div>
@@ -4077,7 +4082,8 @@
       if (t.id === "btnUploadBackupFile" || t.closest("#btnUploadBackupFile")) { applyUploadedBackup(); return; }
       const vaultLoad = t.closest("[data-vault-load]");
       if (vaultLoad) { loadVaultSlotToDevice(vaultLoad.getAttribute("data-vault-load")); return; }
-      if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile") || t.id === "btnKeepProgress" || t.closest("#btnKeepProgress")) { downloadBackupJson(); return; }
+      if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile") || t.id === "btnKeepProgress" || t.closest("#btnKeepProgress") || t.id === "btnKeepProgressMenu" || t.closest("#btnKeepProgressMenu")) { downloadBackupJson(); return; }
+      if (t.id === "btnPdfReportMenu" || t.closest("#btnPdfReportMenu")) { downloadPdf(); return; }
       if (t.id === "btnPrintCancel" || t.closest("#btnPrintCancel")) { closePrintChooser(); return; }
       if (t.id === "btnPrintConfirm" || t.closest("#btnPrintConfirm")) { confirmPrintNow(); return; }
       if (t.id === "btnPdfConfirm" || t.closest("#btnPdfConfirm")) { confirmPdfNow(); return; }
