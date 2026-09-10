@@ -430,6 +430,9 @@
     <div class="title-welcome">Welcome, X</div>
     <div class="title-sub">Mr. Enciso’s Scholastic Batch<br>Lesson Planning System</div>
     <div class="save-slots" id="saveSlots"></div>
+    <div class="toolbar-row" style="margin-top:1rem;justify-content:center;">
+      <button type="button" class="primary" id="btnLoadLatestCloud">Load latest from cloud</button>
+    </div>
     <div class="title-footer">Open a Save File first. Use Keep progress to download a .json you can put in Google Drive so a week is never only on this browser.</div>
   </div>
 
@@ -739,8 +742,9 @@
             </div>
             <div class="toolbar-row" style="margin:0;justify-content:flex-end;">
               <span class="status-chip" id="cloudChip"><span class="pulse"></span><span id="cloudChipText">Ready</span></span>
-              <button type="button" class="primary" id="btnSaveCloudBackup">Save to this cloud file</button>
-              <button type="button" id="btnRefreshCloud">Refresh</button>
+              <button type="button" class="primary" id="btnSaveCloudBackup">Save to cloud</button>
+              <button type="button" id="btnLoadLatestCloudPage">Load latest from cloud</button>
+              <button type="button" id="btnRefreshCloud">Preview only</button>
               <button type="button" class="small" id="btnDownloadBackupFile">Download .json</button>
               <button type="button" class="small" id="btnRecycleCloud">Recycle cloud</button>
               <button type="button" class="danger small" id="btnTrashCloud">Trash cloud waste</button>
@@ -817,8 +821,27 @@
 
   <script>
   (function () {
-    const BIN_ID = "6a6cfe28f5f4af5e29db8208";
     const MASTER_KEY = "$2a$10$WBSnNuD2.dM/HMAYYv8O5uTZJ3tsGepBqLwNvJg4rWRCzyA.O9bO2";
+    const BIN_POOL = {
+      1: "6aa28291ac6210605abc1a75",
+      2: "6aa28291ffd5d16053f5b724",
+      3: "6aa28291ac6210605abc1a76",
+      history: "6aa28292ffd5d16053f5b725"
+    };
+    const LEGACY_BINS = ["6a6cfe28f5f4af5e29db8208", "6aa28248ac6210605abc199d"];
+    const BIN_FLEET = [
+      "6aa282feac6210605abc1bf9","6aa282feac6210605abc1bfa","6aa282ffffd5d16053f5b8ab","6aa282ffac6210605abc1bfb",
+      "6aa28300ac6210605abc1bfc","6aa28300ac6210605abc1bfd","6aa28301ffd5d16053f5b8b7","6aa28301ffd5d16053f5b8b8",
+      "6aa28302ffd5d16053f5b8b9","6aa28302ffd5d16053f5b8ba","6aa28303ffd5d16053f5b8bb","6aa28303ac6210605abc1c17",
+      "6aa28304ffd5d16053f5b8bc","6aa28304ffd5d16053f5b8bd","6aa28305ffd5d16053f5b8be","6aa28305ffd5d16053f5b8bf",
+      "6aa28306ac6210605abc1c18","6aa28306ffd5d16053f5b8d4","6aa28307ffd5d16053f5b8d5","6aa28307ac6210605abc1c2c"
+    ];
+    function fleetIndex(key) {
+      let h = 0;
+      String(key || "").split("").forEach(function (ch) { h = ((h << 5) - h) + ch.charCodeAt(0); h |= 0; });
+      return Math.abs(h) % BIN_FLEET.length;
+    }
+    const BIN_ID = BIN_POOL[1];
     const API_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
     const CLOUD_NAME = "udjs1xr5";
     const UPLOAD_PRESET = "scholastic-batch";
@@ -1347,12 +1370,11 @@
       };
     }
     function scheduleCloudPush() {
-      setStatus("Syncing…");
-      clearTimeout(pushTimer);
-      pushTimer = setTimeout(function () { pushCloud(); }, 800);
+      persistLocal();
     }
-    async function putCloudRecord(payload) {
-      const res = await fetch(API_URL, {
+    function binUrl(id) { return "https://api.jsonbin.io/v3/b/" + id; }
+    async function putCloudRecord(payload, binId) {
+      const res = await fetch(binUrl(binId || BIN_ID), {
         method: "PUT",
         headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
         body: JSON.stringify(payload)
@@ -1361,24 +1383,47 @@
       try { body = await res.json(); } catch (e) { body = {}; }
       return { ok: res.ok, status: res.status, body: body };
     }
+    async function getCloudRecord(binId) {
+      const res = await fetch(binUrl(binId) + "/latest", { headers: { "X-Master-Key": MASTER_KEY } });
+      if (!res.ok) throw new Error("bin " + binId);
+      const json = await res.json();
+      return json.record || json;
+    }
     async function pushCloud() {
       if (cloudBusy) { cloudAgain = true; return; }
       cloudBusy = true;
       persistLocal();
       try {
         setStatus("Syncing…");
-        let payload = cloudPayload(false);
-        let result = await putCloudRecord(payload);
-        const sizeErr = !result.ok && /100kb|size|exceed|too large|free users cannot/i.test(JSON.stringify(result.body || {}));
-        if (!result.ok && (result.status === 400 || result.status === 413 || sizeErr)) {
-          payload = cloudPayload(true);
-          result = await putCloudRecord(payload);
+        if (sessionOpen && saveSystem.activeSlot) writeWorkingIntoSlot();
+        const compact = false;
+        const results = [];
+        for (let n = 1; n <= 3; n++) {
+          const piece = { kind: "slot", slot: n, slotData: compactSlot(saveSystem.slots[n]), templates: templates, savedAt: new Date().toISOString() };
+          let result = await putCloudRecord(piece, BIN_POOL[n]);
+          if (!result.ok) {
+            piece.slotData = compactSlot(saveSystem.slots[n]);
+            result = await putCloudRecord(piece, BIN_POOL[n]);
+          }
+          results.push(result);
+          if (!result.ok) throw new Error((result.body && (result.body.message || result.body.error)) || ("slot " + n));
         }
-        if (!result.ok) {
-          const msg = (result.body && (result.body.message || result.body.error)) || ("HTTP " + result.status);
-          throw new Error(msg);
+        const hist = { kind: "history", backupHistory: compactHistory(backupHistory, false), savedAt: new Date().toISOString() };
+        const histRes = await putCloudRecord(hist, BIN_POOL.history);
+        if (!histRes.ok) throw new Error((histRes.body && histRes.body.message) || "history");
+        const packs = BIN_FLEET.map(function () { return { kind: "fleet-archive", archives: { 1: {}, 2: {}, 3: {} } }; });
+        [1, 2, 3].forEach(function (n) {
+          const arch = (saveSystem.slots[n] && saveSystem.slots[n].archive) || {};
+          Object.keys(arch).forEach(function (week) {
+            const i = fleetIndex(n + ":" + week);
+            packs[i].archives[n][week] = arch[week];
+          });
+        });
+        for (let i = 0; i < BIN_FLEET.length; i++) {
+          const r = await putCloudRecord(packs[i], BIN_FLEET[i]);
+          if (!r.ok) throw new Error("fleet " + i);
         }
-        lastCloudRecord = deepClone(payload);
+        lastCloudRecord = cloudPayload(true);
         lastCloudOk = true;
         setStatus("Cloud synced " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
       } catch (e) {
@@ -1510,17 +1555,53 @@
     async function pullCloud(forceApply) {
       try {
         setStatus("Syncing…");
-        const res = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": MASTER_KEY } });
-        if (!res.ok) throw new Error("fail");
-        const json = await res.json();
-        const record = json.record || json;
+        const record = { slots: {}, templates: templates, backupHistory: [] };
+        for (let n = 1; n <= 3; n++) {
+          try {
+            const piece = await getCloudRecord(BIN_POOL[n]);
+            if (piece && piece.slotData) record.slots[n] = piece.slotData;
+            else if (piece && piece.slots && piece.slots[n]) record.slots[n] = piece.slots[n];
+            if (piece && piece.templates) record.templates = mergeTemplatesUnion(record.templates, piece.templates);
+          } catch (e) {}
+        }
+        try {
+          const hist = await getCloudRecord(BIN_POOL.history);
+          if (hist && Array.isArray(hist.backupHistory)) record.backupHistory = hist.backupHistory;
+          else if (hist && Array.isArray(hist.payload)) record.backupHistory = hist.payload;
+        } catch (e) {}
+        for (let i = 0; i < BIN_FLEET.length; i++) {
+          try {
+            const pack = await getCloudRecord(BIN_FLEET[i]);
+            const archs = pack && pack.archives;
+            if (!archs) continue;
+            [1, 2, 3].forEach(function (n) {
+              if (!archs[n]) return;
+              if (!record.slots[n]) record.slots[n] = emptySlot();
+              if (!record.slots[n].archive) record.slots[n].archive = {};
+              Object.keys(archs[n]).forEach(function (week) {
+                record.slots[n].archive[week] = archs[n][week];
+              });
+            });
+          } catch (e) {}
+        }
+        for (let i = 0; i < LEGACY_BINS.length; i++) {
+          try {
+            const old = await getCloudRecord(LEGACY_BINS[i]);
+            if (forceApply && old && old.slots) mergeCloudRecord(old);
+            if (old && Array.isArray(old.backupHistory)) {
+              record.backupHistory = mergeBackupHistory(record.backupHistory, old.backupHistory);
+            }
+          } catch (e) {}
+        }
         lastCloudRecord = deepClone(record);
-        mergeCloudRecord(record);
         lastCloudOk = true;
-        try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, backupHistory: backupHistory, savedAt: new Date().toISOString() })); } catch (e) {}
-        try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
-        renderTitleSlots();
-        renderHistory();
+        if (forceApply) {
+          mergeCloudRecord(record);
+          try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ activeSlot: null, slots: saveSystem.slots, templates: templates, backupHistory: backupHistory, savedAt: new Date().toISOString() })); } catch (e) {}
+          try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates)); } catch (e) {}
+          renderTitleSlots();
+          renderHistory();
+        }
         if (document.getElementById("page-preview") && document.getElementById("page-preview").classList.contains("active")) renderPreviewPage();
         if (sessionOpen && saveSystem.activeSlot) {
           const keepWeek = currentWeek;
@@ -1541,8 +1622,12 @@
         return false;
       }
     }
-    async function maybePullCloud() {
-      await pullCloud(true);
+    async function maybePullCloud() {}
+    async function loadLatestFromCloud() {
+      if (!confirm("Load the most recent cloud snapshot onto this device?\n\nLocal work that was never saved to the cloud can be replaced.")) return;
+      const ok = await pullCloud(true);
+      if (ok) showToast("Loaded latest cloud save");
+      else showToast("Could not reach the cloud", true);
     }
 
     function hasContent(slot) {
@@ -3546,16 +3631,11 @@
       backupHistory = compactHistory(backupHistory, false);
       persistLocal();
       try {
-        const payload = cloudPayload(true);
-        payload.backupHistory = [];
-        const result = await putCloudRecord(payload);
-        if (!result.ok) throw new Error((result.body && (result.body.message || result.body.error)) || "recycle failed");
         backupHistory = [];
         persistLocal();
-        lastCloudOk = true;
-        setStatus("Cloud recycled");
+        await pushCloud();
         renderPreviewPage();
-        showToast("Cloud recycled. Keep the .json in Drive.");
+        showToast("Cloud recycled across the bin pool. Keep the .json in Drive.");
       } catch (e) {
         showToast("Recycle failed — the .json download is still your copy", true);
       }
@@ -3566,14 +3646,9 @@
       backupHistory = [];
       persistLocal();
       try {
-        const payload = cloudPayload(true);
-        payload.backupHistory = [];
-        const result = await putCloudRecord(payload);
-        if (!result.ok) throw new Error("trash failed");
-        lastCloudOk = true;
-        setStatus("Cloud waste trashed");
+        await pushCloud();
         renderPreviewPage();
-        showToast("History waste removed from the bin.");
+        showToast("History waste removed from the history bin.");
       } catch (e) {
         showToast("Could not trash the bin. Your .json download is the backup.", true);
       }
@@ -4295,6 +4370,7 @@
       const psrc = t.closest("[data-preview-src]");
       if (psrc) { previewSource = Number(psrc.getAttribute("data-preview-src")); renderPreviewPage(); return; }
       if (t.id === "btnTransferPreview" || t.closest("#btnTransferPreview")) { transferPreviewToCurrent(); return; }
+      if (t.id === "btnLoadLatestCloud" || t.closest("#btnLoadLatestCloud") || t.id === "btnLoadLatestCloudPage" || t.closest("#btnLoadLatestCloudPage")) { loadLatestFromCloud(); return; }
       if (t.id === "btnRefreshCloud" || t.closest("#btnRefreshCloud")) { refreshCloudPreview(); return; }
       if (t.id === "btnSaveCloudBackup" || t.closest("#btnSaveCloudBackup")) { saveCloudBackup(); return; }
       if (t.id === "btnUploadBackupFile" || t.closest("#btnUploadBackupFile")) { applyUploadedBackup(); return; }
@@ -4490,11 +4566,9 @@
     });
     setInterval(() => { if (sessionOpen && saveSystem.activeSlot) safeSave(); }, 15000);
     document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "visible") pullCloud(false);
+      if (document.visibilityState === "hidden" && sessionOpen) persistLocal();
     });
-    window.addEventListener("online", function () {
-      pullCloud(false).then(function () { scheduleCloudPush(); });
-    });
+    window.addEventListener("online", function () {});
     window.addEventListener("beforeunload", () => {
       if (sessionOpen && saveSystem.activeSlot) { collectFromDOM(); persistLocal(); }
     });
@@ -4506,7 +4580,7 @@
     document.getElementById("title-screen").style.display = "flex";
     document.getElementById("main-app").style.display = "none";
     renderTitleSlots();
-    setTimeout(maybePullCloud, 1200);
+    
   })();
   </script>
 </body>
