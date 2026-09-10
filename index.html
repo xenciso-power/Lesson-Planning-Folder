@@ -346,6 +346,8 @@
     .rolo-letters { display:flex; flex-wrap:wrap; gap:0.28rem; margin:0.4rem 0 0.75rem; }
     .rolo-letters button { min-width:32px; padding:0.25rem 0.4rem; }
     .rolo-letters button.on { background:var(--navy); border-color:var(--gold); color:var(--gold-light); }
+    .class-chip { display:inline-flex; align-items:center; gap:0.2rem; flex-wrap:wrap; border:1px solid var(--border); border-radius:8px; padding:0.15rem 0.35rem; background:var(--surface); color:var(--text-muted); font-size:0.8rem; }
+    .class-chip.on { border-color:var(--gold); }
     .rolo-letters button.muted, .rolo-letters button:disabled { opacity:0.35; }
     .dir-name { font-weight:700; color:var(--gold-light); font-size:0.82rem; margin-bottom:0.2rem; }
     .class-group.collapsed .roster-table-wrap { display:none; }
@@ -2078,8 +2080,10 @@
         powerClasses.map(function (c) {
           const n = powerRoster.filter(function (st) { return (st.classKey || "") === c.key; }).length;
           const mix = (c.grades || []).join("–") || "mixed";
-          return '<button type="button" class="small' + (powerClassFilter === c.key ? " on" : "") + '" data-power-filter="' + esc(c.key) + '">' + esc(c.label) + " · " + n + " · " + mix + "</button>" +
-            (c.key !== "unassigned" ? '<button type="button" class="small" data-rename-class="' + esc(c.key) + '">Rename</button><button type="button" class="danger small" data-del-class="' + esc(c.key) + '">Delete</button>' : "");
+          return '<span class="class-chip' + (powerClassFilter === c.key ? " on" : "") + '">' +
+            '<button type="button" class="small" data-power-filter="' + esc(c.key) + '">' + esc(c.label) + " · " + n + " · " + mix + "</button>" +
+            (c.key !== "unassigned" ? ' - <button type="button" class="small" data-rename-class="' + esc(c.key) + '">Rename</button> - <button type="button" class="danger small" data-del-class="' + esc(c.key) + '">Delete</button>' : "") +
+            "</span>";
         }).join("") +
         '<button type="button" class="small primary" id="btnAddPowerClass">+ Class</button>';
     }
