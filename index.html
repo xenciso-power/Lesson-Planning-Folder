@@ -41,7 +41,22 @@
     .logo-img { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); background: #000; }
     .header-text h1 { font-size: 1.2rem; font-weight: 700; color: white; }
     .header-text p { font-size: 0.78rem; color: var(--gold-light); }
-    .header-actions { margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .header-actions { margin-left: auto; display: flex; gap: 0.45rem; flex-wrap: nowrap; align-items: center; position: relative; }
+    .action-group { display: flex; gap: 0.4rem; align-items: center; padding-left: 0.55rem; border-left: 1px solid rgba(212,175,55,0.28); }
+    .action-group:first-child { border-left: none; padding-left: 0; }
+    .more-wrap { position: relative; }
+    .more-menu {
+      display: none; position: absolute; right: 0; top: calc(100% + 8px); min-width: 200px;
+      background: #1E293B; border: 1px solid var(--gold); border-radius: 10px; padding: 0.45rem;
+      box-shadow: var(--shadow); z-index: 150;
+    }
+    .more-menu.open { display: flex; flex-direction: column; gap: 0.35rem; }
+    .more-menu button { width: 100%; text-align: left; }
+    @media (max-width: 900px) {
+      .header { align-items: flex-start; }
+      .header-actions { width: 100%; margin-left: 0; flex-wrap: wrap; }
+      .action-group { border-left: none; padding-left: 0; }
+    }
     button {
       background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px;
       padding: 0.45rem 0.9rem; font-size: 0.85rem; cursor: pointer; font-weight: 500;
@@ -394,13 +409,22 @@
         </p>
       </div>
       <div class="header-actions">
-        <button type="button" id="btnSave" class="primary">💾 Save Now</button>
-        <button type="button" id="btnKeepProgress">⬇ Keep progress</button>
-        <button type="button" id="btnArchive">📦 Archive Week</button>
-        <button type="button" id="btnNewWeek">🆕 New Week</button>
-        <button type="button" id="btnPrintReport">🖨 Print</button>
-        <button type="button" id="btnPdfReport" class="primary">⬇ PDF</button>
-        <button type="button" id="btnTitleScreen">🎮 Change Save File</button>
+        <div class="action-group">
+          <button type="button" id="btnSave" class="primary">Save</button>
+          <button type="button" id="btnKeepProgress">Keep progress</button>
+        </div>
+        <div class="action-group">
+          <button type="button" id="btnArchive">Archive week</button>
+          <button type="button" id="btnPdfReport" class="primary">PDF</button>
+        </div>
+        <div class="action-group more-wrap">
+          <button type="button" id="btnMoreHeader">More ▾</button>
+          <div class="more-menu" id="moreHeaderMenu">
+            <button type="button" id="btnNewWeek">New week</button>
+            <button type="button" id="btnPrintReport">Print</button>
+            <button type="button" id="btnTitleScreen">Change Save File</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -3844,6 +3868,12 @@
       const vaultLoad = t.closest("[data-vault-load]");
       if (vaultLoad) { loadVaultSlotToDevice(vaultLoad.getAttribute("data-vault-load")); return; }
       if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile") || t.id === "btnKeepProgress" || t.closest("#btnKeepProgress")) { downloadBackupJson(); return; }
+      if (t.id === "btnMoreHeader" || t.closest("#btnMoreHeader")) {
+        document.getElementById("moreHeaderMenu").classList.toggle("open");
+        return;
+      }
+      const menu = document.getElementById("moreHeaderMenu");
+      if (menu && !t.closest(".more-wrap")) menu.classList.remove("open");
       if (t.id === "btnRecycleCloud" || t.closest("#btnRecycleCloud")) { recycleCloudBin(); return; }
       if (t.id === "btnTrashCloud" || t.closest("#btnTrashCloud")) { trashCloudWaste(); return; }
       const saveUp = t.closest("[data-save-upload]");
