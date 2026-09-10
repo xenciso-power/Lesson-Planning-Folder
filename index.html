@@ -52,6 +52,20 @@
     }
     .more-menu.open { display: flex; flex-direction: column; gap: 0.35rem; }
     .more-menu button { width: 100%; text-align: left; }
+    .print-modal {
+      display: none; position: fixed; inset: 0; z-index: 300; background: rgba(2,6,23,0.72);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .print-modal.open { display: flex; }
+    .print-sheet {
+      width: min(560px, 100%); background: #1E293B; border: 1px solid var(--gold); border-radius: 12px;
+      padding: 1.15rem 1.2rem; box-shadow: var(--shadow); max-height: 90vh; overflow: auto;
+    }
+    .print-sheet h2 { color: var(--gold-light); margin-bottom: 0.35rem; font-size: 1.15rem; }
+    .print-sheet .lead { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.9rem; }
+    .print-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.9rem; }
+    .print-sheet label.check { display: flex; gap: 0.45rem; align-items: center; font-size: 0.88rem; margin: 0.28rem 0; }
+    .print-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: flex-end; margin-top: 0.9rem; }
     @media (max-width: 900px) {
       .header { align-items: flex-start; }
       .header-actions { width: 100%; margin-left: 0; flex-wrap: wrap; }
@@ -415,13 +429,13 @@
         </div>
         <div class="action-group">
           <button type="button" id="btnArchive">Archive week</button>
-          <button type="button" id="btnPdfReport" class="primary">PDF</button>
+          <button type="button" id="btnPrintReport">Print…</button>
+          <button type="button" id="btnPdfReport" class="primary">PDF…</button>
         </div>
         <div class="action-group more-wrap">
           <button type="button" id="btnMoreHeader">More ▾</button>
           <div class="more-menu" id="moreHeaderMenu">
             <button type="button" id="btnNewWeek">New week</button>
-            <button type="button" id="btnPrintReport">Print</button>
             <button type="button" id="btnTitleScreen">Change Save File</button>
           </div>
         </div>
@@ -732,6 +746,37 @@
     </div>
   </div>
 
+  <div class="print-modal" id="printModal">
+    <div class="print-sheet">
+      <h2>Print this week?</h2>
+      <p class="lead">Nothing prints until you confirm. Uncheck anything you do not want on paper or in the PDF.</p>
+      <div class="print-cols">
+        <div>
+          <strong style="color:var(--gold-light);font-size:0.78rem;">Days</strong>
+          <label class="check"><input type="checkbox" data-pd="Monday" checked> Monday</label>
+          <label class="check"><input type="checkbox" data-pd="Tuesday" checked> Tuesday</label>
+          <label class="check"><input type="checkbox" data-pd="Wednesday" checked> Wednesday</label>
+          <label class="check"><input type="checkbox" data-pd="Thursday" checked> Thursday</label>
+          <label class="check"><input type="checkbox" data-pd="Friday" checked> Friday</label>
+        </div>
+        <div>
+          <strong style="color:var(--gold-light);font-size:0.78rem;">Blocks</strong>
+          <label class="check"><input type="checkbox" data-pb="sel" checked> SEL / Check-in</label>
+          <label class="check"><input type="checkbox" data-pb="intervention" checked> Intervention</label>
+          <label class="check"><input type="checkbox" data-pb="enrichment" checked> Enrichment</label>
+          <label class="check"><input type="checkbox" data-pb="spark" checked> SPARK</label>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="poCan" checked> C.A.N. Standards Focus</label>
+      <label class="check"><input type="checkbox" id="poNotes" checked> Week notes</label>
+      <label class="check"><input type="checkbox" id="poFiles" checked> Worksheets / attachments</label>
+      <div class="print-actions">
+        <button type="button" id="btnPrintCancel">Cancel</button>
+        <button type="button" class="primary" id="btnPrintConfirm">Confirm print</button>
+        <button type="button" class="primary" id="btnPdfConfirm">Confirm PDF</button>
+      </div>
+    </div>
+  </div>
   <div class="print-report" id="printReport"></div>
   <div class="toast" id="toast"></div>
 
@@ -3687,24 +3732,54 @@
       }));
     }
 
-    function buildPrintHtml() {
+    function readPrintOptions() {
+      const days = DAYS.filter(function (d) {
+        const el = document.querySelector('[data-pd="' + d + '"]');
+        return el ? el.checked : true;
+      });
+      const blocks = Object.keys(BLOCKS).filter(function (k) {
+        const el = document.querySelector('[data-pb="' + k + '"]');
+        return el ? el.checked : true;
+      });
+      return {
+        days: days,
+        blocks: blocks,
+        can: !!(document.getElementById("poCan") && document.getElementById("poCan").checked),
+        notes: !!(document.getElementById("poNotes") && document.getElementById("poNotes").checked),
+        files: !!(document.getElementById("poFiles") && document.getElementById("poFiles").checked)
+      };
+    }
+    function openPrintChooser() {
+      if (!sessionOpen) { showToast("Open a Save File first", true); return; }
+      document.getElementById("printModal").classList.add("open");
+    }
+    function closePrintChooser() {
+      document.getElementById("printModal").classList.remove("open");
+    }
+    function buildPrintHtml(opts) {
       collectFromDOM();
+      opts = opts || readPrintOptions();
       const week = document.getElementById("weekOf").value.trim() || currentWeek || "Current Week";
+      const dayList = (opts.days && opts.days.length) ? opts.days : DAYS;
+      const blockList = (opts.blocks && opts.blocks.length) ? opts.blocks : Object.keys(BLOCKS);
       let html = "<h1>Mr. Enciso’s Scholastic Batch – Weekly Lesson Plan</h1>" +
         '<div class="meta"><strong>Week of:</strong> ' + esc(week) + "<br><strong>Save File:</strong> " + saveSystem.activeSlot +
-        "<br><strong>School:</strong> La Viña Middle School · 8th Grade<br><strong>Generated:</strong> " + new Date().toLocaleString() + "</div>" +
-        '<div class="can-focus"><strong>C.A.N. Standards Focus:</strong><br>' + esc(data.canFocus||"—").replace(/\n/g,"<br>") + "</div>";
-      if ((data.weekNotes || "").trim()) {
+        "<br><strong>School:</strong> La Viña Middle School · 8th Grade<br><strong>Generated:</strong> " + new Date().toLocaleString() + "</div>";
+      if (opts.can !== false) {
+        html += '<div class="can-focus"><strong>C.A.N. Standards Focus:</strong><br>' + esc(data.canFocus||"—").replace(/\n/g,"<br>") + "</div>";
+      }
+      if (opts.notes !== false && (data.weekNotes || "").trim()) {
         html += '<div class="week-notes"><strong>Week Notes / Reminders:</strong><br>' + esc(data.weekNotes).replace(/\n/g,"<br>") + "</div>";
       }
-      DAYS.forEach(day => {
+      dayList.forEach(function (day) {
         let no = true;
-        Object.keys(BLOCKS).forEach(k => { if (!(data.blocks[k]?.[day]?.noSchool)) no = false; });
+        blockList.forEach(function (k) { if (!(data.blocks[k]?.[day]?.noSchool)) no = false; });
         html += '<div class="print-day"><div class="print-day-header' + (no?" no-school":"") + '">' + day + (no?" — NO SCHOOL":"") + "</div>";
         if (no) {
           html += '<div class="print-no-school-note">There was no session this day due to a holiday or event.</div>';
         } else {
-          Object.entries(BLOCKS).forEach(([k,info]) => {
+          blockList.forEach(function (k) {
+            const info = BLOCKS[k];
             const e = migrateDay(data.blocks[k]?.[day] || emptyDay());
             if (e.noSchool) {
               html += '<div class="print-block"><div class="print-block-title">' + info.name + '</div><div class="print-block-time">' + info.time +
@@ -3715,7 +3790,7 @@
                 '<div class="print-field"><strong>Objective:</strong> ' + (esc(e.objective)||"—") + "</div>" +
                 '<div class="print-field"><strong>Activities:</strong> ' + (esc(e.activities).replace(/\n/g,"<br>")||"—") + "</div>" +
                 '<div class="print-field"><strong>Notes:</strong> ' + (esc(e.notes).replace(/\n/g,"<br>")||"—") + "</div>" +
-                printAttachmentHtml(e) + "</div>";
+                (opts.files === false ? "" : printAttachmentHtml(e)) + "</div>";
             }
           });
         }
@@ -3726,9 +3801,15 @@
     }
 
     async function generatePrintReport() {
-      if (!sessionOpen) return;
+      openPrintChooser();
+    }
+
+    async function confirmPrintNow() {
+      const opts = readPrintOptions();
+      if (!opts.days.length || !opts.blocks.length) { showToast("Pick at least one day and one block", true); return; }
+      closePrintChooser();
       const r = document.getElementById("printReport");
-      r.innerHTML = buildPrintHtml();
+      r.innerHTML = buildPrintHtml(opts);
       r.style.display = "block";
       await waitForPrintImages(r);
       window.print();
@@ -3736,10 +3817,16 @@
     }
 
     async function downloadPdf() {
-      if (!sessionOpen) return;
+      openPrintChooser();
+    }
+
+    async function confirmPdfNow() {
       if (typeof html2pdf === "undefined") { showToast("PDF library not loaded — use Print", true); return; }
+      const opts = readPrintOptions();
+      if (!opts.days.length || !opts.blocks.length) { showToast("Pick at least one day and one block", true); return; }
+      closePrintChooser();
       const r = document.getElementById("printReport");
-      r.innerHTML = buildPrintHtml();
+      r.innerHTML = buildPrintHtml(opts);
       r.style.display = "block";
       await waitForPrintImages(r);
       const week = (document.getElementById("weekOf").value.trim() || currentWeek || "week").replace(/[^\w\-]+/g, "_");
@@ -3868,6 +3955,9 @@
       const vaultLoad = t.closest("[data-vault-load]");
       if (vaultLoad) { loadVaultSlotToDevice(vaultLoad.getAttribute("data-vault-load")); return; }
       if (t.id === "btnDownloadBackupFile" || t.closest("#btnDownloadBackupFile") || t.id === "btnKeepProgress" || t.closest("#btnKeepProgress")) { downloadBackupJson(); return; }
+      if (t.id === "btnPrintCancel" || t.closest("#btnPrintCancel")) { closePrintChooser(); return; }
+      if (t.id === "btnPrintConfirm" || t.closest("#btnPrintConfirm")) { confirmPrintNow(); return; }
+      if (t.id === "btnPdfConfirm" || t.closest("#btnPdfConfirm")) { confirmPdfNow(); return; }
       if (t.id === "btnMoreHeader" || t.closest("#btnMoreHeader")) {
         document.getElementById("moreHeaderMenu").classList.toggle("open");
         return;
