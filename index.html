@@ -616,15 +616,25 @@
               <button type="button" class="small" id="btnLoadMyClass">Load my class</button>
               <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
               <button type="button" class="danger small" id="btnClearHits">Clear hits</button>
-              <button type="button" id="btnLoadOfficialPower">Load all 86</button>
+              <button type="button" id="btnLoadOfficialPower">Seed missing official names</button>
             </div>
             </div>
             <div class="toolbar-row" id="powerClassLoadRow">
-              <span style="font-size:0.82rem;color:var(--text-muted);">Load one POWER class:</span>
-              <button type="button" class="small" data-load-class="esparza">Ms. Esparza / Rm. 8</button>
-              <button type="button" class="small" data-load-class="avelar">Miss Avelar / Rm. 30</button>
-              <button type="button" class="small" data-load-class="soto">Miss Soto / Rm. 4</button>
-              <button type="button" class="small" data-load-class="enciso">Mr. Enciso / Rm. 1</button>
+              <span style="font-size:0.82rem;color:var(--text-muted);">Seed official names (merge by id):</span>
+              <button type="button" class="small" data-load-class="esparza">Fill Esparza</button>
+              <button type="button" class="small" data-load-class="avelar">Fill Avelar</button>
+              <button type="button" class="small" data-load-class="soto">Fill Soto</button>
+              <button type="button" class="small" data-load-class="enciso">Fill Enciso</button>
+            </div>
+            <div id="powerClassStrip" class="rolo-letters" style="margin-bottom:0.75rem;"></div>
+            <div class="toolbar-row" id="powerBulkBar" style="display:none;">
+              <span style="font-size:0.82rem;color:var(--text-muted);">Checked students:</span>
+              <select id="bulkClassKey" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;"></select>
+              <button type="button" class="small" id="btnBulkClass">Set class</button>
+              <select id="bulkGradeKey" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">
+                <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="">—</option>
+              </select>
+              <button type="button" class="small" id="btnBulkGrade">Set grade</button>
             </div>
             
             <div class="bulk-box text-block-panel" id="textBlockPanel" style="display:none;">
@@ -839,6 +849,8 @@
     let templates = {};
     let roster = [];
     let powerRoster = [];
+    let powerClasses = [];
+    let powerClassFilter = "all";
     let sessions = [];
     let rosterView = "class";
     let diyProjects = [];
@@ -851,14 +863,26 @@
     let cloudBackups = { 1: null, 2: null, 3: null };
 
     function emptyData() { return { canFocus: "", weekNotes: "", blocks: {}, showAttachments: true }; }
-    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], sessions: [], diyProjects: [], templates: {}, lastSaved: null }; }
-    function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", teacher:"", diy:"No", slip:"No", bucks:0, grade:"8", notes:"", source:"" }; }
+    function defaultPowerClasses() {
+      return [
+        { key: "esparza", label: "Ms. Esparza / Rm. 8", room: "8", grades: ["6"] },
+        { key: "avelar", label: "Miss Avelar / Rm. 30", room: "30", grades: ["6","7"] },
+        { key: "soto", label: "Miss Soto / Rm. 4", room: "4", grades: ["7"] },
+        { key: "enciso", label: "Mr. Enciso / Rm. 1", room: "1", grades: ["8"] },
+        { key: "unassigned", label: "Unassigned", room: "", grades: [] }
+      ];
+    }
+    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], powerClasses: defaultPowerClasses(), sessions: [], diyProjects: [], templates: {}, lastSaved: null }; }
+    function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", teacher:"", diy:"No", slip:"No", bucks:0, grade:"8", notes:"", source:"", classKey:"" }; }
+    // POWER merge rule: catalog is powerClasses; live rows are powerRoster.
+    // Load/seed inserts only when powerIdBase(id) is absent. Existing rows keep class/grade/bucks/diy/slip/notes.
     function officialPowerStudent(name, grade, teacher, waitlisted) {
       const s = emptyStudent();
-      s.id = "pwr-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + grade;
+      s.id = "pwr-" + String(name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       s.name = name;
       s.grade = String(grade);
       s.teacher = teacher;
+      s.classKey = officialPowerClassKey(teacher) || "unassigned";
       s.source = "power";
       s.notes = "";
       return s;
@@ -1021,7 +1045,49 @@
       if (t.indexOf("avelar") !== -1) return "avelar";
       if (t.indexOf("soto") !== -1) return "soto";
       if (t.indexOf("enciso") !== -1) return "enciso";
-      return "";
+      return "unassigned";
+    }
+    function powerIdBase(id) {
+      return String(id || "").replace(/-(6|7|8)$/, "");
+    }
+    function findPowerById(id) {
+      const base = powerIdBase(id);
+      return (powerRoster || []).find(function (st) {
+        return st.id === id || powerIdBase(st.id) === base;
+      });
+    }
+    function classByKey(key) {
+      return (powerClasses || []).find(function (c) { return c.key === key; }) || null;
+    }
+    function ensurePowerCatalog() {
+      if (!Array.isArray(powerClasses) || !powerClasses.length) powerClasses = defaultPowerClasses();
+      if (!powerClasses.some(function (c) { return c.key === "unassigned"; })) {
+        powerClasses.push({ key: "unassigned", label: "Unassigned", room: "", grades: [] });
+      }
+    }
+    function migratePowerStudent(st) {
+      migrateStudent(st);
+      if (!st.classKey) st.classKey = officialPowerClassKey(st.teacher) || "unassigned";
+      const cls = classByKey(st.classKey);
+      if (cls && cls.key !== "unassigned") st.teacher = cls.label;
+      if (st.id && /-(6|7|8)$/.test(st.id)) st.id = powerIdBase(st.id);
+      return st;
+    }
+    function mergeOfficialPower(incoming) {
+      ensurePowerCatalog();
+      incoming.forEach(function (src) {
+        const existing = findPowerById(src.id);
+        if (existing) return;
+        const row = officialPowerStudent(src.name, src.grade, src.teacher, false);
+        row.id = powerIdBase(src.id || row.id);
+        row.classKey = src.classKey || officialPowerClassKey(src.teacher) || "unassigned";
+        const cls = classByKey(row.classKey);
+        if (cls) row.teacher = cls.label;
+        row.diy = src.diy || "No";
+        row.slip = src.slip || "No";
+        row.notes = src.notes || "";
+        powerRoster.push(row);
+      });
     }
     function officialPowerByClass(key) {
       return officialPowerRoster().filter(function (st) { return officialPowerClassKey(st.teacher) === key; });
@@ -1029,8 +1095,8 @@
     function loadOfficialPowerList() {
       if (!sessionOpen) { alert("Open a Save File first."); return; }
       const n = officialPowerRoster().length;
-      if (powerRoster.length && !confirm("Replace the POWER Program list with all " + n + " students?")) return;
-      powerRoster = officialPowerRoster();
+      if (!confirm("Seed missing POWER students from the official " + n + "-name list?\n\nExisting students keep their class, grade, bucks, DIY, slip, computer, and notes. Nothing is reset by id.")) return;
+      mergeOfficialPower(officialPowerRoster());
       rosterView = "power";
       renderRoster();
       safeSave();
@@ -1039,11 +1105,10 @@
       if (!sessionOpen) { alert("Open a Save File first."); return; }
       const incoming = officialPowerByClass(key);
       if (!incoming.length) return;
-      const label = incoming[0].teacher || key;
-      const keep = (powerRoster || []).filter(function (st) { return officialPowerClassKey(st.teacher) !== key; });
-      if ((powerRoster || []).some(function (st) { return officialPowerClassKey(st.teacher) === key; }) &&
-          !confirm("Replace only " + label + " on the POWER list? Other classes stay.")) return;
-      powerRoster = keep.concat(incoming);
+      const label = (classByKey(key) || {}).label || key;
+      if (!confirm("Fill empty seats in " + label + " from the official list?\nStudents already on POWER (same id) are left alone.")) return;
+      mergeOfficialPower(incoming);
+      powerClassFilter = key;
       rosterView = "power";
       renderRoster();
       safeSave();
@@ -1146,6 +1211,7 @@
       slot.archive = deepClone(archive);
       slot.roster = deepClone(roster);
       slot.powerRoster = deepClone(powerRoster);
+      slot.powerClasses = deepClone(powerClasses);
       slot.sessions = deepClone(sessions);
       slot.diyProjects = deepClone(diyProjects);
       slot.templates = deepClone(templates || {});
@@ -1355,6 +1421,9 @@
       archive = deepClone(slot.archive || {});
       roster = deepClone(slot.roster || []);
       powerRoster = deepClone(slot.powerRoster || []);
+      powerClasses = deepClone(slot.powerClasses && slot.powerClasses.length ? slot.powerClasses : defaultPowerClasses());
+      ensurePowerCatalog();
+      (powerRoster || []).forEach(migratePowerStudent);
       sessions = deepClone(slot.sessions || []);
       diyProjects = deepClone(slot.diyProjects || []);
       if (slot.templates && typeof slot.templates === "object" && Object.keys(slot.templates).length) {
@@ -1841,7 +1910,8 @@
         if (fDiy !== "all" && st.diy !== fDiy) return false;
         if (fSlip !== "all" && st.slip !== fSlip) return false;
         if (fGr !== "all" && String(st.grade) !== fGr) return false;
-        if (fT !== "all" && (st.teacher || "") !== fT) return false;
+        if (rosterView === "power" && powerClassFilter && powerClassFilter !== "all" && (st.classKey || officialPowerClassKey(st.teacher)) !== powerClassFilter) return false;
+        if (fT !== "all" && (st.teacher || "") !== fT && (st.classKey || "") !== fT) return false;
         if (!q) return true;
         const p = parsePersonName(st.name);
         const hay = [st.name, p.first, p.last, p.display, st.teacher, st.computer, st.notes, st.grade, st.diy, st.slip].join(" ").toLowerCase();
@@ -1955,8 +2025,9 @@
       return '<div class="roster-card" data-sid="' + esc(st.id) + '" data-id="' + esc(st.id) + '">' +
         '<div class="card-grid">' +
         '<div class="span2"><label>' + esc(parsePersonName(st.name).display || "Name") + '</label><input data-rf="name" value="' + esc(st.name) + '" placeholder="First Last"></div>' +
-        '<div><label>Teacher</label><input data-rf="teacher" value="' + esc(st.teacher || "") + '"></div>' +
-        '<div><label>Grade</label><input data-rf="grade" value="' + esc(st.grade || "8") + '"></div>' +
+        '<div><label>' + (rosterView === "power" ? "Class" : "Teacher") + "</label>" +
+        (rosterView === "power" ? classSelectHtml(st) : '<input data-rf="teacher" value="' + esc(st.teacher || "") + '">') + "</div>" +
+        '<div><label>Grade</label><select data-rf="grade">' + optSel(String(st.grade || ""), ["","6","7","8"]) + "</select></div>" +
         '<div><label>DIY</label><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></div>' +
         '<div><label>Permission slip</label><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></div>' +
         (showComp ? '<div class="span2"><label>Computer #</label><input data-rf="computer" value="' + esc(st.computer || "") + '"></div>' : "") +
@@ -1981,11 +2052,44 @@
         '<div class="roster-stat" data-stat-slip="Yes"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
         '<div class="roster-stat" data-stat-slip="missing"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
     }
+    function classSelectHtml(st) {
+      ensurePowerCatalog();
+      const cur = st.classKey || officialPowerClassKey(st.teacher) || "unassigned";
+      return '<select data-rf="classKey">' + powerClasses.map(function (c) {
+        return '<option value="' + esc(c.key) + '"' + (c.key === cur ? " selected" : "") + ">" + esc(c.label) + "</option>";
+      }).join("") + "</select>";
+    }
+    function renderPowerClassStrip() {
+      const strip = document.getElementById("powerClassStrip");
+      const loadRow = document.getElementById("powerClassLoadRow");
+      const bulk = document.getElementById("powerBulkBar");
+      if (!strip) return;
+      const on = rosterView === "power";
+      strip.style.display = on ? "flex" : "none";
+      if (loadRow) loadRow.style.display = on ? "flex" : "none";
+      if (!on) { if (bulk) bulk.style.display = "none"; return; }
+      ensurePowerCatalog();
+      powerRoster.forEach(migratePowerStudent);
+      const sel = document.getElementById("bulkClassKey");
+      if (sel) sel.innerHTML = powerClasses.map(function (c) {
+        return '<option value="' + esc(c.key) + '">' + esc(c.label) + "</option>";
+      }).join("");
+      strip.innerHTML = '<button type="button" class="small' + (powerClassFilter === "all" ? " on" : "") + '" data-power-filter="all">All POWER · ' + powerRoster.length + "</button>" +
+        powerClasses.map(function (c) {
+          const n = powerRoster.filter(function (st) { return (st.classKey || "") === c.key; }).length;
+          const mix = (c.grades || []).join("–") || "mixed";
+          return '<button type="button" class="small' + (powerClassFilter === c.key ? " on" : "") + '" data-power-filter="' + esc(c.key) + '">' + esc(c.label) + " · " + n + " · " + mix + "</button>" +
+            (c.key !== "unassigned" ? '<button type="button" class="small" data-rename-class="' + esc(c.key) + '">Rename</button><button type="button" class="danger small" data-del-class="' + esc(c.key) + '">Delete</button>' : "");
+        }).join("") +
+        '<button type="button" class="small primary" id="btnAddPowerClass">+ Class</button>';
+    }
     function studentRowHtml(st, showComp) {
+      const power = rosterView === "power";
       return '<tr data-sid="' + esc(st.id) + '" data-id="' + esc(st.id) + '">' +
+        (power ? '<td><input type="checkbox" data-check-stu="' + esc(st.id) + '"></td>' : "") +
         '<td><div class="dir-name">' + esc(parsePersonName(st.name).display || st.name || "") + '</div><input data-rf="name" value="' + esc(st.name) + '" placeholder="First Last"></td>' +
-        '<td><input data-rf="teacher" value="' + esc(st.teacher || "") + '" placeholder="Teacher"></td>' +
-        '<td><input data-rf="grade" value="' + esc(st.grade || "8") + '" placeholder="8"></td>' +
+        '<td>' + (power ? classSelectHtml(st) : '<input data-rf="teacher" value="' + esc(st.teacher || "") + '" placeholder="Teacher">') + "</td>" +
+        '<td><select data-rf="grade">' + optSel(String(st.grade || ""), ["","6","7","8"]) + "</select></td>" +
         '<td><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></td>' +
         '<td><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></td>' +
         (showComp ? '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' : '') +
@@ -2006,6 +2110,7 @@
     function renderRoster() {
       updateRosterTabs();
       if (rosterView === "sessions") { renderSessions(); return; }
+      renderPowerClassStrip();
       const snap = snapshotRosterUi();
       const wrap = document.getElementById("rosterTables");
       const stats = document.getElementById("rosterStats");
@@ -2025,10 +2130,12 @@
         '<div class="roster-stat" data-stat-slip="missing"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
       const rows = filteredRosterRows(list);
       const showComp = rosterView === "class";
-      const cols = showComp ? 9 : 8;
+      const power = rosterView === "power";
+      const cols = (showComp ? 9 : 8) + (power ? 1 : 0);
       const headHtml =
+        (power ? '<th style="width:36px"></th>' : "") +
         '<th style="width:16%">Last, First</th>' +
-        '<th style="width:12%">Teacher</th>' +
+        '<th style="width:12%">' + (power ? "Class" : "Teacher") + "</th>" +
         '<th style="width:7%">Grade</th>' +
         '<th style="width:11%">DIY</th>' +
         '<th style="width:11%">Permission slip</th>' +
@@ -2563,7 +2670,11 @@
         if (["No","Yes","Pending"].indexOf(value) === -1) value = "No";
       }
       if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
-      else s[field] = value;
+      else if (field === "classKey") {
+        s.classKey = value || "unassigned";
+        const cls = classByKey(s.classKey);
+        if (cls) s.teacher = cls.label;
+      } else s[field] = value;
       if (field === "slip") pruneDiyAssignments();
       updateRosterStats();
       debounceRosterSave();
@@ -3052,6 +3163,9 @@
       archive = deepClone(slot.archive);
       roster = deepClone(slot.roster || []);
       powerRoster = deepClone(slot.powerRoster || []);
+      powerClasses = deepClone(slot.powerClasses && slot.powerClasses.length ? slot.powerClasses : defaultPowerClasses());
+      ensurePowerCatalog();
+      (powerRoster || []).forEach(migratePowerStudent);
       sessions = deepClone(slot.sessions || []);
       diyProjects = deepClone(slot.diyProjects || []);
       seedOfficialPowerIfEmpty();
@@ -3129,6 +3243,7 @@
         archive: deepClone(slot.archive || {}),
         roster: deepClone(slot.roster || []),
         powerRoster: deepClone(slot.powerRoster || []),
+        powerClasses: deepClone(slot.powerClasses || powerClasses || defaultPowerClasses()),
         sessions: deepClone(slot.sessions || []),
         diyProjects: deepClone(slot.diyProjects || []),
         templates: deepClone(slot.templates && Object.keys(slot.templates).length ? slot.templates : templates || {}),
@@ -3992,6 +4107,63 @@
         renderRoster(); return;
       }
       if (t.id === "btnAddStudent" || t.closest("#btnAddStudent")) { addStudent(); return; }
+      const pf = t.closest("[data-power-filter]");
+      if (pf) { powerClassFilter = pf.getAttribute("data-power-filter") || "all"; renderRoster(); return; }
+      if (t.id === "btnAddPowerClass" || t.closest("#btnAddPowerClass")) {
+        const label = prompt("New POWER class label (e.g. Ms. Ruiz / Rm. 12):");
+        if (!label) return;
+        const room = prompt("Room number:", "") || "";
+        const key = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + Math.random().toString(36).slice(2, 5);
+        powerClasses.push({ key: key, label: label.trim(), room: room, grades: [] });
+        renderRoster(); safeSave(); return;
+      }
+      const ren = t.closest("[data-rename-class]");
+      if (ren) {
+        const key = ren.getAttribute("data-rename-class");
+        const cls = classByKey(key);
+        if (!cls) return;
+        const label = prompt("Rename class:", cls.label);
+        if (!label) return;
+        cls.label = label.trim();
+        powerRoster.forEach(function (st) { if (st.classKey === key) st.teacher = cls.label; });
+        renderRoster(); safeSave(); return;
+      }
+      const dc = t.closest("[data-del-class]");
+      if (dc) {
+        const key = dc.getAttribute("data-del-class");
+        const cls = classByKey(key);
+        if (!cls || key === "unassigned") return;
+        const n = powerRoster.filter(function (st) { return st.classKey === key; }).length;
+        const also = confirm("Delete class " + cls.label + " (" + n + " students)?\nOK = move them to Unassigned\nCancel = also remove those students");
+        if (also) {
+          powerRoster.forEach(function (st) { if (st.classKey === key) { st.classKey = "unassigned"; st.teacher = "Unassigned"; } });
+        } else {
+          if (!confirm("Remove " + n + " students in " + cls.label + " from POWER?")) return;
+          const gone = {};
+          powerRoster = powerRoster.filter(function (st) { if (st.classKey === key) { gone[st.id] = true; return false; } return true; });
+          sessions.forEach(function (sess) { sess.studentIds = (sess.studentIds || []).filter(function (id) { return !gone[id]; }); });
+        }
+        powerClasses = powerClasses.filter(function (c) { return c.key !== key; });
+        if (powerClassFilter === key) powerClassFilter = "all";
+        renderRoster(); safeSave(); return;
+      }
+      if (t.id === "btnBulkClass" || t.closest("#btnBulkClass")) {
+        const key = (document.getElementById("bulkClassKey") || {}).value;
+        const cls = classByKey(key);
+        document.querySelectorAll("[data-check-stu]:checked").forEach(function (cb) {
+          const st = findStudent(cb.getAttribute("data-check-stu"));
+          if (st) { st.classKey = key; if (cls) st.teacher = cls.label; }
+        });
+        renderRoster(); safeSave(); return;
+      }
+      if (t.id === "btnBulkGrade" || t.closest("#btnBulkGrade")) {
+        const g = (document.getElementById("bulkGradeKey") || {}).value;
+        document.querySelectorAll("[data-check-stu]:checked").forEach(function (cb) {
+          const st = findStudent(cb.getAttribute("data-check-stu"));
+          if (st) st.grade = g;
+        });
+        renderRoster(); safeSave(); return;
+      }
       if (t.id === "btnAddSession" || t.closest("#btnAddSession")) { addSession(); return; }
       const delSess = t.closest("[data-del-sess]");
       if (delSess) { removeSession(delSess.getAttribute("data-del-sess")); return; }
@@ -4143,6 +4315,11 @@
       const tr = input.closest && input.closest("[data-sid]");
       if (tr && input.getAttribute("data-rf")) {
         updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value);
+        return;
+      }
+      if (input.getAttribute("data-check-stu")) {
+        const bar = document.getElementById("powerBulkBar");
+        if (bar) bar.style.display = document.querySelectorAll("[data-check-stu]:checked").length >= 2 ? "flex" : "none";
         return;
       }
       const dtr = input.closest && input.closest("[data-did]");
