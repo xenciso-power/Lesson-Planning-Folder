@@ -844,6 +844,7 @@
     let templates = {};
     let roster = [];
     let powerRoster = [];
+    let classBucksCap = "";
     let powerClasses = [];
     let powerClassFilter = "all";
     let sessions = [];
@@ -867,7 +868,7 @@
         { key: "unassigned", label: "Unassigned", room: "", grades: [] }
       ];
     }
-    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], powerClasses: defaultPowerClasses(), sessions: [], diyProjects: [], templates: {}, lastSaved: null }; }
+    function emptySlot() { return { currentWeek: "default", data: emptyData(), archive: {}, roster: [], powerRoster: [], powerClasses: defaultPowerClasses(), classBucksCap: "", sessions: [], diyProjects: [], templates: {}, lastSaved: null }; }
     function emptyStudent() { return { id: "s"+Date.now()+"-"+Math.random().toString(36).slice(2,7), name:"", computer:"", teacher:"", diy:"No", slip:"No", bucks:0, grade:"8", notes:"", source:"", classKey:"" }; }
     // POWER merge rule: catalog is powerClasses; live rows are powerRoster.
     // Load/seed inserts only when powerIdBase(id) is absent. Existing rows keep class/grade/bucks/diy/slip/notes.
@@ -1174,6 +1175,7 @@
       if (!slot || typeof slot !== "object") slot = emptySlot();
       if (!slot.archive) slot.archive = {};
       if (!Array.isArray(slot.roster)) slot.roster = [];
+      if (slot.classBucksCap == null) slot.classBucksCap = "";
       if (!Array.isArray(slot.powerRoster)) slot.powerRoster = [];
       if (!Array.isArray(slot.sessions)) slot.sessions = [];
       if (!Array.isArray(slot.diyProjects)) slot.diyProjects = [];
@@ -1197,6 +1199,7 @@
       };
       slot.archive = deepClone(archive);
       slot.roster = deepClone(roster);
+      slot.classBucksCap = classBucksCap;
       slot.powerRoster = deepClone(powerRoster);
       slot.powerClasses = deepClone(powerClasses);
       slot.sessions = deepClone(sessions);
@@ -1407,6 +1410,7 @@
       ensureBlocks(data);
       archive = deepClone(slot.archive || {});
       roster = deepClone(slot.roster || []);
+      classBucksCap = slot.classBucksCap == null ? "" : slot.classBucksCap;
       powerRoster = deepClone(slot.powerRoster || []);
       powerClasses = deepClone(slot.powerClasses && slot.powerClasses.length ? slot.powerClasses : defaultPowerClasses());
       ensurePowerCatalog();
@@ -2115,6 +2119,7 @@
         '<div class="roster-stat" data-stat-diy="Yes"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
         '<div class="roster-stat" data-stat-slip="Yes"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
         '<div class="roster-stat" data-stat-slip="missing"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
+      renderBucksCapBar();
       const rows = filteredRosterRows(list);
       const showComp = rosterView === "class";
       const power = rosterView === "power";
@@ -2650,13 +2655,58 @@
         setTimeout(function () { r.style.display = "none"; }, 2000);
       }, 400);
     }
+    function classBucksUsed() {
+      return (roster || []).reduce(function (a, s) { return a + (Number(s.bucks) || 0); }, 0);
+    }
+    function classBucksLimit() {
+      if (classBucksCap === "" || classBucksCap == null) return null;
+      const n = parseInt(classBucksCap, 10);
+      return isNaN(n) ? null : Math.max(0, n);
+    }
+    function applyClassBucks(student, nextVal) {
+      nextVal = Math.max(0, parseInt(nextVal, 10) || 0);
+      const limit = classBucksLimit();
+      const onClass = roster.some(function (st) { return st.id === student.id; });
+      if (limit != null && onClass) {
+        const others = classBucksUsed() - (Number(student.bucks) || 0);
+        if (others + nextVal > limit) {
+          nextVal = Math.max(0, limit - others);
+          showToast("Class POWER Bucks cap is " + limit + ". " + nextVal + " left for this student.");
+        }
+      }
+      student.bucks = nextVal;
+      return nextVal;
+    }
+    function renderBucksCapBar() {
+      const stats = document.getElementById("rosterStats");
+      if (!stats) return;
+      if (rosterView !== "class") {
+        const old = document.getElementById("bucksCapBar");
+        if (old) old.remove();
+        return;
+      }
+      let bar = document.getElementById("bucksCapBar");
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "bucksCapBar";
+        bar.className = "week-bar";
+        stats.parentNode.insertBefore(bar, stats);
+      }
+      const used = classBucksUsed();
+      const limit = classBucksLimit();
+      const left = limit == null ? "—" : Math.max(0, limit - used);
+      bar.innerHTML = '<label for="classBucksCap">POWER Bucks cap</label>' +
+        '<input type="number" min="0" id="classBucksCap" value="' + esc(classBucksCap === "" ? "" : String(classBucksCap)) + '" placeholder="No cap" style="width:7rem;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">' +
+        '<span style="font-size:0.85rem;color:var(--gold-light);">Used ' + used + (limit == null ? "" : " / " + limit) + " · Remaining " + left + "</span>" +
+        '<span style="font-size:0.75rem;color:var(--text-muted);">Only My 8th Grade Class. Leave blank for no cap.</span>';
+    }
     function updateStudentField(id, field, value) {
       const s = findStudent(id) || findAnyStudent(id);
       if (!s) return;
       if (field === "diy" || field === "slip") {
         if (["No","Yes","Pending"].indexOf(value) === -1) value = "No";
       }
-      if (field === "bucks") s.bucks = Math.max(0, parseInt(value, 10) || 0);
+      if (field === "bucks") applyClassBucks(s, value);
       else if (field === "classKey") {
         s.classKey = value || "unassigned";
         const cls = classByKey(s.classKey);
@@ -3136,6 +3186,7 @@
       slot.data = ensureBlocks(slot.data || emptyData());
       if (!slot.archive) slot.archive = {};
       if (!Array.isArray(slot.roster)) slot.roster = [];
+      if (slot.classBucksCap == null) slot.classBucksCap = "";
       if (!Array.isArray(slot.powerRoster)) slot.powerRoster = [];
       if (!Array.isArray(slot.sessions)) slot.sessions = [];
       if (!Array.isArray(slot.diyProjects)) slot.diyProjects = [];
@@ -3149,6 +3200,7 @@
       ensureBlocks(data);
       archive = deepClone(slot.archive);
       roster = deepClone(slot.roster || []);
+      classBucksCap = slot.classBucksCap == null ? "" : slot.classBucksCap;
       powerRoster = deepClone(slot.powerRoster || []);
       powerClasses = deepClone(slot.powerClasses && slot.powerClasses.length ? slot.powerClasses : defaultPowerClasses());
       ensurePowerCatalog();
@@ -3228,6 +3280,7 @@
         data: deepClone(slot.data || emptyData()),
         archive: deepClone(slot.archive || {}),
         roster: deepClone(slot.roster || []),
+        classBucksCap: slot.classBucksCap == null ? classBucksCap : slot.classBucksCap,
         powerRoster: deepClone(slot.powerRoster || []),
         powerClasses: deepClone(slot.powerClasses || powerClasses || defaultPowerClasses()),
         sessions: deepClone(slot.sessions || []),
@@ -4203,8 +4256,9 @@
           const id = tr.getAttribute("data-sid");
           const s = findStudent(id) || findAnyStudent(id);
           if (s) {
-            s.bucks = Math.max(0, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks")));
+            applyClassBucks(s, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks")));
             tr.querySelectorAll('[data-rf="bucks"]').forEach(function (inp) { inp.value = s.bucks; });
+            renderBucksCapBar();
             updateRosterStats();
             debounceRosterSave();
           }
@@ -4307,6 +4361,12 @@
       const tr = input.closest && input.closest("[data-sid]");
       if (tr && input.getAttribute("data-rf")) {
         updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value);
+        return;
+      }
+      if (input.id === "classBucksCap") {
+        classBucksCap = input.value === "" ? "" : String(Math.max(0, parseInt(input.value, 10) || 0));
+        renderBucksCapBar();
+        safeSave();
         return;
       }
       if (input.getAttribute("data-check-stu")) {
