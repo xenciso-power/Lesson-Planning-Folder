@@ -616,9 +616,7 @@
               <button type="button" class="primary" id="btnAddStudent">+ Student</button>
               <button type="button" id="btnPrintRoster">🖨 Print</button>
               <button type="button" id="btnToggleTextBlock">Text block</button>
-              <button type="button" class="small" id="btnCsvRoster">CSV</button>
               <button type="button" class="danger" id="btnWipeRoster">Wipe this roster</button>
-              <button type="button" class="danger small" id="btnClearHits">Clear hits</button>
               
             </div>
             </div>
@@ -828,6 +826,8 @@
         </div>
         <div>
           <label class="check"><input type="checkbox" id="rpComp" checked> Computer # (class list)</label>
+          <label class="check"><input type="checkbox" id="rpBucks" checked> POWER Bucks</label>
+          <label class="check"><input type="checkbox" id="rpCap" checked> Class bucks cap summary</label>
           <label class="check"><input type="checkbox" id="rpNotes" checked> Notes</label>
         </div>
       </div>
@@ -1998,6 +1998,7 @@
       if (st.computer) line += ", " + st.computer;
       if (st.diy && st.diy !== "No") line += ", DIY " + st.diy;
       if (st.slip && st.slip !== "No") line += ", slip " + st.slip;
+      if (Number(st.bucks)) line += ", " + st.bucks + " bucks";
       if (st.notes) line += ", " + st.notes;
       return line;
     }
@@ -2166,6 +2167,10 @@
         '<div><label>DIY</label><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></div>' +
         '<div><label>Permission slip</label><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></div>' +
         (showComp ? '<div class="span2"><label>Computer #</label><input data-rf="computer" value="' + esc(st.computer || "") + '"></div>' : "") +
+        '<div class="span2"><label>POWER Bucks</label><div class="bucks-cell">' +
+          '<button type="button" class="small" data-bucks="-1">−</button>' +
+          '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
+          '<button type="button" class="small" data-bucks="1">+</button></div></div>' +
         '<div class="span2"><label>Notes</label><textarea data-rf="notes" rows="2">' + esc(st.notes||"") + '</textarea></div>' +
         '<div class="span2"><button type="button" class="danger small" data-del-student>Remove</button></div>' +
         "</div></div>";
@@ -2226,6 +2231,9 @@
         '<td><select data-rf="diy">' + optSel(st.diy || "No", ["No","Yes","Pending"]) + '</select></td>' +
         '<td><select data-rf="slip">' + optSel(st.slip || "No", ["No","Yes","Pending"]) + '</select></td>' +
         (showComp ? '<td><input data-rf="computer" value="' + esc(st.computer) + '" placeholder="#"></td>' : '') +
+        '<td><div class="bucks-cell"><button type="button" class="small" data-bucks="-1">−</button>' +
+        '<input data-rf="bucks" type="number" min="0" step="1" value="' + (Number(st.bucks)||0) + '">' +
+        '<button type="button" class="small" data-bucks="1">+</button></div></td>' +
         '<td><textarea data-rf="notes" rows="1" placeholder="Notes">' + esc(st.notes||"") + '</textarea></td>' +
         '<td><button type="button" class="danger small" data-del-student>Remove</button></td>' +
       '</tr>';
@@ -2256,6 +2264,7 @@
         '<div class="roster-stat" data-stat-diy="Yes"><div class="n">' + diyYes + '</div><div class="l">DIY enrolled</div></div>' +
         '<div class="roster-stat" data-stat-slip="Yes"><div class="n">' + slipYes + '</div><div class="l">Slips in</div></div>' +
         '<div class="roster-stat" data-stat-slip="missing"><div class="n">' + slipNo + '</div><div class="l">Slips missing / pending</div></div>';
+      renderBucksCapBar();
       const rows = filteredRosterRows(list);
       const showComp = rosterView === "class";
       const power = rosterView === "power";
@@ -2268,6 +2277,7 @@
         '<th style="width:11%">DIY</th>' +
         '<th style="width:11%">Permission slip</th>' +
         (showComp ? '<th style="width:10%">Computer #</th>' : '') +
+        '<th style="width:12%">POWER Bucks</th>' +
         '<th>Notes</th>' +
         '<th style="width:70px"></th>';
       if (!list.length) {
@@ -2743,7 +2753,7 @@
       function on(id) { const el = document.getElementById(id); return !el || el.checked; }
       return {
         teacher: on("rpTeacher"), grade: on("rpGrade"), diy: on("rpDiy"), slip: on("rpSlip"),
-        comp: on("rpComp"), notes: on("rpNotes")
+        comp: on("rpComp"), bucks: on("rpBucks"), cap: on("rpCap"), notes: on("rpNotes")
       };
     }
     function buildRosterPrintHtml(opts) {
@@ -2754,6 +2764,10 @@
       const listTitle = rosterView === "power" ? "POWER Program" : "My 8th Grade Class";
       const slipYes = list.filter(function (s) { return s.slip === "Yes"; }).length;
       const showComp = rosterView === "class" && opts.comp !== false;
+      const showBucks = opts.bucks !== false;
+      const showCap = rosterView === "class" && opts.cap !== false;
+      const limit = classBucksLimit();
+      const used = classBucksUsed();
       let html = "<h1>Mr. Enciso’s Scholastic Batch – " + listTitle + "</h1>" +
         '<div class="meta"><strong>School:</strong> La Viña Middle School<br>' +
         "<strong>List:</strong> " + listTitle + "<br>" +
@@ -2761,13 +2775,20 @@
         "<br><strong>Printed:</strong> " + new Date().toLocaleString() +
         "<br><strong>Students:</strong> " + list.length +
         " · <strong>DIY enrolled:</strong> " + diyYes +
-        " · <strong>Slips in:</strong> " + slipYes + "</div>";
+        " · <strong>Slips in:</strong> " + slipYes;
+      if (showCap) {
+        html += "<br><strong>Class POWER Bucks cap:</strong> " + (limit == null ? "No cap" : limit) +
+          " · <strong>Used:</strong> " + used +
+          " · <strong>Remaining:</strong> " + (limit == null ? "—" : Math.max(0, limit - used));
+      }
+      html += "</div>";
       const cols = ["#", "Name"];
       if (opts.teacher !== false) cols.push("Teacher / class");
       if (opts.grade !== false) cols.push("Grade");
       if (opts.diy !== false) cols.push("DIY");
       if (opts.slip !== false) cols.push("Permission slip");
       if (showComp) cols.push("Computer #");
+      if (showBucks) cols.push("POWER Bucks");
       if (opts.notes !== false) cols.push("Notes");
       html += '<table class="print-roster-table"><thead><tr>' + cols.map(function (c) { return "<th>" + c + "</th>"; }).join("") + "</tr></thead><tbody>";
       if (!list.length) {
@@ -2787,6 +2808,7 @@
             if (opts.diy !== false) row += "<td>" + esc(s.diy || "No") + "</td>";
             if (opts.slip !== false) row += "<td>" + esc(s.slip || "No") + "</td>";
             if (showComp) row += "<td>" + esc(s.computer || "—") + "</td>";
+            if (showBucks) row += "<td>" + (Number(s.bucks) || 0) + "</td>";
             if (opts.notes !== false) row += "<td>" + esc(s.notes || "") + "</td>";
             html += row + "</tr>";
           });
@@ -2814,13 +2836,55 @@
         setTimeout(function () { r.style.display = "none"; }, 2000);
       }, 400);
     }
+    function classBucksUsed() {
+      return (roster || []).reduce(function (a, s) { return a + (Number(s.bucks) || 0); }, 0);
+    }
+    function classBucksLimit() {
+      if (classBucksCap === "" || classBucksCap == null) return null;
+      const n = parseInt(classBucksCap, 10);
+      return isNaN(n) ? null : Math.max(0, n);
+    }
+    function applyClassBucks(student, nextVal) {
+      nextVal = Math.max(0, parseInt(nextVal, 10) || 0);
+      const limit = classBucksLimit();
+      const onClass = roster.some(function (st) { return st.id === student.id; });
+      if (limit != null && onClass) {
+        const others = classBucksUsed() - (Number(student.bucks) || 0);
+        if (others + nextVal > limit) {
+          nextVal = Math.max(0, limit - others);
+          showToast("Class POWER Bucks cap is " + limit + ". " + nextVal + " left for this student.");
+        }
+      }
+      student.bucks = nextVal;
+      return nextVal;
+    }
+    function renderBucksCapBar() {
+      const stats = document.getElementById("rosterStats");
+      if (!stats) return;
+      const old = document.getElementById("bucksCapBar");
+      if (rosterView !== "class") { if (old) old.remove(); return; }
+      let bar = old;
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "bucksCapBar";
+        bar.className = "week-bar";
+        stats.parentNode.insertBefore(bar, stats);
+      }
+      const used = classBucksUsed();
+      const limit = classBucksLimit();
+      const left = limit == null ? "—" : Math.max(0, limit - used);
+      bar.innerHTML = '<label for="classBucksCap">POWER Bucks cap</label>' +
+        '<input type="number" min="0" id="classBucksCap" value="' + esc(classBucksCap === "" ? "" : String(classBucksCap)) + '" placeholder="No cap" style="width:7rem;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.5rem;border-radius:6px;">' +
+        '<span style="font-size:0.85rem;color:var(--gold-light);">Used ' + used + (limit == null ? "" : " / " + limit) + " · Remaining " + left + "</span>" +
+        '<span style="font-size:0.75rem;color:var(--text-muted);">Only My 8th Grade Class. Leave blank for no cap.</span>';
+    }
     function updateStudentField(id, field, value) {
       const s = findStudent(id) || findAnyStudent(id);
       if (!s) return;
       if (field === "diy" || field === "slip") {
         if (["No","Yes","Pending"].indexOf(value) === -1) value = "No";
       }
-      if (field === "bucks") return;
+      if (field === "bucks") applyClassBucks(s, value);
       else if (field === "classKey") {
         s.classKey = value || "unassigned";
         const cls = classByKey(s.classKey);
@@ -4347,6 +4411,22 @@
         if (tr) removeDiy(tr.getAttribute("data-did"));
         return;
       }
+      const bucksBtn = t.closest("[data-bucks]");
+      if (bucksBtn) {
+        const tr = bucksBtn.closest("[data-sid]");
+        if (tr) {
+          const id = tr.getAttribute("data-sid");
+          const s = findStudent(id) || findAnyStudent(id);
+          if (s) {
+            applyClassBucks(s, (Number(s.bucks)||0) + Number(bucksBtn.getAttribute("data-bucks")));
+            tr.querySelectorAll('[data-rf="bucks"]').forEach(function (inp) { inp.value = s.bucks; });
+            renderBucksCapBar();
+            updateRosterStats();
+            debounceRosterSave();
+          }
+        }
+        return;
+      }
       const delS = t.closest("[data-del-student]");
       if (delS) {
         const tr = delS.closest("[data-sid]");
@@ -4451,6 +4531,12 @@
       const tr = input.closest && input.closest("[data-sid]");
       if (tr && input.getAttribute("data-rf")) {
         updateStudentField(tr.getAttribute("data-sid"), input.getAttribute("data-rf"), input.value);
+        return;
+      }
+      if (input.id === "classBucksCap") {
+        classBucksCap = input.value === "" ? "" : String(Math.max(0, parseInt(input.value, 10) || 0));
+        renderBucksCapBar();
+        safeSave();
         return;
       }
       if (input.getAttribute("data-check-stu")) {
