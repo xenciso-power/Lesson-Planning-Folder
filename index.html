@@ -604,6 +604,11 @@
                 <option value="No">Slip missing</option>
                 <option value="Pending">Slip pending</option>
               </select>
+              <select id="rosterFilterComputer" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
+                <option value="all">All computers</option>
+                <option value="yes">Has computer</option>
+                <option value="no">No computer</option>
+              </select>
               <select id="rosterFilterGrade" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:6px;">
                 <option value="all">All grades</option>
                 <option value="6">6</option>
@@ -1836,6 +1841,8 @@
       if (sess) sess.style.display = rosterView === "sessions" ? "block" : "none";
       const classRow = document.getElementById("powerClassLoadRow");
       if (classRow) classRow.style.display = "none";
+      const compFilter = document.getElementById("rosterFilterComputer");
+      if (compFilter) compFilter.style.display = rosterView === "class" ? "" : "none";
       if (note) {
         note.textContent = rosterView === "power"
           ? "POWER Program — grouped by class / teacher. No computer numbers on this list."
@@ -2042,9 +2049,15 @@
       const fSlip = (document.getElementById("rosterFilterSlip") || {}).value || "all";
       const fGr = (document.getElementById("rosterFilterGrade") || {}).value || "all";
       const fT = (document.getElementById("rosterFilterTeacher") || {}).value || "all";
+      const fComp = (document.getElementById("rosterFilterComputer") || {}).value || "all";
       return (list || []).filter(function (st) {
         if (fDiy !== "all" && st.diy !== fDiy) return false;
         if (fSlip !== "all" && st.slip !== fSlip) return false;
+        if (fComp !== "all") {
+          const has = String(st.computer || "").trim() !== "";
+          if (fComp === "yes" && !has) return false;
+          if (fComp === "no" && has) return false;
+        }
         if (fGr !== "all" && String(st.grade) !== fGr) return false;
         if (rosterView === "power" && powerClassFilter && powerClassFilter !== "all" && (st.classKey || officialPowerClassKey(st.teacher)) !== powerClassFilter) return false;
         if (fT !== "all" && (st.teacher || "") !== fT && (st.classKey || "") !== fT) return false;
@@ -4615,10 +4628,12 @@
     const rslip = document.getElementById("rosterFilterSlip");
     const rgr = document.getElementById("rosterFilterGrade");
     const rth = document.getElementById("rosterFilterTeacher");
+    const rcomp = document.getElementById("rosterFilterComputer");
     if (rs) rs.addEventListener("input", renderRoster);
     if (rf) rf.addEventListener("change", renderRoster);
     if (rslip) rslip.addEventListener("change", renderRoster);
     if (rgr) rgr.addEventListener("change", renderRoster);
+    if (rcomp) rcomp.addEventListener("change", renderRoster);
     if (rth) rth.addEventListener("change", renderRoster);
     const diyCat = document.getElementById("diyCatalog");
     if (diyCat) diyCat.addEventListener("change", function () {
